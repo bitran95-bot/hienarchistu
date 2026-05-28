@@ -4,6 +4,7 @@ import { urlFor } from '../sanityClient';
 
 export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] }: any) {
   const [contactOpen, setContactOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fallbackProjects = [
     { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" },
@@ -66,15 +67,17 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
           className="fixed inset-0 z-[100] flex flex-col lg:flex-row pointer-events-auto bg-[#fdfbf7]"
         >
            {/* Nửa bên trái là hình ảnh 2D */}
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.95 }}
-             animate={{ opacity: 1, scale: 1 }}
-             transition={{ delay: 0.2, duration: 0.6 }}
-             className="w-full lg:w-1/2 h-[40vh] lg:h-full relative bg-stone-200"
-           >
-              <img src={imageUrl} alt={currentDetail.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/10"></div>
-           </motion.div>
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: "spring", damping: 30, stiffness: 100 }}
+              className="w-full lg:w-1/2 h-[40vh] lg:h-full relative bg-stone-200 cursor-zoom-in"
+              onClick={() => setSelectedImage(imageUrl)}
+            >
+               <img src={imageUrl} alt={currentDetail.name} className="w-full h-full object-cover" />
+               <div className="absolute inset-0 bg-black/10 hover:bg-black/0 transition-colors"></div>
+            </motion.div>
            
            {/* Nửa bên phải là thông tin dự án, nền sáng */}
            <motion.div 
@@ -116,34 +119,40 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
 
                  <div className="flex flex-col gap-8 md:gap-12 mt-4 border-t border-stone-300 pt-8">
                     {/* Inspiration */}
-                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, type: "spring" }}>
-                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Cảm hứng sáng tác
-                       </h3>
-                       <p className="font-serif italic text-lg md:text-xl text-[#555] leading-relaxed border-l-4 border-amber-700 pl-6 whitespace-pre-wrap">
-                         "{currentDetail.inspiration || "Từ những yếu tố tự nhiên và con người bản địa."}"
-                       </p>
-                    </motion.div>
+                    {currentDetail.inspiration && (
+                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, type: "spring" }}>
+                          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Cảm hứng sáng tác
+                          </h3>
+                          <p className="font-serif italic text-lg md:text-xl text-[#555] leading-relaxed border-l-4 border-amber-700 pl-6 whitespace-pre-wrap">
+                            "{currentDetail.inspiration}"
+                          </p>
+                       </motion.div>
+                    )}
 
                     {/* Target Audience */}
-                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
-                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Dành cho ai
-                       </h3>
-                       <p className="text-lg md:text-xl text-[#333] whitespace-pre-wrap">
-                          {currentDetail.targetAudience || "Gia đình yêu tự nhiên."}
-                       </p>
-                    </motion.div>
+                    {currentDetail.targetAudience && (
+                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
+                          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Dành cho ai
+                          </h3>
+                          <p className="text-lg md:text-xl text-[#333] whitespace-pre-wrap">
+                             {currentDetail.targetAudience}
+                          </p>
+                       </motion.div>
+                    )}
 
                     {/* Concepts */}
-                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, type: "spring" }}>
-                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Ý tứ công trình
-                       </h3>
-                       <p className="text-lg md:text-xl text-[#333] leading-relaxed whitespace-pre-wrap">
-                          {currentDetail.concepts || "Tôn trọng bối cảnh, sử dụng vật liệu địa phương để tạo nên sự hài hòa."}
-                       </p>
-                    </motion.div>
+                    {currentDetail.concepts && (
+                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, type: "spring" }}>
+                          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Ý tứ công trình
+                          </h3>
+                          <p className="text-lg md:text-xl text-[#333] leading-relaxed whitespace-pre-wrap">
+                             {currentDetail.concepts}
+                          </p>
+                       </motion.div>
+                    )}
 
                     {/* Gallery */}
                     {currentDetail.gallery && currentDetail.gallery.length > 0 && (
@@ -152,9 +161,12 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                              <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Thư viện hình ảnh
                            </h3>
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                               {currentDetail.gallery.map((img: any, idx: number) => (
-                                   <img key={idx} src={urlFor(img).url()} alt={`${currentDetail.name} ${idx}`} className="w-full h-auto object-cover border border-stone-300 shadow-sm" />
-                               ))}
+                               {currentDetail.gallery.map((img: any, idx: number) => {
+                                   const src = urlFor(img).url();
+                                   return (
+                                       <img key={idx} src={src} alt={`${currentDetail.name} ${idx}`} onClick={() => setSelectedImage(src)} className="w-full h-auto object-cover border border-stone-300 shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity" />
+                                   );
+                               })}
                            </div>
                        </motion.div>
                     )}
@@ -247,6 +259,27 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
           </div>
         </motion.div>
       )}
+      </AnimatePresence>
+      {/* FULLSCREEN IMAGE VIEWER */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out pointer-events-auto"
+          >
+            <motion.img 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              src={selectedImage}
+              alt="Fullscreen view"
+              className="max-w-full max-h-full object-contain"
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
     </>
   );

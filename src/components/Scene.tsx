@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Edges, ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll } from '@react-three/drei';
+import { ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { urlFor } from '../sanityClient';
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
 
 // --- Tạo Texture tường thạch cao/xi măng bằng Canvas ---
@@ -42,6 +43,32 @@ function SplineModel({ url, scale = 1, position = [0,0,0] }: any) {
       castShadow 
       receiveShadow 
     />
+  );
+}
+
+// --- Khung ảnh 3D mặc định nếu không có mô hình ---
+function FallbackPhotoFrame({ image }: { image: any }) {
+  const imageUrl = image?.asset ? urlFor(image).url() : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop";
+  const texture = useTexture(imageUrl);
+  
+  return (
+    <group position={[0, 1.0, 0]}>
+       {/* Khung gỗ */}
+       <mesh castShadow receiveShadow position={[0, 0, -0.05]}>
+          <boxGeometry args={[2.6, 1.8, 0.1]} />
+          <meshStandardMaterial color="#6b4423" roughness={0.8} />
+       </mesh>
+       {/* Viền trắng */}
+       <mesh castShadow receiveShadow position={[0, 0, 0]}>
+          <boxGeometry args={[2.4, 1.6, 0.05]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.9} />
+       </mesh>
+       {/* Ảnh */}
+       <mesh position={[0, 0, 0.03]}>
+          <planeGeometry args={[2.2, 1.4]} />
+          <meshBasicMaterial map={texture} toneMapped={false} />
+       </mesh>
+    </group>
   );
 }
 
@@ -366,21 +393,13 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                 {project.modelFileUrl ? (
                   <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} />
                 ) : (
-                  <mesh castShadow receiveShadow position={[0, 0.5, 0]}>
-                     <boxGeometry args={[2.2, 1.0, 1.8]} />
-                     <meshToonMaterial color="#ffccaa" />
-                     <Edges scale={1} color="#552211" />
-                  </mesh>
+                  <FallbackPhotoFrame image={project.image} />
                 )}
              </InteractiveProject>
            ))
          ) : (
            <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
-               <mesh castShadow receiveShadow position={[0, 0.5, 0]}>
-                  <boxGeometry args={[2.2, 1.0, 1.8]} />
-                  <meshToonMaterial color="#ffccaa" />
-                  <Edges scale={1} color="#552211" />
-               </mesh>
+               <FallbackPhotoFrame image={null} />
            </InteractiveProject>
          )}
 
