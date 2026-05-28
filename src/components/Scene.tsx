@@ -2,9 +2,6 @@ import { useRef, useEffect, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Edges, ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll } from '@react-three/drei';
 import * as THREE from 'three';
-
-const ARCHI_FONT = "/Almarai-Bold.ttf"; // Font Almarai (Bold)
-// Các tuỳ chọn font khác đã được tải sẵn, bạn có thể đổi:
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
 
 // --- Tạo Texture tường thạch cao/xi măng bằng Canvas ---
