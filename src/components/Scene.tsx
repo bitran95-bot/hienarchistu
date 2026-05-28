@@ -198,6 +198,13 @@ function DecorativeBooks({ position }: { position: [number, number, number] }) {
 function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  
+  const dragState = useRef({
+    isDragging: false,
+    startX: 0,
+    hasDragged: false
+  });
+  const [dragRotY, setDragRotY] = useState(0);
 
   useFrame((state) => {
     if (!group.current) return;
@@ -208,9 +215,14 @@ function InteractiveProject({ children, position, title, index, setActiveProject
     const targetY = hovered ? 0.3 : 0;
     group.current.position.y = THREE.MathUtils.lerp(group.current.position.y, targetY, 0.1);
 
-    if (hovered) {
+    if (dragState.current.isDragging) {
+      // Khi đang drag, quay theo giá trị kéo
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, dragRotY, 0.2);
+    } else if (hovered) {
+      // Khi hover (không drag), tự động lắc lư nhẹ
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, Math.sin(state.clock.elapsedTime * 1.5) * 0.05, 0.1);
     } else {
+      // Khi bình thường, trả về 0
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, 0, 0.1);
     }
   });
@@ -221,18 +233,63 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         ref={group}
         onClick={(e) => {
            e.stopPropagation();
+           if (dragState.current.hasDragged) {
+              dragState.current.hasDragged = false;
+              return;
+           }
            setActiveProject(index);
            setModalOpen(true);
+        }}
+        onPointerDown={(e: any) => {
+           e.stopPropagation();
+           if (e.target.setPointerCapture) {
+             e.target.setPointerCapture(e.pointerId);
+           }
+           dragState.current.isDragging = true;
+           dragState.current.startX = e.clientX;
+           dragState.current.hasDragged = false;
+           document.body.style.cursor = 'grabbing';
+        }}
+        onPointerMove={(e: any) => {
+           if (dragState.current.isDragging) {
+              e.stopPropagation();
+              const deltaX = e.clientX - dragState.current.startX;
+              if (Math.abs(deltaX) > 5) {
+                 dragState.current.hasDragged = true;
+              }
+              // 100px kéo chuột tương đương ~28 độ (0.5 rad), tối đa 30 độ (Math.PI / 6)
+              let newRot = deltaX * 0.005;
+              newRot = THREE.MathUtils.clamp(newRot, -Math.PI / 6, Math.PI / 6);
+              setDragRotY(newRot);
+           }
+        }}
+        onPointerUp={(e: any) => {
+           e.stopPropagation();
+           if (e.target.releasePointerCapture) {
+             e.target.releasePointerCapture(e.pointerId);
+           }
+           dragState.current.isDragging = false;
+           setDragRotY(0);
+           document.body.style.cursor = hovered ? 'pointer' : 'auto';
+        }}
+        onPointerCancel={() => {
+           dragState.current.isDragging = false;
+           setDragRotY(0);
+           document.body.style.cursor = hovered ? 'pointer' : 'auto';
         }}
         onPointerOver={(e) => { 
            e.stopPropagation(); 
            setHovered(true); 
-           document.body.style.cursor = 'pointer'; 
+           if (!dragState.current.isDragging) {
+             document.body.style.cursor = 'pointer'; 
+           }
         }}
         onPointerOut={(e) => { 
            e.stopPropagation(); 
            setHovered(false); 
-           document.body.style.cursor = 'auto'; 
+           if (!dragState.current.isDragging) {
+             document.body.style.cursor = 'auto'; 
+           }
         }}
       >
         {children}
