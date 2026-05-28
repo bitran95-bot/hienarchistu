@@ -4,7 +4,6 @@ import { Edges, ScrollControls, useScroll, Text, useGLTF, Environment, ContactSh
 import * as THREE from 'three';
 
 const ARCHI_FONT = "/Almarai-Bold.ttf"; // Font Almarai (Bold)
-const ARCHI_FONT_REGULAR = "/Almarai-Regular.ttf"; // Font Almarai (Regular)
 // Các tuỳ chọn font khác đã được tải sẵn, bạn có thể đổi:
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
 
@@ -34,75 +33,6 @@ function usePlasterTexture() {
   }, []);
   return texture;
 }
-
-// --- Văn bản có hiệu ứng bay lên/scale và mờ dần ---
-function AnimatedText({ text, position, fontSize, range, color = "#333333", anchorY = "middle", ...props }: any) {
-  const ref = useRef<any>(null);
-  const scroll = useScroll();
-  const [hovered, setHovered] = useState(false);
-
-  useFrame(() => {
-      if(!ref.current) return;
-      const s = scroll.offset;
-      let opacity = 0;
-      let yOffset = 0;
-      let scale = 1;
-      
-      const [rStartIn, rEndIn, rStartOut, rEndOut] = range;
-
-      if (s < rStartIn) {
-          opacity = 0;
-          yOffset = -0.3;
-          scale = 0.9;
-      } else if (s >= rStartIn && s < rEndIn) {
-          const t = THREE.MathUtils.mapLinear(s, rStartIn, rEndIn, 0, 1);
-          const easeT = 1 - Math.pow(1 - t, 3); // easeOutCubic
-          opacity = easeT;
-          yOffset = THREE.MathUtils.lerp(-0.3, 0, easeT);
-          scale = THREE.MathUtils.lerp(0.9, 1, easeT);
-      } else if (s >= rEndIn && s <= rStartOut) {
-          opacity = 1;
-          yOffset = 0;
-          scale = 1;
-      } else if (s > rStartOut && s < rEndOut) {
-          const t = THREE.MathUtils.mapLinear(s, rStartOut, rEndOut, 0, 1);
-          const easeT = t * t; // easeInQuad
-          opacity = 1 - easeT;
-          yOffset = THREE.MathUtils.lerp(0, 0.3, easeT);
-          scale = THREE.MathUtils.lerp(1, 1.1, easeT);
-      } else {
-          opacity = 0;
-          yOffset = 0.3;
-          scale = 1.1;
-      }
-      
-      ref.current.fillOpacity = Math.max(0, Math.min(1, opacity));
-      ref.current.outlineOpacity = Math.max(0, Math.min(1, opacity));
-      ref.current.position.y = position[1] + yOffset;
-      ref.current.scale.setScalar(scale);
-
-      // Hiệu ứng 3D nổi lên khi di chuột
-      const targetZ = hovered ? position[2] + 0.4 : position[2];
-      ref.current.position.z = THREE.MathUtils.lerp(ref.current.position.z, targetZ, 0.1);
-  });
-
-  return (
-     <Text 
-        ref={ref} 
-        position={position} 
-        fontSize={fontSize} 
-        color={color} 
-        anchorY={anchorY} 
-        font={props.font || ARCHI_FONT} 
-        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
-        onPointerOut={() => { setHovered(false); document.body.style.cursor = 'auto'; }}
-        {...props}
-     >
-        {text}
-     </Text>
-  );
-}
-
 
 // --- Spline Model ---
 function SplineModel({ url, scale = 1, position = [0,0,0] }: any) {
