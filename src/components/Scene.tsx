@@ -364,11 +364,11 @@ function AboutSection({ settings }: any) {
   });
 
   return (
-    <div ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-      <p ref={text1Ref} className="max-w-3xl text-3xl md:text-[32px] font-medium italic text-[#333333] mb-8 leading-relaxed">
+    <div ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-4 md:px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+      <p ref={text1Ref} className="max-w-3xl text-xl md:text-[32px] font-medium italic text-[#333333] mb-4 md:mb-8 leading-relaxed">
         {chars1.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
       </p>
-      <p ref={text2Ref} className="max-w-2xl text-base md:text-lg text-[#555555] leading-relaxed">
+      <p ref={text2Ref} className="max-w-2xl text-sm md:text-lg text-[#555555] leading-relaxed">
         {chars2.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
       </p>
     </div>

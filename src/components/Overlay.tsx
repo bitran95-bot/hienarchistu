@@ -47,8 +47,8 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
            e.currentTarget.style.color = '#2a2a2a';
         }}
       >
-        <div style={{ fontSize: 'clamp(80px, 20vw, 176px)', lineHeight: '0.8', paddingLeft: '0px' }}>HIÊN</div>
-        <div style={{ fontSize: 'clamp(80px, 20vw, 176px)', lineHeight: '0.8', paddingLeft: 'clamp(40px, 10vw, 80px)' }}>studio</div>
+        <div style={{ fontSize: 'clamp(50px, 18vw, 176px)', lineHeight: '0.8', paddingLeft: '0px' }}>HIÊN</div>
+        <div style={{ fontSize: 'clamp(50px, 18vw, 176px)', lineHeight: '0.8', paddingLeft: 'clamp(20px, 8vw, 80px)' }}>studio</div>
       </div>
 
       <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto" style={{ fontFamily: '"Be Vietnam Pro", sans-serif' }}>
@@ -226,7 +226,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    animate={{ opacity: 1, y: 0 }}
                    exit={{ opacity: 0, y: -50 }}
                    transition={{ delay: 0.2, duration: 0.5 }}
-                   className="text-6xl md:text-8xl lg:text-[9rem] font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
+                   className="text-5xl md:text-8xl lg:text-[9rem] font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
                 >
                    Let's<br/>Talk.
                 </motion.h2>
@@ -235,7 +235,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    animate={{ opacity: 1 }}
                    exit={{ opacity: 0 }}
                    transition={{ delay: 0.4 }}
-                   className="mt-8 text-xl md:text-2xl text-stone-600 font-serif italic max-w-md border-l-4 border-amber-700 pl-6"
+                   className="mt-6 md:mt-8 text-base md:text-2xl text-stone-600 font-serif italic max-w-md border-l-4 border-amber-700 pl-4 md:pl-6"
                 >
                    "Mỗi dự án là một câu chuyện. Hãy cùng nhau viết nên câu chuyện kiến trúc của bạn."
                 </motion.p>
@@ -247,7 +247,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Điện thoại
                    </h3>
-                   <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block">
+                   <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-2xl md:text-5xl lg:text-6xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block">
                       {settings?.phone || '033 877 7017'}
                    </a>
                 </motion.div>
@@ -256,7 +256,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Email
                    </h3>
-                   <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block break-all">
+                   <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block break-all">
                       {settings?.email || 'thaibao95arc@gmail.com'}
                    </a>
                 </motion.div>
@@ -265,7 +265,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Instagram
                    </h3>
-                   <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-flex items-center gap-4 group">
+                   <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-flex items-center gap-4 group">
                       {settings?.instagram ? (() => { try { return new URL(settings.instagram).pathname.replace(/\//g, ''); } catch(e) { return settings.instagram; }})() : 'hien.archi'}
                       <span className="inline-block transform group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform text-amber-700">↗</span>
                    </a>

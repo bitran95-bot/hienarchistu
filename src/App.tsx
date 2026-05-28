@@ -30,7 +30,7 @@ function App() {
       
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
-         <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={[1, 2]} gl={{ antialias: true }}>
+         <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={[1, 2]} gl={{ antialias: true }} style={{ touchAction: 'pan-y' }}>
            <Suspense fallback={null}>
              <Scene setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} settings={settings} />
            </Suspense>
