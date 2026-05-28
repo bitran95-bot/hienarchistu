@@ -38,11 +38,25 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
 
   // Tự động tính toán để scale mô hình vừa vặn trên kệ
   const { autoScale, offset } = useMemo(() => {
-    // Bật bóng đổ cho tất cả các chi tiết bên trong mô hình
+    // Bật bóng đổ và thêm viền (edges) cho tất cả các chi tiết bên trong mô hình
     scene.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        
+        // Thêm đường nét viền (edges) để tạo phong cách phác thảo kiến trúc
+        if (!child.userData.hasEdges) {
+          const edgesGeometry = new THREE.EdgesGeometry(child.geometry, 20); // 20 độ góc để hiện nét
+          const edgesMaterial = new THREE.LineBasicMaterial({ 
+            color: 0x333333, 
+            linewidth: 1, 
+            transparent: true, 
+            opacity: 0.3 
+          });
+          const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+          child.add(edges);
+          child.userData.hasEdges = true;
+        }
       }
     });
 
