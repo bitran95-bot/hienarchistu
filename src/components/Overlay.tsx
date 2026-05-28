@@ -19,8 +19,8 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
 
   // Used for fullscreen viewing
   const fullImageUrl = currentDetail?.image?.asset 
-    ? urlFor(currentDetail.image).width(1920).quality(90).auto('format').url() 
-    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1920&auto=format&fit=crop");
+    ? urlFor(currentDetail.image).quality(100).auto('format').url() 
+    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop");
 
   return (
     <>
@@ -168,7 +168,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                {currentDetail.gallery.map((img: any, idx: number) => {
                                    const thumbSrc = urlFor(img).width(800).quality(80).auto('format').url();
-                                   const fullSrc = urlFor(img).width(1920).quality(90).auto('format').url();
+                                   const fullSrc = urlFor(img).quality(100).auto('format').url();
                                    return (
                                        <img key={idx} src={thumbSrc} alt={`${currentDetail.name} ${idx}`} onClick={() => setSelectedImage(fullSrc)} className="w-full h-auto object-cover border border-stone-300 shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity" loading="lazy" />
                                    );
