@@ -47,19 +47,28 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
            e.currentTarget.style.color = '#2a2a2a';
         }}
       >
-        <div style={{ fontSize: '176px', lineHeight: '0.8', paddingLeft: '0px' }}>HIÊN</div>
-        <div style={{ fontSize: '176px', lineHeight: '0.8', paddingLeft: '80px' }}>studio</div>
+        <div style={{ fontSize: 'clamp(80px, 20vw, 176px)', lineHeight: '0.8', paddingLeft: '0px' }}>HIÊN</div>
+        <div style={{ fontSize: 'clamp(80px, 20vw, 176px)', lineHeight: '0.8', paddingLeft: 'clamp(40px, 10vw, 80px)' }}>studio</div>
       </div>
 
-      <header className="fixed top-0 left-0 w-full px-12 py-8 flex items-center z-50 pointer-events-auto" style={{ fontFamily: '"Be Vietnam Pro", sans-serif' }}>
-        <div className="w-1/3"></div>
+      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto" style={{ fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+        <div className="w-1/3 hidden md:block"></div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">Câu chuyện</button>
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors">Dự Án</button>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">Liên Hệ</button>
         </div>
-        <div className="w-1/3"></div>
+        <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
+          <a href="#" className="hover:text-[#444444] transition-colors">Instagram</a>
+        </div>
       </header>
+
+      {/* Floating Bottom Nav for Mobile */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-8 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-8 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50">
+        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">Câu chuyện</button>
+        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">Dự Án</button>
+        <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">Liên Hệ</button>
+      </div>
 
       {/* DETAIL MODAL FULLSCREEN */}
       <AnimatePresence>

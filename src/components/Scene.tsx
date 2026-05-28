@@ -362,17 +362,18 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     // --- Animate Main Logo ---
     const logo = document.getElementById('main-logo');
     if (logo) {
+      const isMobile = state.size.width < 768;
       const t = Math.min(s / 0.15, 1); 
       const easeT = t * (2 - t); // easeOut quadratic
       
-      const startTop = state.size.height * 0.4;
-      const startLeft = state.size.width * 0.25;
-      const endTop = 60; // Approximate final top-left y center
-      const endLeft = 140; // Approximate final top-left x center
+      const startTop = state.size.height * (isMobile ? 0.35 : 0.4);
+      const startLeft = state.size.width * (isMobile ? 0.5 : 0.25);
+      const endTop = isMobile ? 40 : 60; // Approximate final top-left y center
+      const endLeft = isMobile ? state.size.width / 2 : 140; // Approximate final x center (center on mobile)
       
       const currentTop = THREE.MathUtils.lerp(startTop, endTop, easeT);
       const currentLeft = THREE.MathUtils.lerp(startLeft, endLeft, easeT);
-      const scale = THREE.MathUtils.lerp(1, 0.15, easeT); // scale down to 15%
+      const scale = THREE.MathUtils.lerp(1, isMobile ? 0.3 : 0.15, easeT); // scale down
       
       logo.style.top = `${currentTop}px`;
       logo.style.left = `${currentLeft}px`;
@@ -439,8 +440,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
           {/* Chữ HIÊN studio đã được chuyển sang Overlay.tsx để cố định và hiệu ứng trượt */}
           
           {/* Đoạn miêu tả bên phải */}
-          <div id="hero-desc" className="absolute" style={{ top: '65%', right: '15%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
-            <p style={{ fontSize: '16px', color: '#333', fontStyle: 'italic', lineHeight: '1.6' }}>
+          <div id="hero-desc" className="absolute w-[85%] md:w-auto" style={{ top: '65%', right: '7.5%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
+            <p className="text-sm md:text-base text-[#333] italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
               Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên
             </p>
           </div>
