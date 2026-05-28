@@ -531,7 +531,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
              <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
                 <Suspense fallback={<LoadingSpinner />}>
                   {project.modelFileUrl ? (
-                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} rotation={[0, Math.PI, 0]} />
+                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} rotation={[0, 0, 0]} />
                   ) : (
                     <FallbackPhotoFrame image={project.image} index={index} />
                   )}
