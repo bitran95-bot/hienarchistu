@@ -199,7 +199,7 @@ function AboutSection() {
 }
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
-function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject }: any) {
+function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [] }: any) {
   const scroll = useScroll();
   const plasterTexture = usePlasterTexture();
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
@@ -360,74 +360,43 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          {/* Phụ kiện trang trí bên trái màn hình */}
          <DecorativeBooks position={[-5, 0, 0]} />
          
-         <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Dự án Model Test">
-            {/* Nếu mô hình bị lún, hãy tăng số 0.2 ở giữa (Y) lên, ví dụ 0.5 hoặc 1.0 */}
-            <SplineModel url="/Models/Model test.gltf" scale={0.8} position={[0, 0.2, 0]} />
-         </InteractiveProject>
-
-         <InteractiveProject index={1} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[4, 0, 0]} title="Sài Gòn Pavilion">
-            <mesh castShadow receiveShadow position={[0, 0.1, 0]}>
-              <boxGeometry args={[2.5, 0.2, 2.5]} />
-              <meshToonMaterial color="#ffffff" />
-              <Edges scale={1} color="#1a1a1a" />
-            </mesh>
-            <mesh castShadow receiveShadow position={[0, 0.8, 0]}>
-              <cylinderGeometry args={[0.8, 0.8, 1.2, 32]} />
-              <meshToonMaterial color="#ffffff" transparent opacity={0.9} />
-              <Edges scale={1} color="#1a1a1a" />
-            </mesh>
-         </InteractiveProject>
-
-         <InteractiveProject index={2} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[8, 0, 0]} title="Nhà Tổ Chim">
-            <mesh castShadow receiveShadow position={[0, 1.0, 0]}>
-               <octahedronGeometry args={[1.0, 0]} />
-               <meshToonMaterial color="#ffffff" />
-               <Edges scale={1} color="#1a1a1a" />
-            </mesh>
-            <mesh castShadow receiveShadow position={[0, 0.2, 0]}>
-               <cylinderGeometry args={[0.15, 0.4, 0.5, 8]} />
-               <meshToonMaterial color="#ffffff" />
-               <Edges scale={1} color="#1a1a1a" />
-            </mesh>
-         </InteractiveProject>
-
-         <InteractiveProject index={3} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[12, 0, 0]} title="Biệt thự Gạch">
-            <mesh castShadow receiveShadow position={[0, 0.5, 0]}>
-               <boxGeometry args={[2.2, 1.0, 1.8]} />
-               <meshToonMaterial color="#ffccaa" />
-               <Edges scale={1} color="#552211" />
-            </mesh>
-         </InteractiveProject>
-
-         <InteractiveProject index={4} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[16, 0, 0]} title="Quán Cà phê Gỗ">
-            <mesh castShadow receiveShadow position={[0, 0.3, 0]}>
-               <coneGeometry args={[1.5, 1, 4]} />
-               <meshToonMaterial color="#c29976" />
-               <Edges scale={1} color="#331100" />
-            </mesh>
-         </InteractiveProject>
-
-         <InteractiveProject index={5} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[20, 0, 0]} title="Xưởng Nghệ Thuật">
-            <mesh castShadow receiveShadow position={[0, 0.6, 0]}>
-               <boxGeometry args={[1.5, 1.2, 2.5]} />
-               <meshToonMaterial color="#a9a9a9" />
-               <Edges scale={1} color="#111111" />
-            </mesh>
-         </InteractiveProject>
+         {projects && projects.length > 0 ? (
+           projects.map((project: any, index: number) => (
+             <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
+                {project.modelFileUrl ? (
+                  <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} />
+                ) : (
+                  <mesh castShadow receiveShadow position={[0, 0.5, 0]}>
+                     <boxGeometry args={[2.2, 1.0, 1.8]} />
+                     <meshToonMaterial color="#ffccaa" />
+                     <Edges scale={1} color="#552211" />
+                  </mesh>
+                )}
+             </InteractiveProject>
+           ))
+         ) : (
+           <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
+               <mesh castShadow receiveShadow position={[0, 0.5, 0]}>
+                  <boxGeometry args={[2.2, 1.0, 1.8]} />
+                  <meshToonMaterial color="#ffccaa" />
+                  <Edges scale={1} color="#552211" />
+               </mesh>
+           </InteractiveProject>
+         )}
 
       </group>
     </>
   );
 }
 
-export function Scene({ setModalOpen, setActiveProject, modalOpen, activeProject }: any) {
+export function Scene({ setModalOpen, setActiveProject, modalOpen, activeProject, projects }: any) {
    useEffect(() => {
      return () => { document.body.style.cursor = 'auto'; };
    }, []);
  
    return (
      <ScrollControls pages={3} damping={0.2}>
-        <SceneContents setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} />
+        <SceneContents setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} />
      </ScrollControls>
    );
 }

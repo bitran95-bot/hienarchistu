@@ -1,27 +1,16 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { client, urlFor } from '../sanityClient';
+import { useState } from 'react';
+import { urlFor } from '../sanityClient';
 
-export function Overlay({ modalOpen, setModalOpen, activeProject }: any) {
+export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] }: any) {
   const [contactOpen, setContactOpen] = useState(false);
-  const [sanityProjects, setSanityProjects] = useState<any[]>([]);
 
-  useEffect(() => {
-    client.fetch(`*[_type == "project"] | order(order asc)`).then((data) => {
-      setSanityProjects(data);
-    }).catch(console.error);
-  }, []);
-
-  const projectDetails = sanityProjects.length > 0 ? sanityProjects : [
-    { name: "Nhà bên Hiên", mat: "Carton & Foam trắng", desc: "Tận dụng tối đa ánh sáng tự nhiên và thông gió chéo.", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Sài Gòn Pavilion", mat: "Bìa cứng & Mica", desc: "Không gian mở kết nối con người với dòng chảy đô thị.", image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Nhà Tổ Chim", mat: "Gỗ vụn & Giấy", desc: "Nương tựa vào thiên nhiên, tối giản vật liệu nhân tạo.", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Biệt thự Gạch", mat: "Đất sét & Foam", desc: "Nét kiến trúc bản địa kết hợp với công năng hiện đại.", image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" },
-    { name: "Quán Cà phê Gỗ", mat: "Gỗ balsa", desc: "Không gian mộc mạc, ấm cúng dành cho sự tĩnh lặng.", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2047&auto=format&fit=crop" },
-    { name: "Xưởng Nghệ Thuật", mat: "Kim loại & Xi măng", desc: "Không gian sáng tạo thô ráp, truyền cảm hứng.", image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop" }
+  const fallbackProjects = [
+    { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" },
+    { name: "Sài Gòn Pavilion", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop" }
   ];
 
-  const currentDetail = projectDetails[activeProject] || projectDetails[0];
+  const currentDetail = (projects && projects.length > 0) ? projects[activeProject] || projects[0] : fallbackProjects[0];
   
   const imageUrl = currentDetail?.image?.asset 
     ? urlFor(currentDetail.image).url() 
@@ -119,35 +108,56 @@ export function Overlay({ modalOpen, setModalOpen, activeProject }: any) {
                     {currentDetail.name}
                  </motion.h1>
 
-                 <motion.div 
-                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                    className="aspect-video w-full bg-stone-200 mb-12 flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/blueprint.png')] relative overflow-hidden shadow-inner border border-stone-300"
-                 >
-                    <div className="absolute inset-0 bg-amber-900/5 mix-blend-multiply pointer-events-none"></div>
-                    <span className="text-stone-600 font-bold bg-[#fdfbf7]/90 backdrop-blur-sm px-6 py-3 uppercase tracking-widest text-sm z-10 border border-stone-300 shadow-sm text-center">
-                       Bản vẽ mặt bằng & Phân tích cấu trúc
-                    </span>
+                 <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, type: "spring" }} className="mb-8">
+                     <p className="text-xl md:text-2xl text-[#333] leading-relaxed whitespace-pre-wrap">
+                        {currentDetail.generalInfo || currentDetail.desc || "Thông tin chung dự án đang được cập nhật..."}
+                     </p>
                  </motion.div>
 
-                 <div className="flex flex-col gap-8 md:gap-12 mt-4">
+                 <div className="flex flex-col gap-8 md:gap-12 mt-4 border-t border-stone-300 pt-8">
+                    {/* Inspiration */}
                     <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, type: "spring" }}>
                        <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Thông tin Công trình
+                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Cảm hứng sáng tác
                        </h3>
-                       <div className="space-y-2">
-                          <p className="text-lg md:text-xl text-[#333]"><strong>Mô hình mô phỏng:</strong> {currentDetail.mat}</p>
-                          <p className="text-lg md:text-xl text-[#333]"><strong>Hiện trạng:</strong> Đang nghiên cứu ý tưởng</p>
-                       </div>
-                    </motion.div>
-
-                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
-                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Giải pháp Kiến trúc
-                       </h3>
-                       <p className="font-serif italic text-xl md:text-2xl lg:text-3xl text-[#444] leading-relaxed border-l-4 border-amber-700 pl-6 mt-4">
-                         "{currentDetail.desc}"
+                       <p className="font-serif italic text-lg md:text-xl text-[#555] leading-relaxed border-l-4 border-amber-700 pl-6 whitespace-pre-wrap">
+                         "{currentDetail.inspiration || "Từ những yếu tố tự nhiên và con người bản địa."}"
                        </p>
                     </motion.div>
+
+                    {/* Target Audience */}
+                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
+                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Dành cho ai
+                       </h3>
+                       <p className="text-lg md:text-xl text-[#333] whitespace-pre-wrap">
+                          {currentDetail.targetAudience || "Gia đình yêu tự nhiên."}
+                       </p>
+                    </motion.div>
+
+                    {/* Concepts */}
+                    <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, type: "spring" }}>
+                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                         <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Ý tứ công trình
+                       </h3>
+                       <p className="text-lg md:text-xl text-[#333] leading-relaxed whitespace-pre-wrap">
+                          {currentDetail.concepts || "Tôn trọng bối cảnh, sử dụng vật liệu địa phương để tạo nên sự hài hòa."}
+                       </p>
+                    </motion.div>
+
+                    {/* Gallery */}
+                    {currentDetail.gallery && currentDetail.gallery.length > 0 && (
+                       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mt-8">
+                           <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                             <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Thư viện hình ảnh
+                           </h3>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               {currentDetail.gallery.map((img: any, idx: number) => (
+                                   <img key={idx} src={urlFor(img).url()} alt={`${currentDetail.name} ${idx}`} className="w-full h-auto object-cover border border-stone-300 shadow-sm" />
+                               ))}
+                           </div>
+                       </motion.div>
+                    )}
                  </div>
               </div>
            </motion.div>
