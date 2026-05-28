@@ -35,15 +35,46 @@ function usePlasterTexture() {
 // --- Spline Model ---
 function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }: any) {
   const { scene } = useGLTF(url) as any;
+
+  // Tự động tính toán để scale mô hình vừa vặn trên kệ
+  const { autoScale, offset } = useMemo(() => {
+    // Bật bóng đổ cho tất cả các chi tiết bên trong mô hình
+    scene.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    
+    // Kích thước tối đa cho phép (vừa vặn với kệ sách)
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const targetSize = 2.4; 
+    
+    let computedScale = scale;
+    if (maxDim > 0) {
+      computedScale = (targetSize / maxDim) * scale;
+    }
+    
+    // Tính toán độ lệch để đặt mặt đáy của mô hình nằm sát lên mặt kệ
+    const bottomY = box.min.y;
+    return { 
+      autoScale: computedScale, 
+      offset: new THREE.Vector3(-center.x, -bottomY, -center.z) 
+    };
+  }, [scene, scale]);
+
   return (
-    <primitive 
-      object={scene} 
-      scale={scale} 
-      position={position}
-      rotation={rotation}
-      castShadow 
-      receiveShadow 
-    />
+    <group position={position} rotation={rotation}>
+      <primitive 
+        object={scene} 
+        scale={autoScale} 
+        position={[offset.x * autoScale, offset.y * autoScale, offset.z * autoScale]}
+      />
+    </group>
   );
 }
 
