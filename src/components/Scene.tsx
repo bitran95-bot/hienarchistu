@@ -303,14 +303,14 @@ function InteractiveProject({ children, position, title, index, setActiveProject
   );
 }
 
-function AboutSection() {
+function AboutSection({ settings }: any) {
   const scroll = useScroll();
   const text1Ref = useRef<HTMLParagraphElement>(null);
   const text2Ref = useRef<HTMLParagraphElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const text1 = "Tôi là Trần Thái Bảo, một kiến trúc sư yêu bản sắc địa phương. Tôi chọn thiết kế những ngôi nhà dung dị, thích ứng với tự nhiên và tình yêu cuộc sống của gia chủ.";
-  const text2 = "Trong quá trình làm nghề, tôi đi tìm vẻ đẹp trong sự mộc mạc của gỗ, của bê tông, đá cuội và những hang hiên đón nắng che mưa. Hợp tác cùng những người thợ lành nghề tại địa phương, chúng tôi dựng nên những nếp nhà yên lành, nơi con người tìm đến sự kết nối với tự nhiên, với bản thân và gia đình";
+  const text1 = settings?.aboutTitle || "Tôi là Trần Thái Bảo, một kiến trúc sư yêu bản sắc địa phương. Tôi chọn thiết kế những ngôi nhà dung dị, thích ứng với tự nhiên và tình yêu cuộc sống của gia chủ.";
+  const text2 = settings?.aboutText || "Trong quá trình làm nghề, tôi đi tìm vẻ đẹp trong sự mộc mạc của gỗ, của bê tông, đá cuội và những hang hiên đón nắng che mưa. Hợp tác cùng những người thợ lành nghề tại địa phương, chúng tôi dựng nên những nếp nhà yên lành, nơi con người tìm đến sự kết nối với tự nhiên, với bản thân và gia đình";
 
   const chars1 = text1.split("");
   const chars2 = text2.split("");
@@ -362,7 +362,7 @@ function AboutSection() {
 }
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
-function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [] }: any) {
+function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [], settings }: any) {
   const scroll = useScroll();
   const plasterTexture = usePlasterTexture();
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
@@ -510,12 +510,12 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
           {/* Đoạn miêu tả bên phải */}
           <div id="hero-desc" className="absolute w-[85%] md:w-auto" style={{ top: '65%', right: '7.5%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
             <p className="text-sm md:text-base text-[#333] italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
-              Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên
+              {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
             </p>
           </div>
 
           {/* Màn 2: About (HTML với hiệu ứng gõ phím) */}
-          <AboutSection />
+          <AboutSection settings={settings} />
         </div>
       </Scroll>
 
@@ -551,14 +551,14 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   );
 }
 
-export function Scene({ setModalOpen, setActiveProject, modalOpen, activeProject, projects }: any) {
+export function Scene({ setModalOpen, setActiveProject, modalOpen, activeProject, projects, settings }: any) {
    useEffect(() => {
      return () => { document.body.style.cursor = 'auto'; };
    }, []);
  
    return (
      <ScrollControls pages={3} damping={0.2}>
-        <SceneContents setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} />
+        <SceneContents setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} settings={settings} />
      </ScrollControls>
    );
 }

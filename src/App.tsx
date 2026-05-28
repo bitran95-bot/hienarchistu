@@ -9,12 +9,18 @@ function App() {
   const [activeProject, setActiveProject] = useState(0);
   const [projects, setProjects] = useState<any[]>([]);
 
+  const [settings, setSettings] = useState<any>(null);
+
   useEffect(() => {
-    client.fetch(`*[_type == "project"] | order(order asc) {
-      ...,
-      "modelFileUrl": modelFile.asset->url
+    client.fetch(`{
+      "projects": *[_type == "project"] | order(order asc) {
+        ...,
+        "modelFileUrl": modelFile.asset->url
+      },
+      "settings": *[_type == "siteSettings"][0]
     }`).then((data) => {
-      setProjects(data);
+      setProjects(data.projects || []);
+      setSettings(data.settings || null);
     }).catch(console.error);
   }, []);
 
@@ -26,7 +32,7 @@ function App() {
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
          <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={[1, 2]} gl={{ antialias: true }}>
            <Suspense fallback={null}>
-             <Scene setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} />
+             <Scene setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} settings={settings} />
            </Suspense>
          </Canvas>
       </div>
@@ -38,6 +44,7 @@ function App() {
             setModalOpen={setModalOpen} 
             activeProject={activeProject} 
             projects={projects}
+            settings={settings}
          />
       </div>
     </>

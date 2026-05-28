@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { urlFor } from '../sanityClient';
 
-export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] }: any) {
+export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [], settings }: any) {
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -59,7 +59,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">Liên Hệ</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
-          <a href="#" className="hover:text-[#444444] transition-colors">Instagram</a>
+          <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="hover:text-[#444444] transition-colors">Instagram</a>
         </div>
       </header>
 
@@ -247,8 +247,8 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Điện thoại
                    </h3>
-                   <a href="tel:0338777017" className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block">
-                      033 877 7017
+                   <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block">
+                      {settings?.phone || '033 877 7017'}
                    </a>
                 </motion.div>
                 
@@ -256,8 +256,8 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Email
                    </h3>
-                   <a href="mailto:thaibao95arc@gmail.com" className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block break-all">
-                      thaibao95arc@gmail.com
+                   <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block break-all">
+                      {settings?.email || 'thaibao95arc@gmail.com'}
                    </a>
                 </motion.div>
 
@@ -265,8 +265,8 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                      <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Instagram
                    </h3>
-                   <a href="https://instagram.com/hien.archi" target="_blank" rel="noopener noreferrer" className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-flex items-center gap-4 group">
-                      hien.archi
+                   <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-3xl md:text-4xl lg:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-flex items-center gap-4 group">
+                      {settings?.instagram ? (() => { try { return new URL(settings.instagram).pathname.replace(/\//g, ''); } catch(e) { return settings.instagram; }})() : 'hien.archi'}
                       <span className="inline-block transform group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform text-amber-700">↗</span>
                    </a>
                 </motion.div>
