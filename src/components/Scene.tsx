@@ -202,9 +202,11 @@ function InteractiveProject({ children, position, title, index, setActiveProject
   const dragState = useRef({
     isDragging: false,
     startX: 0,
+    startY: 0,
     hasDragged: false
   });
   const [dragRotY, setDragRotY] = useState(0);
+  const [dragRotX, setDragRotX] = useState(0);
 
   useFrame((state) => {
     if (!group.current) return;
@@ -218,12 +220,15 @@ function InteractiveProject({ children, position, title, index, setActiveProject
     if (dragState.current.isDragging) {
       // Khi đang drag, quay theo giá trị kéo
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, dragRotY, 0.2);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, dragRotX, 0.2);
     } else if (hovered) {
       // Khi hover (không drag), tự động lắc lư nhẹ
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, Math.sin(state.clock.elapsedTime * 1.5) * 0.05, 0.1);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 0, 0.1);
     } else {
       // Khi bình thường, trả về 0
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, 0, 0.1);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 0, 0.1);
     }
   });
 
@@ -247,6 +252,7 @@ function InteractiveProject({ children, position, title, index, setActiveProject
            }
            dragState.current.isDragging = true;
            dragState.current.startX = e.clientX;
+           dragState.current.startY = e.clientY;
            dragState.current.hasDragged = false;
            document.body.style.cursor = 'grabbing';
         }}
@@ -254,13 +260,19 @@ function InteractiveProject({ children, position, title, index, setActiveProject
            if (dragState.current.isDragging) {
               e.stopPropagation();
               const deltaX = e.clientX - dragState.current.startX;
-              if (Math.abs(deltaX) > 5) {
+              const deltaY = e.clientY - dragState.current.startY;
+              if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
                  dragState.current.hasDragged = true;
               }
-              // 100px kéo chuột tương đương ~28 độ (0.5 rad), tối đa 30 độ (Math.PI / 6)
-              let newRot = deltaX * 0.005;
-              newRot = THREE.MathUtils.clamp(newRot, -Math.PI / 6, Math.PI / 6);
-              setDragRotY(newRot);
+              // Ngang: tối đa 30 độ (Math.PI / 6)
+              let newRotY = deltaX * 0.005;
+              newRotY = THREE.MathUtils.clamp(newRotY, -Math.PI / 6, Math.PI / 6);
+              setDragRotY(newRotY);
+
+              // Dọc: tối đa 45 độ xuống (Math.PI / 4)
+              let newRotX = deltaY * 0.005;
+              newRotX = THREE.MathUtils.clamp(newRotX, 0, Math.PI / 4);
+              setDragRotX(newRotX);
            }
         }}
         onPointerUp={(e: any) => {
@@ -270,11 +282,13 @@ function InteractiveProject({ children, position, title, index, setActiveProject
            }
            dragState.current.isDragging = false;
            setDragRotY(0);
+           setDragRotX(0);
            document.body.style.cursor = hovered ? 'pointer' : 'auto';
         }}
         onPointerCancel={() => {
            dragState.current.isDragging = false;
            setDragRotY(0);
+           setDragRotX(0);
            document.body.style.cursor = hovered ? 'pointer' : 'auto';
         }}
         onPointerOver={(e) => { 
