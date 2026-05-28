@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll, useTexture } from '@react-three/drei';
+import { ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll, useTexture, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { urlFor } from '../sanityClient';
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
@@ -30,6 +30,15 @@ function usePlasterTexture() {
     return tex;
   }, []);
   return texture;
+}
+
+// --- Vòng tròn tải (Loading Spinner) ---
+function LoadingSpinner() {
+  return (
+    <Html center zIndexRange={[100, 0]}>
+      <div className="w-8 h-8 border-4 border-[#bda994]/30 border-t-[#bda994] rounded-full animate-spin"></div>
+    </Html>
+  );
 }
 
 // --- Spline Model ---
@@ -391,7 +400,9 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   return (
     <>
       {/* Môi trường HDRI: Tạo ánh sáng studio và phản xạ thực tế (rất mượt) */}
-      <Environment preset="city" environmentIntensity={0.8} />
+      <Suspense fallback={null}>
+         <Environment preset="city" environmentIntensity={0.8} />
+      </Suspense>
 
       <ambientLight intensity={0.4} color="#ffffff" />
       
@@ -461,16 +472,20 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          {projects && projects.length > 0 ? (
            projects.map((project: any, index: number) => (
              <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
-                {project.modelFileUrl ? (
-                  <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} rotation={[0, Math.PI, 0]} />
-                ) : (
-                  <FallbackPhotoFrame image={project.image} index={index} />
-                )}
+                <Suspense fallback={<LoadingSpinner />}>
+                  {project.modelFileUrl ? (
+                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} rotation={[0, Math.PI, 0]} />
+                  ) : (
+                    <FallbackPhotoFrame image={project.image} index={index} />
+                  )}
+                </Suspense>
              </InteractiveProject>
            ))
          ) : (
            <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
-               <FallbackPhotoFrame image={null} index={0} />
+               <Suspense fallback={<LoadingSpinner />}>
+                  <FallbackPhotoFrame image={null} index={0} />
+               </Suspense>
            </InteractiveProject>
          )}
 
