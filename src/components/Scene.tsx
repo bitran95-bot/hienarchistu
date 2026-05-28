@@ -48,7 +48,9 @@ function SplineModel({ url, scale = 1, position = [0,0,0] }: any) {
 
 // --- Khung ảnh 3D mặc định nếu không có mô hình ---
 function FallbackPhotoFrame({ image }: { image: any }) {
-  const imageUrl = image?.asset ? urlFor(image).url() : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop";
+  const imageUrl = image?.asset 
+    ? urlFor(image).width(800).quality(80).auto('format').url() 
+    : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop";
   const texture = useTexture(imageUrl);
   
   return (
@@ -338,8 +340,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          shadow-bias={-0.0001}
       />
 
-      {/* Hiệu ứng Contact Shadows: Bóng đổ chân thật sát mặt kệ (AO) */}
-      <ContactShadows position={[0, -3.89, -1]} opacity={0.65} scale={50} blur={2.5} far={4} resolution={512} color="#332211" />
+      {/* Hiệu ứng Contact Shadows: Bóng đổ chân thật sát mặt kệ (AO) - frames={1} để tối ưu hiệu năng */}
+      <ContactShadows position={[0, -3.89, -1]} opacity={0.65} scale={50} blur={2.5} far={4} resolution={512} color="#332211" frames={1} />
 
       {/* --- CẤU TRÚC KỆ SÁCH & BỨC TƯỜNG --- */}
       <group position={[10, 0, -2]}>

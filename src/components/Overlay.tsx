@@ -14,8 +14,13 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
   const currentDetail = (projects && projects.length > 0) ? projects[activeProject] || projects[0] : fallbackProjects[0];
   
   const imageUrl = currentDetail?.image?.asset 
-    ? urlFor(currentDetail.image).url() 
-    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop");
+    ? urlFor(currentDetail.image).width(1200).quality(80).auto('format').url() 
+    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop");
+
+  // Used for fullscreen viewing
+  const fullImageUrl = currentDetail?.image?.asset 
+    ? urlFor(currentDetail.image).width(1920).quality(90).auto('format').url() 
+    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1920&auto=format&fit=crop");
 
   return (
     <>
@@ -73,7 +78,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
               exit={{ x: '-100%' }}
               transition={{ type: "spring", damping: 30, stiffness: 100 }}
               className="w-full lg:w-1/2 h-[40vh] lg:h-full relative bg-stone-200 cursor-zoom-in"
-              onClick={() => setSelectedImage(imageUrl)}
+              onClick={() => setSelectedImage(fullImageUrl)}
             >
                <img src={imageUrl} alt={currentDetail.name} className="w-full h-full object-cover" />
                <div className="absolute inset-0 bg-black/10 hover:bg-black/0 transition-colors"></div>
@@ -162,9 +167,10 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [] 
                            </h3>
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                {currentDetail.gallery.map((img: any, idx: number) => {
-                                   const src = urlFor(img).url();
+                                   const thumbSrc = urlFor(img).width(800).quality(80).auto('format').url();
+                                   const fullSrc = urlFor(img).width(1920).quality(90).auto('format').url();
                                    return (
-                                       <img key={idx} src={src} alt={`${currentDetail.name} ${idx}`} onClick={() => setSelectedImage(src)} className="w-full h-auto object-cover border border-stone-300 shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity" />
+                                       <img key={idx} src={thumbSrc} alt={`${currentDetail.name} ${idx}`} onClick={() => setSelectedImage(fullSrc)} className="w-full h-auto object-cover border border-stone-300 shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity" loading="lazy" />
                                    );
                                })}
                            </div>
