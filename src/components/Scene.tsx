@@ -186,9 +186,27 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
 }
 
 // --- Khối Dự án Tương tác ---
-function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen, isDarkMode }: any) {
+function InteractiveProject({ children, position, title, generalInfo, index, setActiveProject, setModalOpen, isDarkMode }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  
+  const fullText = `${title}${generalInfo ? `\n${generalInfo}` : ""}`;
+
+  useEffect(() => {
+    if (hovered) {
+      let i = 0;
+      setDisplayedText("");
+      const interval = setInterval(() => {
+        i++;
+        setDisplayedText(fullText.slice(0, i));
+        if (i >= fullText.length) clearInterval(interval);
+      }, 25);
+      return () => clearInterval(interval);
+    } else {
+      setDisplayedText("");
+    }
+  }, [hovered, fullText]);
   
   const dragState = useRef({
     isDragging: false,
@@ -308,9 +326,11 @@ function InteractiveProject({ children, position, title, index, setActiveProject
           fontSize={0.25} 
           color={isDarkMode ? "#ffffff" : "#000000"} 
           anchorY="top"
+          textAlign="center"
+          maxWidth={4}
           font="/fonts/PlayfairDisplay-Regular.woff"
         >
-           {title}
+           {displayedText}
         </Text>
       </Suspense>
     </group>
@@ -666,6 +686,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                     setModalOpen={setModalOpen} 
                     position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
                     title={project.name}
+                    generalInfo={project.generalInfo}
                     isDarkMode={isDarkMode}
                  >
                     <Suspense fallback={<LoadingSpinner />}>
