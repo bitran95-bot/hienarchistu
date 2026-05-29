@@ -655,25 +655,29 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
               );
             }
 
-            return gridProjects.map((project: any, index: number) => (
-               <InteractiveProject 
-                  key={project._id || index} 
-                  index={index} 
-                  setActiveProject={setActiveProject} 
-                  setModalOpen={setModalOpen} 
-                  position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
-                  title={project.name}
-                  isDarkMode={isDarkMode}
-               >
-                  <Suspense fallback={<LoadingSpinner />}>
-                    {project.modelFileUrl ? (
-                      <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
-                    ) : (
-                      <FallbackPhotoFrame image={project.image} index={index} />
-                    )}
-                  </Suspense>
-               </InteractiveProject>
-            ));
+            return gridProjects.map((project: any, index: number) => {
+               const originalIndex = projects.findIndex((p: any) => p._id === project._id);
+               const activeIdx = originalIndex !== -1 ? originalIndex : index;
+               return (
+                 <InteractiveProject 
+                    key={project._id || index} 
+                    index={activeIdx} 
+                    setActiveProject={setActiveProject} 
+                    setModalOpen={setModalOpen} 
+                    position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
+                    title={project.name}
+                    isDarkMode={isDarkMode}
+                 >
+                    <Suspense fallback={<LoadingSpinner />}>
+                      {project.modelFileUrl ? (
+                        <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
+                      ) : (
+                        <FallbackPhotoFrame image={project.image} index={activeIdx} />
+                      )}
+                    </Suspense>
+                 </InteractiveProject>
+               );
+            });
          })()}
       </group>
     </>
