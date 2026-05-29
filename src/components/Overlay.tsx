@@ -27,12 +27,11 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
       {/* Logo lớn bắt đầu ở giữa và cuộn về góc */}
       <div 
         id="main-logo"
-        className="fixed z-[100] cursor-pointer pointer-events-auto flex flex-col items-start"
+        className="fixed z-[100] cursor-pointer pointer-events-auto flex flex-col items-start font-heading font-bold uppercase tracking-tighter"
         style={{ 
            top: '40%', 
            left: '25%', 
            transform: 'translate(-50%, -50%)',
-           fontFamily: '"Playfair Display", serif', 
            color: '#2a2a2a', 
            textShadow: '2px 10px 15px rgba(0,0,0,0.15)',
            transition: 'color 0.3s ease',
