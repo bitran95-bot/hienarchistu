@@ -301,16 +301,18 @@ function InteractiveProject({ children, position, title, index, setActiveProject
       </group>
       
       {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình */}
-      <Text 
-        visible={hovered} 
-        position={[0, -0.6, 0]} 
-        fontSize={0.25} 
-        color={isDarkMode ? "#ffffff" : "#000000"} 
-        anchorY="top"
-        font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFiD-vYSZviVYUb_rj3ij__anPXDTjYgWE_-xU.woff"
-      >
-         {title}
-      </Text>
+      <Suspense fallback={null}>
+        <Text 
+          visible={hovered} 
+          position={[0, -0.6, 0]} 
+          fontSize={0.25} 
+          color={isDarkMode ? "#ffffff" : "#000000"} 
+          anchorY="top"
+          font="/fonts/PlayfairDisplay-Regular.woff"
+        >
+           {title}
+        </Text>
+      </Suspense>
     </group>
   );
 }
