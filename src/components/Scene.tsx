@@ -363,7 +363,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   useEffect(() => {
     Object.values(wallTextures).forEach((texture) => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(20, 10);
+      texture.repeat.set(8, 4);
     });
     wallTextures.map.colorSpace = THREE.SRGBColorSpace;
     
@@ -495,7 +495,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
               map={wallTextures.map}
               roughnessMap={wallTextures.roughnessMap}
               bumpMap={wallTextures.displacementMap}
-              bumpScale={0.02}
+              bumpScale={0.15}
               color="#ffffff"
             />
          </mesh>
