@@ -142,26 +142,11 @@ function DecorativeLamp({ position, scale = 1 }: { position: [number, number, nu
 
   return (
     <group position={position}>
-      <primitive object={clonedScene} scale={scale} rotation={[0, Math.PI / 4, 0]} />
+      <primitive object={clonedScene} scale={scale} rotation={[0, -Math.PI / 1.2, 0]} />
     </group>
   );
 }
 useGLTF.preload('/LampModel/scene.gltf');
-
-function DecorativePencils({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
-  // Folder Pencils model hiện đang rỗng, dùng tạm khối hộp giữ chỗ
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.25, 0.2, 0.8]} />
-        <meshStandardMaterial color="#888" roughness={0.6} />
-      </mesh>
-      <Html position={[0, 1.2, 0]} center>
-         <div className="text-xs bg-black/50 text-white px-2 py-1 rounded">Missing Pencil Model</div>
-      </Html>
-    </group>
-  );
-}
 
 // --- Khối Dự án Tương tác ---
 function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen }: any) {
@@ -555,8 +540,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
            const shelfRows = Math.max(1, totalRows);
            
            return Array.from({ length: shelfRows }).map((_, r) => (
-             <mesh key={r} position={[8, -4 - r * 5, 0]} receiveShadow castShadow>
-                <boxGeometry args={[44, 0.2, 2.5]} />
+             <mesh key={r} position={[10, -4 - r * 5, 0]} receiveShadow castShadow>
+                <boxGeometry args={[80, 0.2, 2.5]} />
                 <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
              </mesh>
            ));
@@ -585,10 +570,9 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       {/* --- CÁC MÔ HÌNH DỰ ÁN (PROJECTS) --- */}
       <group position={[0, -3.9, -1]}>
          
-         {/* Phụ kiện trang trí bên trái màn hình */}
+         {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[-4, 0, 0]} scale={0.02} />
-            <DecorativePencils position={[-4, -5, 0]} scale={0.5} />
+            <DecorativeLamp position={[10, 0, 0]} scale={0.25} />
          </Suspense>
          
          {(() => {
