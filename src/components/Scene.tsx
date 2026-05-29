@@ -529,8 +529,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       </Scroll>
 
       {/* --- CÁC MÔ HÌNH DỰ ÁN (PROJECTS) --- */}
-      {/* Đặt trên đợt kệ (Y = -3.8). Khoảng cách giữa mỗi dự án là 4 units */}
-      <group position={[0, -3.8, -1]}>
+      {/* Đặt trên đợt kệ (Y = -3.9). Khoảng cách giữa mỗi dự án là 4 units */}
+      <group position={[0, -3.9, -1]}>
          
          {/* Phụ kiện trang trí bên trái màn hình */}
          <DecorativeBooks position={[-5, 0, 0]} />
@@ -540,7 +540,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
              <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
                 <Suspense fallback={<LoadingSpinner />}>
                   {project.modelFileUrl ? (
-                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0.2, 0]} rotation={[0, 0, 0]} />
+                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
                   ) : (
                     <FallbackPhotoFrame image={project.image} index={index} />
                   )}
