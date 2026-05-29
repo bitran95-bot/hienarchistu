@@ -131,39 +131,34 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                  </motion.div>
 
                  <div className="flex flex-col gap-8 md:gap-12 mt-4 border-t border-stone-300 pt-8">
-                    {/* Inspiration */}
-                    {currentDetail.inspiration && (
+                    {/* Content */}
+                    {currentDetail.content && (
                        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, type: "spring" }}>
                           <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Cảm hứng sáng tác
+                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Nội dung chi tiết
                           </h3>
                           <p className="font-serif italic text-lg md:text-xl text-[#555] leading-relaxed border-l-4 border-amber-700 pl-6 whitespace-pre-wrap">
-                            "{currentDetail.inspiration}"
+                            {currentDetail.content}
                           </p>
                        </motion.div>
                     )}
 
-                    {/* Target Audience */}
-                    {currentDetail.targetAudience && (
+                    {/* YouTube Video */}
+                    {currentDetail.youtubeLink && (
                        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
                           <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Dành cho ai
+                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Video
                           </h3>
-                          <p className="text-lg md:text-xl text-[#333] whitespace-pre-wrap">
-                             {currentDetail.targetAudience}
-                          </p>
-                       </motion.div>
-                    )}
-
-                    {/* Concepts */}
-                    {currentDetail.concepts && (
-                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, type: "spring" }}>
-                          <h3 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Ý tứ công trình
-                          </h3>
-                          <p className="text-lg md:text-xl text-[#333] leading-relaxed whitespace-pre-wrap">
-                             {currentDetail.concepts}
-                          </p>
+                          <div className="w-full aspect-video rounded-md overflow-hidden shadow-sm border border-stone-200">
+                             <iframe 
+                               className="w-full h-full"
+                               src={currentDetail.youtubeLink.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/")} 
+                               title="YouTube video player" 
+                               frameBorder="0" 
+                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                               allowFullScreen
+                             ></iframe>
+                          </div>
                        </motion.div>
                     )}
 
