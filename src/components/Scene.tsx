@@ -587,7 +587,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          
          {/* Phụ kiện trang trí bên trái màn hình */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[-4, 0, 0]} scale={0.5} />
+            <DecorativeLamp position={[-4, 0, 0]} scale={0.02} />
             <DecorativePencils position={[-4, -5, 0]} scale={0.5} />
          </Suspense>
          
