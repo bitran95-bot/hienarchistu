@@ -358,6 +358,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     displacementMap: '/textures/beige_wall_001_disp_2k.png',
     roughnessMap: '/textures/beige_wall_001_rough_2k.jpg',
   });
+  const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
 
   useEffect(() => {
     Object.values(wallTextures).forEach((texture) => {
@@ -365,7 +366,11 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       texture.repeat.set(20, 10);
     });
     wallTextures.map.colorSpace = THREE.SRGBColorSpace;
-  }, [wallTextures]);
+    
+    shelfTexture.wrapS = shelfTexture.wrapT = THREE.RepeatWrapping;
+    shelfTexture.repeat.set(8, 0.5);
+    shelfTexture.colorSpace = THREE.SRGBColorSpace;
+  }, [wallTextures, shelfTexture]);
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
 
   useEffect(() => {
@@ -498,7 +503,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          {/* Đợt kệ duy nhất (Projects - Mô hình) */}
          <mesh position={[0, -4, 0]} receiveShadow castShadow>
             <boxGeometry args={[44, 0.2, 2.5]} />
-            <meshStandardMaterial color="#bda994" roughness={0.7} />
+            <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
          </mesh>
       </group>
 
