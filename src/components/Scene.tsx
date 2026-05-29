@@ -188,8 +188,8 @@ function InteractiveProject({ children, position, title, index, setActiveProject
     const targetScale = hovered ? 1.05 : 1;
     group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, targetScale, 0.1));
     
-    // Nổi lên nhẹ khi hover
-    const targetY = hovered ? 0.3 : 0;
+    // Nổi lên nhẹ khi hover, và nổi cao hơn khi đang kéo xoay để không bị lẹm vào kệ
+    const targetY = dragState.current.isDragging ? 0.8 : (hovered ? 0.2 : 0);
     group.current.position.y = THREE.MathUtils.lerp(group.current.position.y, targetY, 0.1);
 
     if (dragState.current.isDragging) {
@@ -538,7 +538,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
              <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
                 <Suspense fallback={<LoadingSpinner />}>
                   {project.modelFileUrl ? (
-                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, -0.15, 0]} rotation={[0, 0, 0]} />
+                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
                   ) : (
                     <FallbackPhotoFrame image={project.image} index={index} />
                   )}
