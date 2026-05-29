@@ -32,7 +32,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
            top: '40%', 
            left: '25%', 
            transform: 'translate(-50%, -50%)',
-           fontFamily: '"Be Vietnam Pro", sans-serif', 
+           fontFamily: '"Playfair Display", serif', 
            color: '#2a2a2a', 
            textShadow: '2px 10px 15px rgba(0,0,0,0.15)',
            transition: 'color 0.3s ease',
@@ -51,7 +51,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
         <div style={{ fontSize: 'clamp(50px, 18vw, 176px)', lineHeight: '0.8', paddingLeft: 'clamp(20px, 8vw, 80px)' }}>studio</div>
       </div>
 
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto" style={{ fontFamily: '"Be Vietnam Pro", sans-serif' }}>
+      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto">
         <div className="w-1/3 hidden md:block"></div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">Câu chuyện</button>
@@ -120,7 +120,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
               <div className="px-8 md:px-12 pb-24 flex-1 flex flex-col">
                  <motion.h1 
                     initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1] text-[#2a2a2a] tracking-tighter mb-8"
+                    className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-[1.1] text-[#2a2a2a] tracking-tighter mb-8"
                  >
                     {currentDetail.name}
                  </motion.h1>
@@ -201,11 +201,11 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
           exit={{ y: '100%' }}
           transition={{ type: "spring", damping: 30, stiffness: 100 }}
           className="fixed inset-0 z-[110] bg-[#fdfbf7] pointer-events-auto flex flex-col overflow-y-auto"
-          style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '40px 40px', fontFamily: '"Be Vietnam Pro", sans-serif' }}
+          style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '40px 40px' }}
         >
           {/* Header */}
           <div className="flex justify-between items-center p-8 md:p-12 w-full">
-             <div className="text-3xl font-bold tracking-tighter text-[#2a2a2a]">HIÊN studio</div>
+             <div className="text-3xl font-heading font-bold tracking-tighter text-[#2a2a2a]">HIÊN studio</div>
              <button 
                onClick={() => setContactOpen(false)}
                className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-3 group"
@@ -226,7 +226,7 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
                    animate={{ opacity: 1, y: 0 }}
                    exit={{ opacity: 0, y: -50 }}
                    transition={{ delay: 0.2, duration: 0.5 }}
-                   className="text-5xl md:text-8xl lg:text-[9rem] font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
+                   className="text-5xl md:text-8xl lg:text-[9rem] font-heading font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
                 >
                    Let's<br/>Talk.
                 </motion.h2>

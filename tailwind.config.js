@@ -11,11 +11,11 @@ export default {
         ink: '#1A1A1A',
       },
       fontFamily: {
-        sans: ['Almarai', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-        serif: ['"Instrument Serif"', 'serif'],
+        sans: ['"Noto Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
         sketch: ['Patrick Hand', 'cursive'],
-        heading: ['Space Grotesk', 'sans-serif'],
-        body: ['Almarai', 'sans-serif'],
+        heading: ['"Playfair Display"', 'serif'],
+        body: ['"Noto Sans"', 'sans-serif'],
       }
     },
   },
