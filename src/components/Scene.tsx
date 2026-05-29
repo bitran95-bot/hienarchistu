@@ -371,6 +371,34 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     shelfTexture.repeat.set(8, 0.5);
     shelfTexture.colorSpace = THREE.SRGBColorSpace;
   }, [wallTextures, shelfTexture]);
+
+  // Tính toán Grid Layout
+  const gridData = useMemo(() => {
+    if (!projects || projects.length === 0) return { map: [], path: [] };
+    const photoProjects = projects.filter((p: any) => !p.modelFileUrl);
+    const modelProjects = projects.filter((p: any) => p.modelFileUrl);
+    const map = new Array(projects.length);
+    const path: any[] = [];
+    let r = 0, c = 0;
+    
+    photoProjects.forEach(p => {
+       const origIdx = projects.findIndex((op: any) => op === p);
+       const loc = { gridRow: r, gridCol: c };
+       if (origIdx >= 0) map[origIdx] = loc;
+       path.push(loc);
+       c++; if (c >= 5) { c = 0; r++; }
+    });
+    if (c > 0) { r++; c = 0; }
+    modelProjects.forEach(p => {
+       const origIdx = projects.findIndex((op: any) => op === p);
+       const loc = { gridRow: r, gridCol: c };
+       if (origIdx >= 0) map[origIdx] = loc;
+       path.push(loc);
+       c++; if (c >= 5) { c = 0; r++; }
+    });
+    return { map, path };
+  }, [projects]);
+
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
 
   useEffect(() => {
@@ -406,18 +434,38 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     const parallaxX = state.pointer.x * 1.2;
     const parallaxY = state.pointer.y * 1.2;
 
-    const camY = THREE.MathUtils.lerp(1.5, -2.5, zoomT) + parallaxY;
+    // 3. Tính toán vị trí theo Grid Layout
+    let gridX = 0;
+    let gridY = 0;
+    
+    if (gridData.path.length > 0) {
+       const totalItems = gridData.path.length;
+       const currentIndex = panT * Math.max(0, totalItems - 1);
+       const floorIdx = Math.floor(currentIndex);
+       const ceilIdx = Math.min(Math.ceil(currentIndex), totalItems - 1);
+       const fraction = currentIndex - floorIdx;
+
+       const p1 = gridData.path[floorIdx];
+       const p2 = gridData.path[ceilIdx];
+
+       gridX = THREE.MathUtils.lerp(p1.gridCol * 4, p2.gridCol * 4, fraction);
+       gridY = THREE.MathUtils.lerp(-p1.gridRow * 5, -p2.gridRow * 5, fraction);
+    }
+
+    const camY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT) + parallaxY;
     const camZ = THREE.MathUtils.lerp(18, 9, zoomT);
-    const camX = THREE.MathUtils.lerp(0, 20, panT) + parallaxX; // Trượt camera qua 20 units
+    const camX = THREE.MathUtils.lerp(0, gridX, zoomT) + parallaxX;
 
-    const lookY = THREE.MathUtils.lerp(1.5, -2.5, zoomT);
-    const lookX = THREE.MathUtils.lerp(0, 20, panT);
+    const lookY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT);
+    const lookX = THREE.MathUtils.lerp(0, gridX, zoomT);
 
-    if (modalOpen) {
-       const targetX = activeProject * 4;
+    if (modalOpen && gridData.map[activeProject]) {
+       const activeLoc = gridData.map[activeProject];
+       const targetX = activeLoc.gridCol * 4;
+       const targetY_grid = -activeLoc.gridRow * 5;
        // Zoom lại gần mô hình đang chọn, chếch sang trái một chút để chừa chỗ cho bảng thông tin bên phải
-       const camTargetPos = new THREE.Vector3(targetX - 2.0, -3.2, 4.5); 
-       const lookTarget = new THREE.Vector3(targetX, -3.8, 0);
+       const camTargetPos = new THREE.Vector3(targetX - 2.0, -3.2 + targetY_grid, 4.5); 
+       const lookTarget = new THREE.Vector3(targetX, -3.8 + targetY_grid, 0);
 
        state.camera.position.lerp(camTargetPos, 0.08);
        currentLookAt.current.lerp(lookTarget, 0.08);
@@ -500,11 +548,25 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
             />
          </mesh>
 
-         {/* Đợt kệ duy nhất (Projects - Mô hình) */}
-         <mesh position={[0, -4, 0]} receiveShadow castShadow>
-            <boxGeometry args={[44, 0.2, 2.5]} />
-            <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
-         </mesh>
+         {/* Đợt kệ (Render nhiều tầng tùy số lượng dòng) */}
+         {(() => {
+           const photoProjects = projects ? projects.filter((p: any) => !p.modelFileUrl) : [];
+           const modelProjects = projects ? projects.filter((p: any) => p.modelFileUrl) : [];
+           let rows = 0;
+           let cols = 0;
+           photoProjects.forEach(() => { cols++; if (cols >= 5) { cols = 0; rows++; } });
+           if (cols > 0) { rows++; cols = 0; }
+           modelProjects.forEach(() => { cols++; if (cols >= 5) { cols = 0; rows++; } });
+           const totalRows = cols > 0 ? rows + 1 : rows;
+           const shelfRows = Math.max(1, totalRows);
+           
+           return Array.from({ length: shelfRows }).map((_, r) => (
+             <mesh key={r} position={[8, -4 - r * 5, 0]} receiveShadow castShadow>
+                <boxGeometry args={[44, 0.2, 2.5]} />
+                <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
+             </mesh>
+           ));
+         })()}
       </group>
 
       {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
@@ -527,32 +589,56 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       </Scroll>
 
       {/* --- CÁC MÔ HÌNH DỰ ÁN (PROJECTS) --- */}
-      {/* Đặt trên đợt kệ (Y = -3.9). Khoảng cách giữa mỗi dự án là 4 units */}
       <group position={[0, -3.9, -1]}>
          
          {/* Phụ kiện trang trí bên trái màn hình */}
          <DecorativeBooks position={[-5, 0, 0]} />
          
-         {projects && projects.length > 0 ? (
-           projects.map((project: any, index: number) => (
-             <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
-                <Suspense fallback={<LoadingSpinner />}>
-                  {project.modelFileUrl ? (
-                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
-                  ) : (
-                    <FallbackPhotoFrame image={project.image} index={index} />
-                  )}
-                </Suspense>
-             </InteractiveProject>
-           ))
-         ) : (
-           <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
-               <Suspense fallback={<LoadingSpinner />}>
-                  <FallbackPhotoFrame image={null} index={0} />
-               </Suspense>
-           </InteractiveProject>
-         )}
+         {(() => {
+            const photoProjects = projects ? projects.filter((p: any) => !p.modelFileUrl) : [];
+            const modelProjects = projects ? projects.filter((p: any) => p.modelFileUrl) : [];
+            const gridProjects: any[] = [];
+            let r = 0, c = 0;
+            
+            photoProjects.forEach(p => {
+               gridProjects.push({ ...p, gridRow: r, gridCol: c });
+               c++; if (c >= 5) { c = 0; r++; }
+            });
+            if (c > 0) { r++; c = 0; }
+            modelProjects.forEach(p => {
+               gridProjects.push({ ...p, gridRow: r, gridCol: c });
+               c++; if (c >= 5) { c = 0; r++; }
+            });
 
+            if (gridProjects.length === 0) {
+              return (
+                <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
+                   <Suspense fallback={<LoadingSpinner />}>
+                      <FallbackPhotoFrame image={null} index={0} />
+                   </Suspense>
+                </InteractiveProject>
+              );
+            }
+
+            return gridProjects.map((project: any, index: number) => (
+               <InteractiveProject 
+                  key={project._id || index} 
+                  index={index} 
+                  setActiveProject={setActiveProject} 
+                  setModalOpen={setModalOpen} 
+                  position={[project.gridCol * 4, -project.gridRow * 5, 0]} 
+                  title={project.name}
+               >
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {project.modelFileUrl ? (
+                      <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
+                    ) : (
+                      <FallbackPhotoFrame image={project.image} index={index} />
+                    )}
+                  </Suspense>
+               </InteractiveProject>
+            ));
+         })()}
       </group>
     </>
   );
