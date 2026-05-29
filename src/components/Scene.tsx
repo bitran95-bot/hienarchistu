@@ -572,7 +572,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[10, 0, 0]} scale={0.25} />
+            <DecorativeLamp position={[10, 0, 0]} scale={0.125} />
          </Suspense>
          
          {(() => {
