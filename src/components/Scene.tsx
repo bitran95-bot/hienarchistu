@@ -282,12 +282,14 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         }}
       >
         {children}
-        
-        {/* Tiêu đề Dự án nằm ngay trên kệ, dưới mô hình */}
-        <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top">
-           {title}
-        </Text>
       </group>
+      
+      {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình, dùng Html để áp dụng font Playfair Display */}
+      <Html transform center position={[0, -0.6, 0]} style={{ pointerEvents: 'none', opacity: hovered ? 1 : 0, transition: 'opacity 0.3s' }}>
+         <div className="font-heading font-bold text-[#5c4a4a] text-[24px] whitespace-nowrap">
+            {title}
+         </div>
+      </Html>
     </group>
   );
 }
