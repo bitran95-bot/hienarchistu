@@ -164,7 +164,7 @@ function InteractiveProject({ children, position, title, index, setActiveProject
 
   useFrame((state) => {
     if (!group.current) return;
-    const targetScale = hovered ? 1.05 : 1;
+    const targetScale = hovered ? 1.3 : 1.2;
     group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, targetScale, 0.1));
     
     // Nổi lên nhẹ khi hover, và nổi cao hơn khi đang kéo xoay để không bị lẹm vào kệ
@@ -428,11 +428,11 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
        const p2 = gridData.path[ceilIdx];
 
        gridX = THREE.MathUtils.lerp(p1.gridCol * 4, p2.gridCol * 4, fraction);
-       gridY = THREE.MathUtils.lerp(-p1.gridRow * 5, -p2.gridRow * 5, fraction);
+       gridY = THREE.MathUtils.lerp(-p1.gridRow * 4, -p2.gridRow * 4, fraction);
     }
 
     const camY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT) + parallaxY;
-    const camZ = THREE.MathUtils.lerp(18, 9, zoomT);
+    const camZ = THREE.MathUtils.lerp(18, 11, zoomT);
     const camX = THREE.MathUtils.lerp(0, gridX, zoomT) + parallaxX;
 
     const lookY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT);
@@ -441,7 +441,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     if (modalOpen && gridData.map[activeProject]) {
        const activeLoc = gridData.map[activeProject];
        const targetX = activeLoc.gridCol * 4;
-       const targetY_grid = -activeLoc.gridRow * 5;
+       const targetY_grid = -activeLoc.gridRow * 4;
        // Zoom lại gần mô hình đang chọn, chếch sang trái một chút để chừa chỗ cho bảng thông tin bên phải
        const camTargetPos = new THREE.Vector3(targetX - 2.0, -3.2 + targetY_grid, 4.5); 
        const lookTarget = new THREE.Vector3(targetX, -3.8 + targetY_grid, 0);
@@ -540,7 +540,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
            const shelfRows = Math.max(1, totalRows);
            
            return Array.from({ length: shelfRows }).map((_, r) => (
-             <mesh key={r} position={[10, -4 - r * 5, 0]} receiveShadow castShadow>
+             <mesh key={r} position={[10, -4 - r * 4, 0]} receiveShadow castShadow>
                 <boxGeometry args={[80, 0.2, 2.5]} />
                 <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
              </mesh>
@@ -556,7 +556,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
           {/* Chữ HIÊN studio đã được chuyển sang Overlay.tsx để cố định và hiệu ứng trượt */}
           
           {/* Đoạn miêu tả bên phải */}
-          <div id="hero-desc" className="absolute w-[85%] md:w-auto" style={{ top: '65%', right: '7.5%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
+          <div id="hero-desc" className="absolute w-[85%] md:w-auto" style={{ top: '65%', right: '20%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
             <p className="text-sm md:text-base text-[#333] font-serif italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
               {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
             </p>
@@ -572,7 +572,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[10, 0, -1]} scale={3} />
+            <DecorativeLamp position={[10, 0, -1]} scale={9} />
          </Suspense>
          
          {(() => {
@@ -607,7 +607,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                   index={index} 
                   setActiveProject={setActiveProject} 
                   setModalOpen={setModalOpen} 
-                  position={[project.gridCol * 4, -project.gridRow * 5, 0]} 
+                  position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
                   title={project.name}
                >
                   <Suspense fallback={<LoadingSpinner />}>
