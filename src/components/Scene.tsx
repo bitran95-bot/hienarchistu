@@ -160,13 +160,30 @@ function DecorativeLamp({ position, scale = 1, isDarkMode, onToggle }: { positio
           distance={40} 
           decay={1.5}
           color="#ffcc88" 
-          castShadow 
+          castShadow={false}
         />
       )}
     </group>
   );
 }
 useGLTF.preload('/LampModel/bankers_lamp.glb');
+
+function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
+  const lightRef = useRef<THREE.PointLight>(null);
+  useFrame((state) => {
+    if (lightRef.current && isDarkMode) {
+      const x = state.pointer.x * 15 + state.camera.position.x;
+      const y = state.pointer.y * 10 + state.camera.position.y;
+      
+      lightRef.current.position.x = THREE.MathUtils.lerp(lightRef.current.position.x, x, 0.2);
+      lightRef.current.position.y = THREE.MathUtils.lerp(lightRef.current.position.y, y, 0.2);
+      lightRef.current.position.z = state.camera.position.z - 3;
+    }
+  });
+
+  if (!isDarkMode) return null;
+  return <pointLight ref={lightRef} intensity={5} distance={20} decay={2} color="#ffffff" castShadow shadow-bias={-0.0005} />;
+}
 
 // --- Khối Dự án Tương tác ---
 function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen }: any) {
@@ -338,7 +355,7 @@ function AboutSection({ settings }: any) {
   });
 
   return (
-    <div ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-4 md:px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+    <div id="about-section" ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-4 md:px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
       <p ref={text1Ref} className="max-w-3xl text-xl md:text-[32px] font-medium italic font-serif text-[#333333] mb-4 md:mb-8 leading-relaxed">
         {chars1.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
       </p>
@@ -533,6 +550,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
 
       {/* Hiệu ứng Contact Shadows: Bóng đổ chân thật sát mặt kệ (AO) - frames={1} để tối ưu hiệu năng */}
       <ContactShadows position={[0, -3.89, -1]} opacity={0.65} scale={50} blur={2.5} far={4} resolution={512} color="#332211" frames={1} />
+      
+      <CursorLight isDarkMode={isDarkMode} />
 
       {/* --- CẤU TRÚC KỆ SÁCH & BỨC TƯỜNG --- */}
       <group position={[10, 0, -2]}>
