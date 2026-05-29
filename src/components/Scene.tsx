@@ -318,21 +318,24 @@ function InteractiveProject({ children, position, title, generalInfo, index, set
         {children}
       </group>
       
-      {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình */}
-      <Suspense fallback={null}>
-        <Text 
-          visible={hovered} 
-          position={[0, -0.6, 0]} 
-          fontSize={0.25} 
-          color={isDarkMode ? "#ffffff" : "#000000"} 
-          anchorY="top"
-          textAlign="center"
-          maxWidth={4}
-          font="/fonts/PlayfairDisplay-Regular.woff"
-        >
-           {displayedText}
-        </Text>
-      </Suspense>
+      {/* Thẻ thông tin dự án (hiển thị khi hover) */}
+      {hovered && (
+        <Html position={[1.5, 1.5, 0]} center zIndexRange={[100, 0]}>
+          <div 
+             className={`px-4 py-3 rounded-xl backdrop-blur-md border shadow-xl whitespace-pre-wrap font-serif transition-colors duration-300 pointer-events-none ${isDarkMode ? 'bg-black/40 border-white/20 text-white' : 'bg-white/50 border-black/10 text-black'}`}
+             style={{ minWidth: 'max-content', maxWidth: '250px', textAlign: 'left' }}
+          >
+            <div className="font-bold text-lg leading-tight">
+              {displayedText.split('\n')[0]}
+            </div>
+            {displayedText.includes('\n') && (
+               <div className="text-sm opacity-90 leading-relaxed mt-2 border-t border-current pt-2">
+                  {displayedText.split('\n').slice(1).join('\n')}
+               </div>
+            )}
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
