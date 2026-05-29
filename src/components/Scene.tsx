@@ -127,7 +127,7 @@ function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: number }
 }
 
 // --- Các chi tiết trang trí ---
-function DecorativeLamp({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
+function DecorativeLamp({ position, scale = 1, isDarkMode, onToggle }: { position: [number, number, number], scale?: number, isDarkMode?: boolean, onToggle?: () => void }) {
   const { scene } = useGLTF('/LampModel/bankers_lamp.glb') as any;
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
@@ -141,8 +141,28 @@ function DecorativeLamp({ position, scale = 1 }: { position: [number, number, nu
   }, [scene]);
 
   return (
-    <group position={position}>
-      <primitive object={clonedScene} scale={scale} rotation={[0, -Math.PI / 1.2, 0]} />
+    <group 
+      position={position}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onToggle) onToggle();
+      }}
+      onPointerOver={() => document.body.style.cursor = 'pointer'}
+      onPointerOut={() => document.body.style.cursor = 'auto'}
+    >
+      <primitive object={clonedScene} scale={scale} rotation={[0, -Math.PI / 4, 0]} />
+      
+      {/* Nguồn sáng của bóng đèn khi trời tối */}
+      {isDarkMode && (
+        <pointLight 
+          position={[-1, 2.5, 0]} 
+          intensity={15} 
+          distance={40} 
+          decay={1.5}
+          color="#ffcc88" 
+          castShadow 
+        />
+      )}
     </group>
   );
 }
@@ -332,6 +352,7 @@ function AboutSection({ settings }: any) {
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [], settings }: any) {
   const scroll = useScroll();
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const wallTextures = useTexture({
     map: '/textures/beige_wall_001_diff_2k.jpg',
     displacementMap: '/textures/beige_wall_001_disp_2k.png',
@@ -491,22 +512,22 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     <>
       {/* Môi trường HDRI: Tạo ánh sáng studio và phản xạ thực tế (rất mượt) */}
       <Suspense fallback={null}>
-         <Environment preset="city" environmentIntensity={0.8} />
+         <Environment preset={isDarkMode ? "night" : "city"} environmentIntensity={isDarkMode ? 0.1 : 0.8} />
       </Suspense>
 
-      <ambientLight intensity={0.4} color="#ffffff" />
+      <ambientLight intensity={isDarkMode ? 0.05 : 0.4} color={isDarkMode ? "#222244" : "#ffffff"} />
       
       {/* Ánh sáng mặt trời chiếu vát tạo khối */}
       <directionalLight 
          position={[25, 15, 15]} 
-         intensity={1.5} 
+         intensity={isDarkMode ? 0.1 : 1.5} 
          castShadow 
          shadow-mapSize={[1024, 1024]} 
          shadow-camera-left={-25}
          shadow-camera-right={25}
          shadow-camera-top={25}
          shadow-camera-bottom={-25}
-         color="#fffcf2"
+         color={isDarkMode ? "#555588" : "#fffcf2"}
          shadow-bias={-0.0001}
       />
 
@@ -572,7 +593,12 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[10, 0, -1]} scale={9} />
+            <DecorativeLamp 
+               position={[10, 0, -1]} 
+               scale={9} 
+               isDarkMode={isDarkMode} 
+               onToggle={() => setIsDarkMode(!isDarkMode)} 
+            />
          </Suspense>
          
          {(() => {
