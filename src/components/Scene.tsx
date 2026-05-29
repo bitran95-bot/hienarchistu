@@ -182,7 +182,7 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
   });
 
   if (!isDarkMode) return null;
-  return <pointLight ref={lightRef} intensity={5} distance={20} decay={2} color="#ffffff" castShadow shadow-bias={-0.0005} />;
+  return <pointLight ref={lightRef} intensity={25} distance={30} decay={2} color="#ffffff" />;
 }
 
 // --- Khối Dự án Tương tác ---
