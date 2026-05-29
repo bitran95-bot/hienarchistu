@@ -284,12 +284,10 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         {children}
       </group>
       
-      {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình, dùng Html để áp dụng font Playfair Display */}
-      <Html transform center position={[0, -0.6, 0]} style={{ pointerEvents: 'none', opacity: hovered ? 1 : 0, transition: 'opacity 0.3s' }}>
-         <div className="font-heading font-bold text-[#5c4a4a] text-[24px] whitespace-nowrap">
-            {title}
-         </div>
-      </Html>
+      {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình */}
+      <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top">
+         {title}
+      </Text>
     </group>
   );
 }
@@ -540,7 +538,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
              <InteractiveProject key={project._id || index} index={index} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[index * 4, 0, 0]} title={project.name}>
                 <Suspense fallback={<LoadingSpinner />}>
                   {project.modelFileUrl ? (
-                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
+                    <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, -0.15, 0]} rotation={[0, 0, 0]} />
                   ) : (
                     <FallbackPhotoFrame image={project.image} index={index} />
                   )}
