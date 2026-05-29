@@ -126,45 +126,39 @@ function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: number }
   );
 }
 
-// --- Các chi tiết trang trí (Sách, Cây cảnh...) ---
-function DecorativeBooks({ position }: { position: [number, number, number] }) {
+// --- Các chi tiết trang trí ---
+function DecorativeLamp({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
+  const { scene } = useGLTF('/LampModel/scene.gltf') as any;
+  const clonedScene = useMemo(() => {
+    const clone = scene.clone();
+    clone.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return clone;
+  }, [scene]);
+
   return (
     <group position={position}>
-      {/* Sách 1 - Đứng thẳng, bìa xanh đậm */}
-      <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.2, 1.2, 0.8]} />
-        <meshStandardMaterial color="#2a3b45" roughness={0.6} />
-      </mesh>
-      
-      {/* Sách 2 - Đứng thẳng, nhỏ hơn, bìa xám */}
-      <mesh position={[0.22, 0.45, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.15, 1.1, 0.75]} />
-        <meshStandardMaterial color="#8a8d8f" roughness={0.7} />
-      </mesh>
-      
-      {/* Sách 3 - Nghiêng dựa vào sách 2, màu gỗ/đỏ nhạt */}
-      <mesh position={[0.45, 0.48, 0]} rotation={[0, 0, -0.15]} castShadow receiveShadow>
-        <boxGeometry args={[0.18, 1.1, 0.8]} />
-        <meshStandardMaterial color="#945d41" roughness={0.5} />
-      </mesh>
-      
-      {/* Sách nằm ngang kế bên */}
-      <mesh position={[1.2, 0.05, 0]} rotation={[0, -0.1, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.9, 0.3, 0.7]} />
-        <meshStandardMaterial color="#d4c9b3" roughness={0.9} />
-      </mesh>
-      
-      {/* Sách mỏng nằm trên */}
-      <mesh position={[1.2, 0.275, 0]} rotation={[0, 0.05, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.8, 0.15, 0.65]} />
-        <meshStandardMaterial color="#5c6356" roughness={0.6} />
-      </mesh>
+      <primitive object={clonedScene} scale={scale} rotation={[0, Math.PI / 4, 0]} />
+    </group>
+  );
+}
+useGLTF.preload('/LampModel/scene.gltf');
 
-      {/* Sách bên trái, nghiêng ra ngoài */}
-      <mesh position={[-0.25, 0.48, 0]} rotation={[0, 0, 0.1]} castShadow receiveShadow>
-        <boxGeometry args={[0.18, 1.1, 0.78]} />
-        <meshStandardMaterial color="#4a4238" roughness={0.8} />
+function DecorativePencils({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
+  // Folder Pencils model hiện đang rỗng, dùng tạm khối hộp giữ chỗ
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.25, 0.2, 0.8]} />
+        <meshStandardMaterial color="#888" roughness={0.6} />
       </mesh>
+      <Html position={[0, 1.2, 0]} center>
+         <div className="text-xs bg-black/50 text-white px-2 py-1 rounded">Missing Pencil Model</div>
+      </Html>
     </group>
   );
 }
@@ -592,7 +586,10 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       <group position={[0, -3.9, -1]}>
          
          {/* Phụ kiện trang trí bên trái màn hình */}
-         <DecorativeBooks position={[-5, 0, 0]} />
+         <Suspense fallback={null}>
+            <DecorativeLamp position={[-4, 0, 0]} scale={0.5} />
+            <DecorativePencils position={[-4, -5, 0]} scale={0.5} />
+         </Suspense>
          
          {(() => {
             const photoProjects = projects ? projects.filter((p: any) => !p.modelFileUrl) : [];
