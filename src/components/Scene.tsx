@@ -309,7 +309,7 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         {children}
         
         {/* Tiêu đề Dự án nằm ngay trên kệ, dưới mô hình */}
-        <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top" font="/PlayfairDisplay-Regular.ttf">
+        <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top">
            {title}
         </Text>
       </group>
