@@ -151,7 +151,7 @@ useGLTF.preload('/LampModel/scene.gltf');
 function DecorativePencils({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
   // Folder Pencils model hiện đang rỗng, dùng tạm khối hộp giữ chỗ
   return (
-    <group position={position}>
+    <group position={position} scale={scale}>
       <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.25, 0.2, 0.8]} />
         <meshStandardMaterial color="#888" roughness={0.6} />
