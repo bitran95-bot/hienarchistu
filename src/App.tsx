@@ -26,7 +26,7 @@ function App() {
 
   return (
     <>
-      <div id="paper-texture"></div>
+
       
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
