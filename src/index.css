@@ -42,10 +42,27 @@
   border-radius: 4px;
 }
 
+/* Standard Mode Text Colors */
+body #main-logo {
+  color: #000000 !important;
+}
+body #main-logo:hover {
+  color: #b45309 !important;
+}
+body #hero-desc p {
+  color: #000000 !important;
+}
+body #about-section p {
+  color: #000000 !important;
+}
+
 /* Dark Mode Text Colors */
 body.dark-mode #main-logo {
   color: #ffffff !important;
   text-shadow: 0 0 20px rgba(255,255,255,0.5) !important;
+}
+body.dark-mode #main-logo:hover {
+  color: #b45309 !important;
 }
 body.dark-mode #hero-desc p {
   color: #ffffff !important;

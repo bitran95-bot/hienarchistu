@@ -182,11 +182,11 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
   });
 
   if (!isDarkMode) return null;
-  return <pointLight ref={lightRef} intensity={25} distance={30} decay={2} color="#ffffff" />;
+  return <pointLight ref={lightRef} intensity={50} distance={40} decay={1.5} color="#ffffff" />;
 }
 
 // --- Khối Dự án Tương tác ---
-function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen }: any) {
+function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen, isDarkMode }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
@@ -301,7 +301,14 @@ function InteractiveProject({ children, position, title, index, setActiveProject
       </group>
       
       {/* Tiêu đề Dự án cố định, không bị xoay theo mô hình */}
-      <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top">
+      <Text 
+        visible={hovered} 
+        position={[0, -0.6, 0]} 
+        fontSize={0.25} 
+        color={isDarkMode ? "#ffffff" : "#000000"} 
+        anchorY="top"
+        font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFiD-vYSZviVYUb_rj3ij__anPXDTjYgWE_-xU.woff"
+      >
          {title}
       </Text>
     </group>
@@ -638,7 +645,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
 
             if (gridProjects.length === 0) {
               return (
-                <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu...">
+                <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
                    <Suspense fallback={<LoadingSpinner />}>
                       <FallbackPhotoFrame image={null} index={0} />
                    </Suspense>
@@ -654,6 +661,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                   setModalOpen={setModalOpen} 
                   position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
                   title={project.name}
+                  isDarkMode={isDarkMode}
                >
                   <Suspense fallback={<LoadingSpinner />}>
                     {project.modelFileUrl ? (
