@@ -5,32 +5,7 @@ import * as THREE from 'three';
 import { urlFor } from '../sanityClient';
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
 
-// --- Tạo Texture tường thạch cao/xi măng bằng Canvas ---
-function usePlasterTexture() {
-  const texture = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 40000; i++) {
-        const x = Math.random() * 512;
-        const y = Math.random() * 512;
-        const v = Math.random() * 255;
-        context.fillStyle = `rgba(${v}, ${v}, ${v}, 0.04)`;
-        context.fillRect(x, y, 2, 2);
-      }
-    }
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = THREE.RepeatWrapping;
-    tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(12, 6);
-    return tex;
-  }, []);
-  return texture;
-}
+
 
 // --- Vòng tròn tải (Loading Spinner) ---
 function LoadingSpinner() {
@@ -378,7 +353,19 @@ function AboutSection({ settings }: any) {
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [], settings }: any) {
   const scroll = useScroll();
-  const plasterTexture = usePlasterTexture();
+  const wallTextures = useTexture({
+    map: '/textures/beige_wall_001_diff_2k.jpg',
+    displacementMap: '/textures/beige_wall_001_disp_2k.png',
+    roughnessMap: '/textures/beige_wall_001_rough_2k.jpg',
+  });
+
+  useEffect(() => {
+    Object.values(wallTextures).forEach((texture) => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(20, 10);
+    });
+    wallTextures.map.colorSpace = THREE.SRGBColorSpace;
+  }, [wallTextures]);
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
 
   useEffect(() => {
@@ -500,10 +487,11 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          <mesh position={[0, 0, -3]} receiveShadow>
             <planeGeometry args={[100, 50]} />
             <meshStandardMaterial 
-              color="#fcfbfa" 
-              roughness={0.9} 
-              bumpMap={plasterTexture} 
-              bumpScale={0.03} 
+              map={wallTextures.map}
+              roughnessMap={wallTextures.roughnessMap}
+              bumpMap={wallTextures.displacementMap}
+              bumpScale={0.02}
+              color="#ffffff"
             />
          </mesh>
 
