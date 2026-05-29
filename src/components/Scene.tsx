@@ -309,7 +309,7 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         {children}
         
         {/* Tiêu đề Dự án nằm ngay trên kệ, dưới mô hình */}
-        <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top">
+        <Text visible={hovered} position={[0, -0.6, 0]} fontSize={0.25} color="#5c4a4a" anchorY="top" font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PweD.woff">
            {title}
         </Text>
       </group>
@@ -365,7 +365,7 @@ function AboutSection({ settings }: any) {
 
   return (
     <div ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-4 md:px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-      <p ref={text1Ref} className="max-w-3xl text-xl md:text-[32px] font-medium italic text-[#333333] mb-4 md:mb-8 leading-relaxed">
+      <p ref={text1Ref} className="max-w-3xl text-xl md:text-[32px] font-medium italic font-serif text-[#333333] mb-4 md:mb-8 leading-relaxed">
         {chars1.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
       </p>
       <p ref={text2Ref} className="max-w-2xl text-sm md:text-lg text-[#555555] leading-relaxed">
@@ -523,7 +523,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
           
           {/* Đoạn miêu tả bên phải */}
           <div id="hero-desc" className="absolute w-[85%] md:w-auto" style={{ top: '65%', right: '7.5%', transform: 'translateY(-50%)', maxWidth: '450px' }}>
-            <p className="text-sm md:text-base text-[#333] italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
+            <p className="text-sm md:text-base text-[#333] font-serif italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
               {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
             </p>
           </div>
