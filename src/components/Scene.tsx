@@ -128,7 +128,7 @@ function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: number }
 
 // --- Các chi tiết trang trí ---
 function DecorativeLamp({ position, scale = 1 }: { position: [number, number, number], scale?: number }) {
-  const { scene } = useGLTF('/LampModel/scene.gltf') as any;
+  const { scene } = useGLTF('/LampModel/bankers_lamp.glb') as any;
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
     clone.traverse((child: any) => {
@@ -146,7 +146,7 @@ function DecorativeLamp({ position, scale = 1 }: { position: [number, number, nu
     </group>
   );
 }
-useGLTF.preload('/LampModel/scene.gltf');
+useGLTF.preload('/LampModel/bankers_lamp.glb');
 
 // --- Khối Dự án Tương tác ---
 function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen }: any) {
@@ -572,7 +572,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
          
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
-            <DecorativeLamp position={[10, 0, 0]} scale={0.125} />
+            <DecorativeLamp position={[10, 0, -1]} scale={3} />
          </Suspense>
          
          {(() => {
