@@ -381,7 +381,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     const path: any[] = [];
     let r = 0, c = 0;
     
-    photoProjects.forEach(p => {
+    photoProjects.forEach((p: any) => {
        const origIdx = projects.findIndex((op: any) => op === p);
        const loc = { gridRow: r, gridCol: c };
        if (origIdx >= 0) map[origIdx] = loc;
@@ -389,7 +389,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
        c++; if (c >= 5) { c = 0; r++; }
     });
     if (c > 0) { r++; c = 0; }
-    modelProjects.forEach(p => {
+    modelProjects.forEach((p: any) => {
        const origIdx = projects.findIndex((op: any) => op === p);
        const loc = { gridRow: r, gridCol: c };
        if (origIdx >= 0) map[origIdx] = loc;
@@ -600,12 +600,12 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
             const gridProjects: any[] = [];
             let r = 0, c = 0;
             
-            photoProjects.forEach(p => {
+            photoProjects.forEach((p: any) => {
                gridProjects.push({ ...p, gridRow: r, gridCol: c });
                c++; if (c >= 5) { c = 0; r++; }
             });
             if (c > 0) { r++; c = 0; }
-            modelProjects.forEach(p => {
+            modelProjects.forEach((p: any) => {
                gridProjects.push({ ...p, gridRow: r, gridCol: c });
                c++; if (c >= 5) { c = 0; r++; }
             });
