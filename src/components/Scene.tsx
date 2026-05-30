@@ -186,7 +186,7 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
 }
 
 // --- Khối Dự án Tương tác ---
-function InteractiveProject({ children, position, title, generalInfo, index, setActiveProject, setModalOpen, isDarkMode }: any) {
+function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen, isDarkMode }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
