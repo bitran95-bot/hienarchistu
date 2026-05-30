@@ -58,7 +58,6 @@ export const Overlay = memo(function Overlay({ modalOpen, setModalOpen, activePr
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">Liên Hệ</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
-          <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="hover:text-[#444444] transition-colors">Instagram</a>
         </div>
       </header>
 
