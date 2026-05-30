@@ -30,12 +30,13 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
         
         // Thêm đường nét viền (edges) để tạo phong cách phác thảo kiến trúc
         if (!child.userData.hasEdges) {
-          const edgesGeometry = new THREE.EdgesGeometry(child.geometry, 20); // 20 độ góc để hiện nét
+          // Tăng góc threshold lên 40 độ để bỏ qua các bề mặt cong tròn, chỉ lấy nét ở các góc cạnh sắc nét (tường, mái)
+          const edgesGeometry = new THREE.EdgesGeometry(child.geometry, 40); 
           const edgesMaterial = new THREE.LineBasicMaterial({ 
-            color: 0x333333, 
+            color: 0x5c4a3d, // Đổi sang màu nâu chì (sepia/pencil tone) để hợp với chất liệu gỗ/giấy
             linewidth: 1, 
             transparent: true, 
-            opacity: 0.3 
+            opacity: 0.15 // Giảm độ đậm để nét vẽ chìm nhẹ vào khối, không bị gắt
           });
           const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
           child.add(edges);
