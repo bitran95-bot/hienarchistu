@@ -186,7 +186,7 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
 }
 
 // --- Khối Dự án Tương tác ---
-function InteractiveProject({ children, position, title, index, setActiveProject, setModalOpen, isDarkMode }: any) {
+function InteractiveProject({ children, position, index, setActiveProject, setModalOpen }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
@@ -311,18 +311,6 @@ function InteractiveProject({ children, position, title, index, setActiveProject
         }}
       >
         {children}
-
-        {/* Tên dự án (hiển thị khi hover) */}
-        {hovered && (
-          <Html position={[0, -0.3, 1.5]} center zIndexRange={[100, 0]}>
-            <div 
-               className={`font-serif text-xl md:text-2xl tracking-wide whitespace-nowrap pointer-events-none transition-opacity duration-300 drop-shadow-md ${isDarkMode ? 'text-white' : 'text-[#333333]'}`}
-               style={{ textShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.8)' : '0 2px 8px rgba(255,255,255,0.8)' }}
-            >
-              {title}
-            </div>
-          </Html>
-        )}
       </group>
     </group>
   );
