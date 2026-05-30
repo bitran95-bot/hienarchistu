@@ -217,7 +217,20 @@ function InteractiveProject({ children, position, title, generalInfo, index, set
   const [dragRotY, setDragRotY] = useState(0);
   const [dragRotX, setDragRotX] = useState(0);
 
+  const scroll = useScroll();
+  const lastScroll = useRef(scroll ? scroll.offset : 0);
+
   useFrame((state) => {
+    if (scroll && Math.abs(scroll.offset - lastScroll.current) > 0.0001) {
+       if (hovered) {
+          setHovered(false);
+          document.body.style.cursor = 'auto';
+       }
+    }
+    if (scroll) {
+       lastScroll.current = scroll.offset;
+    }
+
     if (!group.current) return;
     const targetScale = hovered ? 1.3 : 1.2;
     group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, targetScale, 0.1));
