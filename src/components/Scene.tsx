@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, Text, useGLTF, Environment, ContactShadows, Scroll, useTexture, Html } from '@react-three/drei';
+import { ScrollControls, useScroll, useGLTF, Environment, ContactShadows, Scroll, useTexture, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { urlFor } from '../sanityClient';
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
