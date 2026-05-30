@@ -215,7 +215,8 @@ function InteractiveProject({ children, position, index, setActiveProject, setMo
     }
 
     if (!group.current) return;
-    const targetScale = hovered ? 1.3 : 1.2;
+    // Tăng kích thước hiển thị lên 1.5 lần (1.2 * 1.5 = 1.8 và 1.3 * 1.5 = 1.95)
+    const targetScale = hovered ? 1.95 : 1.8;
     group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, targetScale, 0.1));
     
     // Nổi lên nhẹ khi hover, và nổi cao hơn khi đang kéo xoay để không bị lẹm vào kệ
