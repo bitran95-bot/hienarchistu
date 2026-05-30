@@ -189,24 +189,6 @@ function CursorLight({ isDarkMode }: { isDarkMode: boolean }) {
 function InteractiveProject({ children, position, title, generalInfo, index, setActiveProject, setModalOpen, isDarkMode }: any) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
-  
-  const fullText = `${title}${generalInfo ? `\n${generalInfo}` : ""}`;
-
-  useEffect(() => {
-    if (hovered) {
-      let i = 0;
-      setDisplayedText("");
-      const interval = setInterval(() => {
-        i++;
-        setDisplayedText(fullText.slice(0, i));
-        if (i >= fullText.length) clearInterval(interval);
-      }, 25);
-      return () => clearInterval(interval);
-    } else {
-      setDisplayedText("");
-    }
-  }, [hovered, fullText]);
   
   const dragState = useRef({
     isDragging: false,
@@ -330,21 +312,14 @@ function InteractiveProject({ children, position, title, generalInfo, index, set
       >
         {children}
 
-        {/* Thẻ thông tin dự án (hiển thị khi hover) */}
+        {/* Tên dự án (hiển thị khi hover) */}
         {hovered && (
-          <Html position={[1.5, 1.5, 0]} zIndexRange={[100, 0]}>
+          <Html position={[0, -0.3, 1.5]} center zIndexRange={[100, 0]}>
             <div 
-               className={`px-4 py-3 rounded-xl backdrop-blur-md border shadow-xl whitespace-pre-wrap font-serif transition-colors duration-300 pointer-events-none ${isDarkMode ? 'bg-black/40 border-white/20 text-white' : 'bg-white/50 border-black/10 text-black'}`}
-               style={{ minWidth: 'max-content', maxWidth: '250px', textAlign: 'left' }}
+               className={`font-serif text-xl md:text-2xl tracking-wide whitespace-nowrap pointer-events-none transition-opacity duration-300 drop-shadow-md ${isDarkMode ? 'text-white' : 'text-[#333333]'}`}
+               style={{ textShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.8)' : '0 2px 8px rgba(255,255,255,0.8)' }}
             >
-              <div className="font-bold text-lg leading-tight">
-                {displayedText.split('\n')[0]}
-              </div>
-              {displayedText.includes('\n') && (
-                 <div className="text-sm opacity-90 leading-relaxed mt-2 border-t border-current pt-2">
-                    {displayedText.split('\n').slice(1).join('\n')}
-                 </div>
-              )}
+              {title}
             </div>
           </Html>
         )}
