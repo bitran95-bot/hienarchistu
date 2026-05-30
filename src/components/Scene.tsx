@@ -385,6 +385,10 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   });
   const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
 
+  // Cache Geometries và Materials để tái sử dụng, giúp giảm số lần cấp phát bộ nhớ (Draw calls optimization)
+  const shelfGeometry = useMemo(() => new THREE.BoxGeometry(80, 0.2, 2.5), []);
+  const shelfMaterial = useMemo(() => new THREE.MeshStandardMaterial({ map: shelfTexture, roughness: 0.8, color: 0xffffff }), [shelfTexture]);
+
   useEffect(() => {
     Object.values(wallTextures).forEach((texture) => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -425,6 +429,9 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   }, [projects]);
 
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
+  // Cache các DOM element để tránh gọi document.getElementById mỗi frame (Performance Tweak)
+  const logoRef = useRef<HTMLElement | null>(null);
+  const heroDescRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleScrollHome = () => {
@@ -505,7 +512,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     state.camera.lookAt(currentLookAt.current);
 
     // --- Animate Main Logo ---
-    const logo = document.getElementById('main-logo');
+    if (!logoRef.current) logoRef.current = document.getElementById('main-logo');
+    const logo = logoRef.current;
     if (logo) {
       const isMobile = state.size.width < 768;
       const t = Math.min(s / 0.15, 1); 
@@ -526,7 +534,8 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
     }
 
     // --- Fade out Hero Description ---
-    const heroDesc = document.getElementById('hero-desc');
+    if (!heroDescRef.current) heroDescRef.current = document.getElementById('hero-desc');
+    const heroDesc = heroDescRef.current;
     if (heroDesc) {
       const t = Math.min(s / 0.1, 1);
       heroDesc.style.opacity = `${1 - t}`;
@@ -588,10 +597,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
            const shelfRows = Math.max(1, totalRows);
            
            return Array.from({ length: shelfRows }).map((_, r) => (
-             <mesh key={r} position={[10, -4 - r * 4, 0]} receiveShadow castShadow>
-                <boxGeometry args={[80, 0.2, 2.5]} />
-                <meshStandardMaterial map={shelfTexture} roughness={0.8} color="#ffffff" />
-             </mesh>
+             <mesh key={r} geometry={shelfGeometry} material={shelfMaterial} position={[10, -4 - r * 4, 0]} receiveShadow castShadow />
            ));
          })()}
       </group>

@@ -1,8 +1,10 @@
-import { useState, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect, lazy } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Scene } from './components/Scene';
-import { Overlay } from './components/Overlay';
 import { client } from './sanityClient';
+
+// Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
+const Scene = lazy(() => import('./components/Scene').then(module => ({ default: module.Scene })));
+const Overlay = lazy(() => import('./components/Overlay').then(module => ({ default: module.Overlay })));
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -39,13 +41,15 @@ function App() {
 
       {/* Lớp nội dung (Chỉ còn Modal và Header siêu nhỏ) */}
       <div className="relative z-30 w-full pointer-events-none">
-         <Overlay 
-            modalOpen={modalOpen} 
-            setModalOpen={setModalOpen} 
-            activeProject={activeProject} 
-            projects={projects}
-            settings={settings}
-         />
+         <Suspense fallback={null}>
+            <Overlay 
+               modalOpen={modalOpen} 
+               setModalOpen={setModalOpen} 
+               activeProject={activeProject} 
+               projects={projects}
+               settings={settings}
+            />
+         </Suspense>
       </div>
     </>
   );

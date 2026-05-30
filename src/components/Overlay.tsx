@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { urlFor } from '../sanityClient';
 
-export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [], settings }: any) {
+export const Overlay = memo(function Overlay({ modalOpen, setModalOpen, activeProject, projects = [], settings }: any) {
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -292,4 +292,4 @@ export function Overlay({ modalOpen, setModalOpen, activeProject, projects = [],
       </AnimatePresence>
     </>
   );
-}
+});
