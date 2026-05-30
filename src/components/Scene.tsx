@@ -320,7 +320,7 @@ function InteractiveProject({ children, position, title, generalInfo, index, set
       
       {/* Thẻ thông tin dự án (hiển thị khi hover) */}
       {hovered && (
-        <Html position={[1.5, 1.5, 0]} center zIndexRange={[100, 0]}>
+        <Html transform sprite position={[0, 3.5, 0]} center zIndexRange={[100, 0]} scale={0.7}>
           <div 
              className={`px-4 py-3 rounded-xl backdrop-blur-md border shadow-xl whitespace-pre-wrap font-serif transition-colors duration-300 pointer-events-none ${isDarkMode ? 'bg-black/40 border-white/20 text-white' : 'bg-white/50 border-black/10 text-black'}`}
              style={{ minWidth: 'max-content', maxWidth: '250px', textAlign: 'left' }}
