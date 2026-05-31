@@ -74,6 +74,9 @@ function SceneContents() {
     };
   }, [scroll]);
 
+  // Cờ kiểm tra mobile
+  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+
   useFrame((state) => {
     const s = scroll.offset; // 0 to 1
 
@@ -177,7 +180,7 @@ function SceneContents() {
       <directionalLight 
          position={[25, 15, 15]} 
          intensity={isDarkMode ? 0.1 : 1.5} 
-         castShadow 
+         castShadow={!isMobileScreen}
          shadow-mapSize={[1024, 1024]} 
          shadow-camera-left={-25}
          shadow-camera-right={25}
@@ -188,20 +191,22 @@ function SceneContents() {
       />
 
       {/* Hiệu ứng Contact Shadows: Bóng đổ chân thật sát mặt kệ (AO) - frames={1} để tối ưu hiệu năng */}
-      <ContactShadows position={[0, -3.89, -1]} opacity={0.65} scale={50} blur={2.5} far={4} resolution={512} color="#332211" frames={1} />
+      <ContactShadows position={[0, -3.89, -1]} opacity={0.65} scale={50} blur={2.5} far={4} resolution={isMobileScreen ? 256 : 512} color="#332211" frames={1} />
       
       <CursorLight isDarkMode={isDarkMode} />
 
       {/* Hiệu ứng hạt bụi bay lơ lửng */}
-      <Sparkles 
-         count={isDarkMode ? 120 : 40} 
-         scale={[20, 10, 8]} 
-         size={isDarkMode ? 3 : 1.5} 
-         speed={0.2} 
-         opacity={isDarkMode ? 0.4 : 0.15} 
-         position={[0, -2, 0]} 
-         color={isDarkMode ? "#ffd199" : "#ffffff"} 
-      />
+      {!isMobileScreen && (
+         <Sparkles 
+            count={isDarkMode ? 120 : 40} 
+            scale={[20, 10, 8]} 
+            size={isDarkMode ? 3 : 1.5} 
+            speed={0.2} 
+            opacity={isDarkMode ? 0.4 : 0.15} 
+            position={[0, -2, 0]} 
+            color={isDarkMode ? "#ffd199" : "#ffffff"} 
+         />
+      )}
 
       {/* --- CẤU TRÚC KỆ SÁCH & BỨC TƯỜNG --- */}
       <Suspense fallback={null}>

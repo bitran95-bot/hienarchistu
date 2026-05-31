@@ -24,9 +24,11 @@ export const Overlay = memo(function Overlay() {
     setActiveProject((activeProject + 1) % actualProjects.length);
   };
 
+  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+
   const imageUrl = currentDetail?.image?.asset 
-    ? urlFor(currentDetail.image).width(1200).quality(80).auto('format').url() 
-    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop");
+    ? urlFor(currentDetail.image).width(isMobileScreen ? 600 : 1200).quality(80).auto('format').url() 
+    : (currentDetail?.image || `https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=${isMobileScreen ? 600 : 1200}&auto=format&fit=crop`);
 
   // Used for fullscreen viewing
   const fullImageUrl = currentDetail?.image?.asset 
