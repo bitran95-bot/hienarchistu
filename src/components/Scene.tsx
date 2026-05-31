@@ -21,7 +21,7 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
   const { scene } = useGLTF(url) as any;
 
   // Tự động tính toán để scale mô hình vừa vặn trên kệ
-  const { autoScale, offset } = useMemo(() => {
+  const { autoScale } = useMemo(() => {
     // Bật bóng đổ và thêm viền (edges) cho tất cả các chi tiết bên trong mô hình
     scene.traverse((child: any) => {
       if (child.isMesh) {
@@ -47,7 +47,6 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
 
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
     
     // Kích thước tối đa cho phép (vừa vặn với kệ sách)
     const maxDim = Math.max(size.x, size.y, size.z);
