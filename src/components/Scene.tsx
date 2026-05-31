@@ -263,18 +263,33 @@ function InteractiveProject({ children, position, index, setActiveProject, setMo
               e.stopPropagation();
               const deltaX = e.clientX - dragState.current.startX;
               const deltaY = e.clientY - dragState.current.startY;
-              if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-                 dragState.current.hasDragged = true;
+              
+              if (!dragState.current.hasDragged) {
+                 // Nếu người dùng vuốt dọc nhiều hơn ngang -> Đây là thao tác cuộn trang (scroll)
+                 if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+                    dragState.current.isDragging = false;
+                    if (e.target.releasePointerCapture) {
+                      e.target.releasePointerCapture(e.pointerId);
+                    }
+                    return;
+                 }
+                 // Nếu vuốt ngang đủ khoảng cách -> Đánh dấu là đang xoay model
+                 if (Math.abs(deltaX) > 5) {
+                    dragState.current.hasDragged = true;
+                 }
               }
-              // Ngang: tối đa 30 độ (Math.PI / 6)
-              let newRotY = deltaX * 0.005;
-              newRotY = THREE.MathUtils.clamp(newRotY, -Math.PI / 6, Math.PI / 6);
-              setDragRotY(newRotY);
 
-              // Dọc: tối đa 45 độ xuống (Math.PI / 4)
-              let newRotX = deltaY * 0.005;
-              newRotX = THREE.MathUtils.clamp(newRotX, 0, Math.PI / 4);
-              setDragRotX(newRotX);
+              if (dragState.current.hasDragged) {
+                 // Ngang: tối đa 30 độ (Math.PI / 6)
+                 let newRotY = deltaX * 0.005;
+                 newRotY = THREE.MathUtils.clamp(newRotY, -Math.PI / 6, Math.PI / 6);
+                 setDragRotY(newRotY);
+
+                 // Dọc: tối đa 45 độ xuống (Math.PI / 4)
+                 let newRotX = deltaY * 0.005;
+                 newRotX = THREE.MathUtils.clamp(newRotX, 0, Math.PI / 4);
+                 setDragRotX(newRotX);
+              }
            }
         }}
         onPointerUp={(e: any) => {
@@ -482,8 +497,11 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
        gridY = THREE.MathUtils.lerp(-p1.gridRow * 4, -p2.gridRow * 4, fraction);
     }
 
+    const isMobileCam = state.size.width < 768;
+
     const camY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT) + parallaxY;
-    const camZ = THREE.MathUtils.lerp(18, 11, zoomT);
+    // Tăng khoảng cách Z trên mobile để người dùng có thể thấy tổng quan rộng hơn, không bị ngợp
+    const camZ = THREE.MathUtils.lerp(isMobileCam ? 24 : 18, isMobileCam ? 16 : 11, zoomT);
     const camX = THREE.MathUtils.lerp(0, gridX, zoomT) + parallaxX;
 
     const lookY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT);
