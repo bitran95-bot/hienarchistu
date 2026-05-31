@@ -697,7 +697,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       </group>
 
       {/* --- HIỆU ỨNG HẬU KỲ (POST-PROCESSING) --- */}
-      <EffectComposer disableNormalPass>
+      <EffectComposer>
          <Bloom 
             luminanceThreshold={isDarkMode ? 0.2 : 0.8} 
             luminanceSmoothing={0.9} 
