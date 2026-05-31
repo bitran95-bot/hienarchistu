@@ -4,7 +4,7 @@ import { urlFor } from '../sanityClient';
 import { useStore } from '../store/useStore';
 
 export const Overlay = memo(function Overlay() {
-  const { modalOpen, setModalOpen, activeProject, projects, settings } = useStore();
+  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -13,8 +13,17 @@ export const Overlay = memo(function Overlay() {
     { name: "Sài Gòn Pavilion", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop" }
   ];
 
-  const currentDetail = (projects && projects.length > 0) ? projects[activeProject] || projects[0] : fallbackProjects[0];
+  const actualProjects = (projects && projects.length > 0) ? projects : fallbackProjects;
+  const currentDetail = actualProjects[activeProject] || actualProjects[0];
   
+  const handlePrev = () => {
+    setActiveProject((activeProject - 1 + actualProjects.length) % actualProjects.length);
+  };
+
+  const handleNext = () => {
+    setActiveProject((activeProject + 1) % actualProjects.length);
+  };
+
   const imageUrl = currentDetail?.image?.asset 
     ? urlFor(currentDetail.image).width(1200).quality(80).auto('format').url() 
     : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop");
@@ -102,9 +111,20 @@ export const Overlay = memo(function Overlay() {
              className="w-full lg:w-1/2 h-[60vh] lg:h-full bg-[#fdfbf7] shadow-2xl flex flex-col overflow-y-auto relative"
              style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '40px 40px' }}
            >
-              {/* Nút Đóng (Header) */}
-              <div className="p-8 md:p-12 flex justify-between items-center sticky top-0 z-10" style={{ background: 'linear-gradient(to bottom, #fdfbf7 60%, transparent)' }}>
-                 <h2 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em]">Dự án</h2>
+              {/* Nút Đóng & Điều hướng (Header) */}
+              <div className="p-6 md:p-12 flex justify-between items-center sticky top-0 z-10" style={{ background: 'linear-gradient(to bottom, #fdfbf7 60%, transparent)' }}>
+                 <div className="flex items-center gap-4">
+                    <h2 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] hidden md:block">Dự án</h2>
+                    <div className="flex items-center gap-2">
+                       <button onClick={handlePrev} className="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:border-amber-700 hover:text-amber-700 transition-colors bg-white shadow-sm">
+                          <span className="text-lg">←</span>
+                       </button>
+                       <span className="text-xs font-medium text-stone-500 w-12 text-center">{activeProject + 1} / {actualProjects.length}</span>
+                       <button onClick={handleNext} className="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:border-amber-700 hover:text-amber-700 transition-colors bg-white shadow-sm">
+                          <span className="text-lg">→</span>
+                       </button>
+                    </div>
+                 </div>
                  <button 
                    onClick={() => setModalOpen(false)}
                    className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-2 group"
