@@ -89,21 +89,20 @@ export function InteractiveProject({ children, position, index }: any) {
               if (!dragState.current.hasDragged) {
                  const isTouch = e.pointerType === 'touch';
                  if (isTouch) {
-                    // Trên Mobile (Cảm ứng): Nếu vuốt dọc nhiều hơn ngang -> Đây là thao tác cuộn trang
-                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+                    // Cải thiện trên Mobile: Chỉ hủy drag nếu vuốt dọc RẤT rệt (deltaY gấp 2 lần deltaX)
+                    if (Math.abs(deltaY) > Math.abs(deltaX) * 2 && Math.abs(deltaY) > 5) {
                        dragState.current.isDragging = false;
                        if (e.target.releasePointerCapture) {
                          e.target.releasePointerCapture(e.pointerId);
                        }
                        return;
                     }
-                    // Nếu vuốt ngang đủ -> Đánh dấu đang xoay model
-                    if (Math.abs(deltaX) > 5) {
+                    // Chỉ cần di chuyển 3 pixel là tính xoay
+                    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                        dragState.current.hasDragged = true;
                     }
                  } else {
-                    // Trên Desktop (Chuột): Vuốt hướng nào cũng cho phép xoay
-                    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                        dragState.current.hasDragged = true;
                     }
                  }
