@@ -1,5 +1,6 @@
 import { useState, Suspense, useEffect, lazy } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { Helmet } from 'react-helmet-async';
 import { client } from './sanityClient';
 import { LoadingScreen } from './components/LoadingScreen';
 
@@ -29,12 +30,21 @@ function App() {
     }).catch(console.error);
   }, []);
 
+  const siteTitle = settings?.title || "Hiên Archi Studio";
+  const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";
+
   return (
     <>
+      <Helmet>
+        <title>{siteTitle}</title>
+        <meta name="description" content={siteDesc} />
+        <meta property="og:title" content={siteTitle} />
+        <meta property="og:description" content={siteDesc} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* Màn hình chờ */}
       <LoadingScreen started={dataLoaded} />
-
-      
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
          <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={[1, 2]} gl={{ antialias: true }} style={{ touchAction: 'pan-y' }}>
