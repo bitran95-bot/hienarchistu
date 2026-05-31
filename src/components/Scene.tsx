@@ -261,17 +261,25 @@ function InteractiveProject({ children, position, index, setActiveProject, setMo
               const deltaY = e.clientY - dragState.current.startY;
               
               if (!dragState.current.hasDragged) {
-                 // Nếu người dùng vuốt dọc nhiều hơn ngang -> Đây là thao tác cuộn trang (scroll)
-                 if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
-                    dragState.current.isDragging = false;
-                    if (e.target.releasePointerCapture) {
-                      e.target.releasePointerCapture(e.pointerId);
+                 const isTouch = e.pointerType === 'touch';
+                 if (isTouch) {
+                    // Trên Mobile (Cảm ứng): Nếu vuốt dọc nhiều hơn ngang -> Đây là thao tác cuộn trang
+                    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+                       dragState.current.isDragging = false;
+                       if (e.target.releasePointerCapture) {
+                         e.target.releasePointerCapture(e.pointerId);
+                       }
+                       return;
                     }
-                    return;
-                 }
-                 // Nếu vuốt ngang đủ khoảng cách -> Đánh dấu là đang xoay model
-                 if (Math.abs(deltaX) > 5) {
-                    dragState.current.hasDragged = true;
+                    // Nếu vuốt ngang đủ -> Đánh dấu đang xoay model
+                    if (Math.abs(deltaX) > 5) {
+                       dragState.current.hasDragged = true;
+                    }
+                 } else {
+                    // Trên Desktop (Chuột): Vuốt hướng nào cũng cho phép xoay
+                    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                       dragState.current.hasDragged = true;
+                    }
                  }
               }
 
