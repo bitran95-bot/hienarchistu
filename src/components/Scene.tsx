@@ -315,9 +315,9 @@ export function Scene() {
      return () => { document.body.style.cursor = 'auto'; };
    }, []);
  
-   return (
-     <ScrollControls pages={3} damping={0.2}>
-        <SceneContents />
+  return (
+    <ScrollControls pages={3} damping={typeof window !== 'undefined' && window.innerWidth < 768 ? 0.05 : 0.2}>
+      <SceneContents />
      </ScrollControls>
    );
 }

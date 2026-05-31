@@ -42,9 +42,9 @@ export function InteractiveProject({ children, position, index }: any) {
     group.current.position.y = THREE.MathUtils.lerp(group.current.position.y, targetY, 0.1);
 
     if (dragState.current.isDragging) {
-      // Khi đang drag, quay theo giá trị kéo
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, dragRotY, 0.2);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, dragRotX, 0.2);
+      // Khi đang drag, quay sát với tay (tăng lerp từ 0.2 lên 0.8 để xóa độ trễ)
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, dragRotY, 0.8);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, dragRotX, 0.8);
     } else if (hovered) {
       // Khi hover (không drag), tự động lắc lư nhẹ
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, Math.sin(state.clock.elapsedTime * 1.5) * 0.05, 0.1);
@@ -89,8 +89,6 @@ export function InteractiveProject({ children, position, index }: any) {
               if (!dragState.current.hasDragged) {
                  const isTouch = e.pointerType === 'touch';
                  if (isTouch) {
-                    // Cải thiện trên Mobile: Không hủy drag ngang, để browser tự lo pointercancel nếu nó quyết định scroll
-                    // Chỉ cần di chuyển 3 pixel là tính xoay
                     if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                        dragState.current.hasDragged = true;
                     }
@@ -102,14 +100,14 @@ export function InteractiveProject({ children, position, index }: any) {
               }
 
               if (dragState.current.hasDragged) {
-                 // Ngang: tối đa 30 độ (Math.PI / 6)
-                 let newRotY = deltaX * 0.005;
-                 newRotY = THREE.MathUtils.clamp(newRotY, -Math.PI / 6, Math.PI / 6);
+                 // Ngang: mở rộng giới hạn lên 60 độ (Math.PI / 3), tốc độ xoay x2 để khớp với ngón tay
+                 let newRotY = deltaX * 0.01;
+                 newRotY = THREE.MathUtils.clamp(newRotY, -Math.PI / 3, Math.PI / 3);
                  setDragRotY(newRotY);
 
-                 // Dọc: tối đa 45 độ xuống (Math.PI / 4)
-                 let newRotX = deltaY * 0.005;
-                 newRotX = THREE.MathUtils.clamp(newRotX, 0, Math.PI / 4);
+                 // Dọc: mở rộng góc ngửa
+                 let newRotX = deltaY * 0.01;
+                 newRotX = THREE.MathUtils.clamp(newRotX, -Math.PI / 6, Math.PI / 4);
                  setDragRotX(newRotX);
               }
            }
