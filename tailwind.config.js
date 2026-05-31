@@ -13,7 +13,6 @@ export default {
       fontFamily: {
         sans: ['"Noto Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
         serif: ['"Playfair Display"', 'serif'],
-        sketch: ['Patrick Hand', 'cursive'],
         heading: ['"Playfair Display"', 'serif'],
         body: ['"Noto Sans"', 'sans-serif'],
       }

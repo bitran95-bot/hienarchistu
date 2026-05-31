@@ -4,10 +4,6 @@ import { ScrollControls, useScroll, useGLTF, Environment, ContactShadows, Scroll
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { urlFor } from '../sanityClient';
-// const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
-
-
-
 // --- Vòng tròn tải (Loading Spinner) ---
 function LoadingSpinner() {
   return (

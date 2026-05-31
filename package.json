@@ -10,10 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/architects-daughter": "^5.2.7",
-    "@fontsource/kalam": "^5.2.8",
-    "@fontsource/patrick-hand": "^5.2.8",
-    "@fontsource/playfair-display": "^5.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
