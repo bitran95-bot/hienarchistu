@@ -1,8 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { useStore } from '../../store/useStore';
 
-export function Bookshelf({ projects }: { projects: any[] }) {
+export function Bookshelf() {
+  const { projects } = useStore();
   const wallTextures = useTexture({
     map: '/textures/beige_wall_001_diff_2k.jpg',
     displacementMap: '/textures/beige_wall_001_disp_2k.png',

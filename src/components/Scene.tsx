@@ -4,6 +4,7 @@ import { ScrollControls, useScroll, Environment, ContactShadows, Scroll, Sparkle
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
+import { useStore } from '../store/useStore';
 import { LoadingSpinner } from './3d/LoadingSpinner';
 import { SplineModel } from './3d/SplineModel';
 import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
@@ -14,7 +15,8 @@ import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
-function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProject, projects = [], settings }: any) {
+function SceneContents() {
+  const { modalOpen, activeProject, projects, settings } = useStore();
   const scroll = useScroll();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -203,7 +205,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
 
       {/* --- CẤU TRÚC KỆ SÁCH & BỨC TƯỜNG --- */}
       <Suspense fallback={null}>
-        <Bookshelf projects={projects} />
+        <Bookshelf />
       </Suspense>
 
       {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
@@ -221,7 +223,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
           </div>
 
           {/* Màn 2: About (HTML với hiệu ứng gõ phím) */}
-          <AboutSection settings={settings} />
+          <AboutSection />
         </div>
       </Scroll>
 
@@ -256,7 +258,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
 
             if (gridProjects.length === 0) {
               return (
-                <InteractiveProject index={0} setActiveProject={setActiveProject} setModalOpen={setModalOpen} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
+                <InteractiveProject index={0} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
                    <Suspense fallback={<LoadingSpinner />}>
                       <FallbackPhotoFrame image={null} index={0} />
                    </Suspense>
@@ -271,8 +273,6 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                  <InteractiveProject 
                     key={project._id || index} 
                     index={activeIdx} 
-                    setActiveProject={setActiveProject} 
-                    setModalOpen={setModalOpen} 
                     position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
                     title={project.name}
                     generalInfo={project.generalInfo}
@@ -305,14 +305,14 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
   );
 }
 
-export function Scene({ setModalOpen, setActiveProject, modalOpen, activeProject, projects, settings }: any) {
+export function Scene() {
    useEffect(() => {
      return () => { document.body.style.cursor = 'auto'; };
    }, []);
  
    return (
      <ScrollControls pages={3} damping={0.2}>
-        <SceneContents setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} settings={settings} />
+        <SceneContents />
      </ScrollControls>
    );
 }

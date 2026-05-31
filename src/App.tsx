@@ -1,34 +1,19 @@
-import { useState, Suspense, useEffect, lazy } from 'react';
+import { Suspense, useEffect, lazy } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Helmet } from 'react-helmet-async';
-import { client } from './sanityClient';
 import { LoadingScreen } from './components/LoadingScreen';
+import { useStore } from './store/useStore';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 const Scene = lazy(() => import('./components/Scene').then(module => ({ default: module.Scene })));
 const Overlay = lazy(() => import('./components/Overlay').then(module => ({ default: module.Overlay })));
 
 function App() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [activeProject, setActiveProject] = useState(0);
-  const [projects, setProjects] = useState<any[]>([]);
-
-  const [settings, setSettings] = useState<any>(null);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const { fetchData, isDataLoaded, settings } = useStore();
 
   useEffect(() => {
-    client.fetch(`{
-      "projects": *[_type == "project"] | order(order asc) {
-        ...,
-        "modelFileUrl": modelFile.asset->url
-      },
-      "settings": *[_type == "siteSettings"][0]
-    }`).then((data) => {
-      setProjects(data.projects || []);
-      setSettings(data.settings || null);
-      setDataLoaded(true);
-    }).catch(console.error);
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const siteTitle = settings?.title || "Hiên Archi Studio";
   const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";
@@ -44,12 +29,13 @@ function App() {
       </Helmet>
 
       {/* Màn hình chờ */}
-      <LoadingScreen started={dataLoaded} />
+      <LoadingScreen started={isDataLoaded} />
+      
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
          <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={[1, 2]} gl={{ antialias: true }} style={{ touchAction: 'pan-y' }}>
            <Suspense fallback={null}>
-             <Scene setModalOpen={setModalOpen} setActiveProject={setActiveProject} modalOpen={modalOpen} activeProject={activeProject} projects={projects} settings={settings} />
+             <Scene />
            </Suspense>
          </Canvas>
       </div>
@@ -57,13 +43,7 @@ function App() {
       {/* Lớp nội dung (Chỉ còn Modal và Header siêu nhỏ) */}
       <div className="relative z-30 w-full pointer-events-none">
          <Suspense fallback={null}>
-            <Overlay 
-               modalOpen={modalOpen} 
-               setModalOpen={setModalOpen} 
-               activeProject={activeProject} 
-               projects={projects}
-               settings={settings}
-            />
+            <Overlay />
          </Suspense>
       </div>
     </>
@@ -71,3 +51,4 @@ function App() {
 }
 
 export default App;
+

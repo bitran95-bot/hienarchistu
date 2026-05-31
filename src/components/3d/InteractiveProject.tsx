@@ -2,8 +2,10 @@ import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
+import { useStore } from '../../store/useStore';
 
-export function InteractiveProject({ children, position, index, setActiveProject, setModalOpen }: any) {
+export function InteractiveProject({ children, position, index }: any) {
+  const { setActiveProject, setModalOpen } = useStore();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   

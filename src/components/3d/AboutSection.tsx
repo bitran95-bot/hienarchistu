@@ -2,8 +2,10 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
+import { useStore } from '../../store/useStore';
 
-export function AboutSection({ settings }: any) {
+export function AboutSection() {
+  const { settings } = useStore();
   const scroll = useScroll();
   const text1Ref = useRef<HTMLParagraphElement>(null);
   const text2Ref = useRef<HTMLParagraphElement>(null);
