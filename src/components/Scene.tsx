@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, useGLTF, Environment, ContactShadows, Scroll, useTexture, Html } from '@react-three/drei';
+import { ScrollControls, useScroll, useGLTF, Environment, ContactShadows, Scroll, useTexture, Html, Sparkles } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { urlFor } from '../sanityClient';
 // const ARCHI_FONT = "/ArchitectsDaughter-Regular.ttf";
@@ -567,6 +568,17 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
       
       <CursorLight isDarkMode={isDarkMode} />
 
+      {/* Hiệu ứng hạt bụi bay lơ lửng */}
+      <Sparkles 
+         count={isDarkMode ? 120 : 40} 
+         scale={[20, 10, 8]} 
+         size={isDarkMode ? 3 : 1.5} 
+         speed={0.2} 
+         opacity={isDarkMode ? 0.4 : 0.15} 
+         position={[0, -2, 0]} 
+         color={isDarkMode ? "#ffd199" : "#ffffff"} 
+      />
+
       {/* --- CẤU TRÚC KỆ SÁCH & BỨC TƯỜNG --- */}
       <group position={[10, 0, -2]}>
       {/* Bức tường trắng có texture thạch cao - Dời ra xa để tăng hiệu ứng Parallax và chống lẹm */}
@@ -683,6 +695,17 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
             });
          })()}
       </group>
+
+      {/* --- HIỆU ỨNG HẬU KỲ (POST-PROCESSING) --- */}
+      <EffectComposer disableNormalPass>
+         <Bloom 
+            luminanceThreshold={isDarkMode ? 0.2 : 0.8} 
+            luminanceSmoothing={0.9} 
+            intensity={isDarkMode ? 1.2 : 0.2} 
+            opacity={1}
+         />
+         <Vignette eskil={false} offset={0.1} darkness={isDarkMode ? 0.6 : 0.25} />
+      </EffectComposer>
     </>
   );
 }
