@@ -53,12 +53,14 @@ export function AboutSection() {
 
   return (
     <div id="about-section" ref={containerRef} className="absolute w-full flex flex-col items-center justify-center text-center px-4 md:px-8" style={{ top: '80vh', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-      <p ref={text1Ref} className="max-w-3xl text-xl md:text-[32px] font-medium italic font-serif text-[#333333] mb-4 md:mb-8 leading-relaxed">
-        {chars1.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
-      </p>
-      <p ref={text2Ref} className="max-w-2xl text-sm md:text-lg text-[#555555] leading-relaxed">
-        {chars2.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
-      </p>
+      <div className="max-w-4xl bg-[#fdfbf7]/80 backdrop-blur-md p-6 md:p-10 rounded-2xl shadow-[0_0_40px_rgba(253,251,247,0.8)] border border-white/50">
+        <p ref={text1Ref} className="text-xl md:text-[32px] font-medium italic font-serif text-[#333333] mb-4 md:mb-8 leading-relaxed drop-shadow-sm">
+          {chars1.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
+        </p>
+        <p ref={text2Ref} className="text-sm md:text-lg text-[#555555] leading-relaxed drop-shadow-sm">
+          {chars2.map((c: string, i: number) => <span key={i} className="transition-opacity duration-75" style={{ opacity: 0 }}>{c}</span>)}
+        </p>
+      </div>
     </div>
   );
 }

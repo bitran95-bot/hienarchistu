@@ -89,14 +89,7 @@ export function InteractiveProject({ children, position, index }: any) {
               if (!dragState.current.hasDragged) {
                  const isTouch = e.pointerType === 'touch';
                  if (isTouch) {
-                    // Cải thiện trên Mobile: Chỉ hủy drag nếu vuốt dọc RẤT rệt (deltaY gấp 2 lần deltaX)
-                    if (Math.abs(deltaY) > Math.abs(deltaX) * 2 && Math.abs(deltaY) > 5) {
-                       dragState.current.isDragging = false;
-                       if (e.target.releasePointerCapture) {
-                         e.target.releasePointerCapture(e.pointerId);
-                       }
-                       return;
-                    }
+                    // Cải thiện trên Mobile: Không hủy drag ngang, để browser tự lo pointercancel nếu nó quyết định scroll
                     // Chỉ cần di chuyển 3 pixel là tính xoay
                     if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                        dragState.current.hasDragged = true;
