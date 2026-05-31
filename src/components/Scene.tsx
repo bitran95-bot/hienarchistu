@@ -216,7 +216,7 @@ function SceneContents() {
           {/* Chữ HIÊN studio đã được chuyển sang Overlay.tsx để cố định và hiệu ứng trượt */}
           
           {/* Đoạn miêu tả bên phải */}
-          <div id="hero-desc" className="absolute w-full px-6 md:w-auto md:px-0 left-1/2 md:left-auto md:right-[20%] top-[25%] md:top-[65%] -translate-y-1/2 -translate-x-1/2 md:translate-x-0" style={{ maxWidth: '450px' }}>
+          <div id="hero-desc" className="absolute w-full px-6 md:w-auto md:px-0 left-1/2 md:left-auto md:right-[20%] top-[55%] md:top-[65%] -translate-y-1/2 -translate-x-1/2 md:translate-x-0" style={{ maxWidth: '450px' }}>
             <p className="text-sm md:text-base text-[#333] font-serif italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
               {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
             </p>
