@@ -58,11 +58,8 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
       computedScale = (targetSize / maxDim) * scale;
     }
     
-    // Tính toán độ lệch để đặt mặt đáy của mô hình nằm sát lên mặt kệ
-    const bottomY = box.min.y;
     return { 
-      autoScale: computedScale, 
-      offset: new THREE.Vector3(-center.x, -bottomY, -center.z) 
+      autoScale: computedScale
     };
   }, [scene, scale]);
 
@@ -71,7 +68,6 @@ function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }:
       <primitive 
         object={scene} 
         scale={autoScale} 
-        position={[offset.x * autoScale, offset.y * autoScale, offset.z * autoScale]}
       />
     </group>
   );
@@ -678,7 +674,7 @@ function SceneContents({ setModalOpen, setActiveProject, modalOpen, activeProjec
                  >
                     <Suspense fallback={<LoadingSpinner />}>
                       {project.modelFileUrl ? (
-                        <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0]} rotation={[0, 0, 0]} />
+                        <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
                       ) : (
                         <FallbackPhotoFrame image={project.image} index={activeIdx} />
                       )}
