@@ -1,6 +1,7 @@
 import { useState, Suspense, useEffect, lazy } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { client } from './sanityClient';
+import { LoadingScreen } from './components/LoadingScreen';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 const Scene = lazy(() => import('./components/Scene').then(module => ({ default: module.Scene })));
@@ -12,6 +13,7 @@ function App() {
   const [projects, setProjects] = useState<any[]>([]);
 
   const [settings, setSettings] = useState<any>(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     client.fetch(`{
@@ -23,11 +25,14 @@ function App() {
     }`).then((data) => {
       setProjects(data.projects || []);
       setSettings(data.settings || null);
+      setDataLoaded(true);
     }).catch(console.error);
   }, []);
 
   return (
     <>
+      {/* Màn hình chờ */}
+      <LoadingScreen started={dataLoaded} />
 
       
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
