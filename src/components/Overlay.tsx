@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, memo } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { urlFor } from '../sanityClient';
 import { useStore } from '../store/useStore';
 
@@ -24,7 +24,13 @@ export const Overlay = memo(function Overlay() {
     setActiveProject((activeProject + 1) % actualProjects.length);
   };
 
-  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobileScreen, setIsMobileScreen] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobileScreen(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const imageUrl = currentDetail?.image?.asset 
     ? urlFor(currentDetail.image).width(isMobileScreen ? 600 : 1200).quality(80).auto('format').url() 
@@ -40,12 +46,13 @@ export const Overlay = memo(function Overlay() {
       {/* Logo lớn bắt đầu ở giữa và cuộn về góc */}
       <div 
         id="main-logo"
-        className="fixed z-[100] cursor-pointer pointer-events-auto flex flex-col items-start font-heading font-bold uppercase tracking-tighter left-1/2 md:left-[25%] -translate-x-1/2 -translate-y-1/2"
+        className={`fixed z-[100] cursor-pointer flex flex-col items-start font-heading font-bold uppercase tracking-tighter left-1/2 md:left-[25%] -translate-x-1/2 -translate-y-1/2 ${modalOpen || contactOpen ? 'pointer-events-none' : 'pointer-events-auto'}`}
         style={{ 
            top: '40%', 
            color: '#2a2a2a', 
            textShadow: '2px 10px 15px rgba(0,0,0,0.15)',
-           transition: 'color 0.3s ease',
+           transition: 'color 0.3s ease, opacity 0.3s ease',
+           opacity: (modalOpen || contactOpen) ? 0 : 1,
         }}
         onClick={() => {
            window.dispatchEvent(new CustomEvent('scroll-to-home'));

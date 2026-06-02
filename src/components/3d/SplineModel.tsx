@@ -33,6 +33,12 @@ export function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     
+    // Đưa tâm gốc (pivot) của mô hình về chính giữa mặt đáy để luôn khớp với mặt kệ
+    const center = box.getCenter(new THREE.Vector3());
+    scene.position.x = -center.x;
+    scene.position.z = -center.z;
+    scene.position.y = -box.min.y;
+    
     // Kích thước tối đa cho phép (vừa vặn với kệ sách)
     const maxDim = Math.max(size.x, size.y, size.z);
     const targetSize = 2.4; 

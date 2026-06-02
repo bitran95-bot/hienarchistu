@@ -75,7 +75,13 @@ function SceneContents() {
   }, [scroll]);
 
   // Cờ kiểm tra mobile
-  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [isMobileScreen, setIsMobileScreen] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobileScreen(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useFrame((state) => {
     const s = scroll.offset; // 0 to 1
