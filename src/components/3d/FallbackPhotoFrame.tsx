@@ -1,7 +1,9 @@
-import { useTexture } from '@react-three/drei';
+import { useTexture, Text } from '@react-three/drei';
 import { urlFor } from '../../sanityClient';
 
-export function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: number }) {
+export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index?: number }) {
+  const image = project?.image;
+  
   const imageUrl = image?.asset 
     ? urlFor(image).width(800).quality(80).auto('format').url() 
     : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop";
@@ -48,6 +50,28 @@ export function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: n
           <meshStandardMaterial attach="material-4" map={texture} roughness={0.3} metalness={0.1} /> {/* Cover */}
           <meshStandardMaterial attach="material-5" color={spineColor} roughness={0.8} /> {/* Back */}
        </mesh>
+       
+       {/* Tên dự án in trên bìa tạp chí (Overlay) */}
+       {project?.name && (
+         <group position={[0, -imgH / 2 + 0.15, thickness / 2 + 0.005]}>
+           {/* Dark overlay để dễ đọc chữ hơn */}
+           <mesh position={[0, 0, -0.001]}>
+             <planeGeometry args={[imgW, 0.3]} />
+             <meshBasicMaterial color="#000000" transparent opacity={0.6} />
+           </mesh>
+           <Text
+             position={[0, 0, 0]}
+             fontSize={0.1}
+             color="#ffffff"
+             anchorX="center"
+             anchorY="middle"
+             maxWidth={imgW - 0.1}
+             font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff"
+           >
+             {project.name.toUpperCase()}
+           </Text>
+         </group>
+       )}
     </group>
   );
 }

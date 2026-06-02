@@ -93,23 +93,23 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
       </div>
 
       {/* Magazine Container */}
-      <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] flex items-center justify-center pointer-events-none">
-        <div className="pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+      <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex items-center justify-center pointer-events-none p-4 md:p-8">
+        <div className="pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full h-full max-w-[1200px] max-h-[90vh]">
           {/* @ts-ignore */}
           <HTMLFlipBook
             width={pageWidth}
             height={pageHeight}
             size="stretch"
             minWidth={300}
-            maxWidth={1500}
+            maxWidth={1000}
             minHeight={400}
-            maxHeight={1500}
-          maxShadowOpacity={0.6}
-          showCover={true}
-          usePortrait={isMobile}
-          mobileScrollSupport={true}
-          className="magazine-flipbook"
-        >
+            maxHeight={1200}
+            maxShadowOpacity={0.6}
+            showCover={true}
+            usePortrait={isMobile}
+            mobileScrollSupport={true}
+            className="magazine-flipbook mx-auto"
+          >
           {/* Page 1: Cover */}
           <Page>
              <div className="w-full h-full relative -m-8 md:-m-12" style={{ width: 'calc(100% + 4rem)', height: 'calc(100% + 6rem)' }}>

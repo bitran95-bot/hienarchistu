@@ -249,7 +249,7 @@ function SceneContents() {
               return (
                 <InteractiveProject index={0} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
                    <Suspense fallback={<LoadingSpinner />}>
-                      <FallbackPhotoFrame image={null} index={0} />
+                      <FallbackPhotoFrame project={{}} index={0} />
                    </Suspense>
                 </InteractiveProject>
               );
@@ -271,7 +271,7 @@ function SceneContents() {
                       {project.modelFileUrl ? (
                         <SplineModel url={project.modelFileUrl} scale={0.8 * (project.modelScale || 1)} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
                       ) : (
-                        <FallbackPhotoFrame image={project.image} index={activeIdx} />
+                        <FallbackPhotoFrame project={project} index={activeIdx} />
                       )}
                     </Suspense>
                  </InteractiveProject>
