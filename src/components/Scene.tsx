@@ -195,12 +195,12 @@ function SceneContents() {
       {/* Hiệu ứng hạt bụi bay lơ lửng / đom đóm */}
       {!isMobileScreen && (
          <Sparkles 
-            count={isDarkMode ? 150 : 40} 
-            scale={[20, 10, 8]} 
-            size={isDarkMode ? 8 : 2} 
-            speed={isDarkMode ? 0.4 : 0.2} 
-            opacity={isDarkMode ? 0.9 : 0.2} 
-            position={[0, -2, 0]} 
+            count={isDarkMode ? 60 : 20} 
+            scale={[40, 25, 10]} 
+            size={isDarkMode ? 6 : 1.5} 
+            speed={isDarkMode ? 0.3 : 0.1} 
+            opacity={isDarkMode ? 0.7 : 0.2} 
+            position={[0, -8, 0]} 
             color={isDarkMode ? "#ffd199" : "#ffffff"} 
          />
       )}

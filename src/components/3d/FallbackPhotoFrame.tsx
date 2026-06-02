@@ -101,7 +101,7 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
                        side: THREE.DoubleSide,
                        emissive: isDarkMode ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
                        emissiveMap: isDarkMode ? mappedTexture : null,
-                       emissiveIntensity: isDarkMode ? 0.3 : 0 // Tỏa sáng nhẹ khi tắt đèn
+                       emissiveIntensity: isDarkMode ? 0.8 : 0 // Tỏa sáng mạnh hơn khi tắt đèn
                     });
                     
                     if (Array.isArray(child.material)) {
