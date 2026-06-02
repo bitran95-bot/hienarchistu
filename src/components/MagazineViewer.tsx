@@ -24,8 +24,9 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Calculate flipbook dimensions based on screen size
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const pageWidth = isMobile ? window.innerWidth * 0.9 : Math.min(600, window.innerWidth / 2.2);
-  const pageHeight = isMobile ? window.innerHeight * 0.7 : Math.min(800, window.innerHeight * 0.85);
+  // Tăng kích thước lên rất lớn để xem rõ chi tiết
+  const pageWidth = isMobile ? 400 : 800;
+  const pageHeight = isMobile ? 600 : 1100;
 
   // Prepare gallery images
   const gallery = project.gallery || [];
@@ -58,7 +59,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Front Cover image
   const coverImageUrl = project.image?.asset 
-    ? urlFor(project.image).width(1200).quality(90).auto('format').url() 
+    ? urlFor(project.image).width(1600).quality(100).auto('format').url() 
     : (project.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop");
 
   return (
@@ -68,10 +69,16 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.4 }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto bg-[#e5dfd5]/90 backdrop-blur-md"
+      onClick={(e) => {
+         // Đóng tạp chí nếu click vào vùng nền (backdrop)
+         if (e.target === e.currentTarget) {
+            onClose();
+         }
+      }}
     >
       {/* Controls */}
-      <div className="absolute top-6 w-full px-6 flex justify-between items-center z-50">
-         <div className="flex items-center gap-4 text-[#2a2a2a]">
+      <div className="absolute top-6 w-full px-6 flex justify-between items-center z-50 pointer-events-none">
+         <div className="flex items-center gap-4 text-[#2a2a2a] pointer-events-auto">
             <button onClick={onPrev} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
                ←
             </button>
@@ -80,22 +87,23 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                →
             </button>
          </div>
-         <button onClick={onClose} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl">
+         <button onClick={onClose} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl pointer-events-auto">
             ×
          </button>
       </div>
 
-      {/* Magazine */}
-      <div className="relative shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-        {/* @ts-ignore */}
-        <HTMLFlipBook
-          width={pageWidth}
-          height={pageHeight}
-          size="stretch"
-          minWidth={300}
-          maxWidth={1000}
-          minHeight={400}
-          maxHeight={1200}
+      {/* Magazine Container */}
+      <div className="relative w-full h-full max-w-[95vw] max-h-[95vh] flex items-center justify-center pointer-events-none">
+        <div className="pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+          {/* @ts-ignore */}
+          <HTMLFlipBook
+            width={pageWidth}
+            height={pageHeight}
+            size="stretch"
+            minWidth={300}
+            maxWidth={1500}
+            minHeight={400}
+            maxHeight={1500}
           maxShadowOpacity={0.6}
           showCover={true}
           usePortrait={isMobile}
@@ -212,6 +220,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           )}
 
         </HTMLFlipBook>
+        </div>
       </div>
 
       {/* FULLSCREEN IMAGE VIEWER */}
