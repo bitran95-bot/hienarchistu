@@ -16,58 +16,8 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
     
   const texture = useTexture(imageUrl);
   
-  // Thường các texture map vào GLTF cần cấu hình này
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.flipY = false; 
-
-  useMemo(() => {
-     scene.traverse((child: any) => {
-        if (child.isMesh) {
-           child.castShadow = true;
-           child.receiveShadow = true;
-           
-           if (child.material) {
-              const materials = Array.isArray(child.material) ? child.material : [child.material];
-              
-              materials.forEach((mat: any, i: number) => {
-                 console.log("Checking material:", mat.name);
-                 // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
-                 if (mat.name === 'Coverfrontpage') {
-                    console.log("FOUND Coverfrontpage! Applying texture:", imageUrl);
-                    const newMat = new THREE.MeshStandardMaterial({
-                       map: texture,
-                       color: 0xffffff, // Trả lại màu trắng chuẩn
-                       roughness: 0.4,
-                       metalness: 0.1,
-                       side: THREE.DoubleSide
-                    });
-                    
-                    if (Array.isArray(child.material)) {
-                       child.material[i] = newMat;
-                    } else {
-                       child.material = newMat;
-                    }
-                 }
-                 
-                 // Nếu bạn muốn xử lý Coverbackpage, có thể làm tương tự ở đây
-                 // Ví dụ gán màu đơn sắc hoặc texture khác:
-                 /*
-                 if (mat.name === 'Coverbackpage') {
-                    const newMat = mat.clone();
-                    newMat.color = new THREE.Color('#2a2a2a'); // Màu tối cho mặt sau
-                    newMat.needsUpdate = true;
-                    if (Array.isArray(child.material)) child.material[i] = newMat;
-                    else child.material = newMat;
-                 }
-                 */
-              });
-           }
-        }
-     });
-  }, [scene, texture]);
-
   // Tính toán Scale để quyển sách có kích thước phù hợp trên kệ
-  const { autoScale } = useMemo(() => {
+  const { autoScale, boxSize } = useMemo(() => {
     const oldPos = scene.position.clone();
     const oldScale = scene.scale.clone();
     
@@ -95,14 +45,81 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
       boxSize: size
     };
   }, [scene]);
+
+  // Xử lý Texture (Crop hình ảnh để không bị méo tỉ lệ)
+  const mappedTexture = useMemo(() => {
+     const t = texture.clone();
+     t.colorSpace = THREE.SRGBColorSpace;
+     t.flipY = false; 
+
+     // Tính tỉ lệ ảnh và tỉ lệ sách
+     let imageAspect = 1.5; // Mặc định landscape nhẹ
+     if (image?.asset?._ref) {
+        const match = image.asset._ref.match(/-(\d+)x(\d+)-/);
+        if (match) {
+           const w = parseInt(match[1], 10);
+           const h = parseInt(match[2], 10);
+           if (w && h) imageAspect = w / h;
+        }
+     }
+     
+     // Giả định mặt sách là mặt lớn nhất của bounding box (thường là x và y)
+     const coverAspect = boxSize.y > 0 ? (boxSize.x / boxSize.y) : 0.75;
+
+     // Logic Object-fit: cover
+     if (imageAspect > coverAspect) {
+        // Ảnh bè ngang hơn sách -> crop 2 bên hông
+        t.repeat.set(coverAspect / imageAspect, 1);
+        t.offset.set((1 - (coverAspect / imageAspect)) / 2, 0);
+     } else {
+        // Ảnh dài dọc hơn sách -> crop trên dưới
+        t.repeat.set(1, imageAspect / coverAspect);
+        t.offset.set(0, (1 - (imageAspect / coverAspect)) / 2);
+     }
+
+     t.needsUpdate = true;
+     return t;
+  }, [texture, image, boxSize]);
+
+  useMemo(() => {
+     scene.traverse((child: any) => {
+        if (child.isMesh) {
+           child.castShadow = true;
+           child.receiveShadow = true;
+           
+           if (child.material) {
+              const materials = Array.isArray(child.material) ? child.material : [child.material];
+              
+              materials.forEach((mat: any, i: number) => {
+                 // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
+                 if (mat.name === 'Coverfrontpage') {
+                    const newMat = new THREE.MeshStandardMaterial({
+                       map: mappedTexture,
+                       color: 0xffffff,
+                       roughness: 0.85, // Nhám hơn để giống giấy, giảm phản xạ ánh sáng làm mờ ảnh
+                       metalness: 0.05,
+                       side: THREE.DoubleSide
+                    });
+                    
+                    if (Array.isArray(child.material)) {
+                       child.material[i] = newMat;
+                    } else {
+                       child.material = newMat;
+                    }
+                 }
+              });
+           }
+        }
+     });
+  }, [scene, mappedTexture]);
   
   // Độ nghiêng ngẫu nhiên nhẹ cho tự nhiên trên kệ
   const tiltZ = -0.15; // Ngả ra sau
   const tiltY = (index % 3 === 0) ? -0.05 : ((index % 2 === 0) ? 0.05 : 0);
 
-  // Đặt sách đứng ở mép kệ, dùng pivot gốc của 3D
+  // Đặt sách đứng ở mép kệ, dời vào trong một chút (Z: 0.1 thay vì 0.4)
   return (
-    <group position={[0, 0, 0.4]} rotation={[tiltZ, tiltY, 0]}>
+    <group position={[0, 0, 0.1]} rotation={[tiltZ, tiltY, 0]}>
        <group scale={autoScale}>
          <primitive object={scene} position={[0, 0, 0]} />
        </group>
