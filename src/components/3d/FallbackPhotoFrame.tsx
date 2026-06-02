@@ -30,13 +30,16 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
               const materials = Array.isArray(child.material) ? child.material : [child.material];
               
               materials.forEach((mat: any, i: number) => {
+                 console.log("Checking material:", mat.name);
                  // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
                  if (mat.name === 'Coverfrontpage') {
-                    const newMat = mat.clone();
-                    newMat.map = texture;
-                    // Bỏ màu gốc nếu nó bị đè
-                    newMat.color = new THREE.Color(0xffffff);
-                    newMat.needsUpdate = true;
+                    console.log("FOUND Coverfrontpage! Applying texture:", imageUrl);
+                    const newMat = new THREE.MeshStandardMaterial({
+                       map: texture,
+                       color: 0xffffff,
+                       roughness: 0.4,
+                       metalness: 0.1
+                    });
                     
                     if (Array.isArray(child.material)) {
                        child.material[i] = newMat;
