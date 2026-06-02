@@ -13,6 +13,7 @@ import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
+import { calculateProjectLayout } from '../utils/layout';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
@@ -23,27 +24,17 @@ function SceneContents() {
   // Tính toán Grid Layout
   const gridData = useMemo(() => {
     if (!projects || projects.length === 0) return { map: [], path: [] };
-    const photoProjects = projects.filter((p: any) => !p.modelFileUrl);
-    const modelProjects = projects.filter((p: any) => p.modelFileUrl);
+    const layout = calculateProjectLayout(projects);
     const map = new Array(projects.length);
     const path: any[] = [];
-    let r = 0, c = 0;
     
-    photoProjects.forEach((p: any) => {
-       const origIdx = projects.findIndex((op: any) => op === p);
-       const loc = { gridRow: r, gridCol: c };
+    layout.forEach((p: any) => {
+       const origIdx = projects.findIndex((op: any) => op._id === p._id);
+       const loc = { gridRow: p.computedRow, computedX: p.computedX };
        if (origIdx >= 0) map[origIdx] = loc;
        path.push(loc);
-       c++; if (c >= 5) { c = 0; r++; }
     });
-    if (c > 0) { r++; c = 0; }
-    modelProjects.forEach((p: any) => {
-       const origIdx = projects.findIndex((op: any) => op === p);
-       const loc = { gridRow: r, gridCol: c };
-       if (origIdx >= 0) map[origIdx] = loc;
-       path.push(loc);
-       c++; if (c >= 5) { c = 0; r++; }
-    });
+    
     return { map, path };
   }, [projects]);
 
@@ -108,7 +99,7 @@ function SceneContents() {
        const p1 = gridData.path[floorIdx];
        const p2 = gridData.path[ceilIdx];
 
-       gridX = THREE.MathUtils.lerp(p1.gridCol * 4, p2.gridCol * 4, fraction);
+       gridX = THREE.MathUtils.lerp(p1.computedX, p2.computedX, fraction);
        gridY = THREE.MathUtils.lerp(-p1.gridRow * 4, -p2.gridRow * 4, fraction);
     }
 
@@ -124,7 +115,7 @@ function SceneContents() {
 
     if (modalOpen && gridData.map[activeProject]) {
        const activeLoc = gridData.map[activeProject];
-       const targetX = activeLoc.gridCol * 4;
+       const targetX = activeLoc.computedX;
        const targetY_grid = -activeLoc.gridRow * 4;
        // Zoom lại gần mô hình đang chọn, chếch sang trái một chút để chừa chỗ cho bảng thông tin bên phải
        const camTargetPos = new THREE.Vector3(targetX - 2.0, -3.2 + targetY_grid, 4.5); 
@@ -252,20 +243,7 @@ function SceneContents() {
          </Suspense>
          
          {(() => {
-            const photoProjects = projects ? projects.filter((p: any) => !p.modelFileUrl) : [];
-            const modelProjects = projects ? projects.filter((p: any) => p.modelFileUrl) : [];
-            const gridProjects: any[] = [];
-            let r = 0, c = 0;
-            
-            photoProjects.forEach((p: any) => {
-               gridProjects.push({ ...p, gridRow: r, gridCol: c });
-               c++; if (c >= 5) { c = 0; r++; }
-            });
-            if (c > 0) { r++; c = 0; }
-            modelProjects.forEach((p: any) => {
-               gridProjects.push({ ...p, gridRow: r, gridCol: c });
-               c++; if (c >= 5) { c = 0; r++; }
-            });
+            const gridProjects = calculateProjectLayout(projects || []);
 
             if (gridProjects.length === 0) {
               return (
@@ -284,7 +262,7 @@ function SceneContents() {
                  <InteractiveProject 
                     key={project._id || index} 
                     index={activeIdx} 
-                    position={[project.gridCol * 4, -project.gridRow * 4, 0]} 
+                    position={[project.computedX, -project.computedRow * 4, 0]} 
                     title={project.name}
                     generalInfo={project.generalInfo}
                     isDarkMode={isDarkMode}

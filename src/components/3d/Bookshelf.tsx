@@ -2,6 +2,7 @@ import { useMemo, useEffect } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
+import { calculateProjectLayout } from '../../utils/layout';
 
 export function Bookshelf() {
   const { projects } = useStore();
@@ -43,14 +44,8 @@ export function Bookshelf() {
 
       {/* Đợt kệ */}
       {(() => {
-        const photoProjects = projects ? projects.filter((p: any) => !p.modelFileUrl) : [];
-        const modelProjects = projects ? projects.filter((p: any) => p.modelFileUrl) : [];
-        let rows = 0;
-        let cols = 0;
-        photoProjects.forEach(() => { cols++; if (cols >= 5) { cols = 0; rows++; } });
-        if (cols > 0) { rows++; cols = 0; }
-        modelProjects.forEach(() => { cols++; if (cols >= 5) { cols = 0; rows++; } });
-        const totalRows = cols > 0 ? rows + 1 : rows;
+        const layout = calculateProjectLayout(projects || []);
+        const totalRows = layout.length > 0 ? Math.max(...layout.map((l: any) => l.computedRow)) + 1 : 0;
         const shelfRows = Math.max(1, totalRows);
         
         return Array.from({ length: shelfRows }).map((_, r) => (
