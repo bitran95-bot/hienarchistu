@@ -192,14 +192,14 @@ function SceneContents() {
       
       <CursorLight isDarkMode={isDarkMode} />
 
-      {/* Hiệu ứng hạt bụi bay lơ lửng */}
+      {/* Hiệu ứng hạt bụi bay lơ lửng / đom đóm */}
       {!isMobileScreen && (
          <Sparkles 
-            count={isDarkMode ? 120 : 40} 
+            count={isDarkMode ? 150 : 40} 
             scale={[20, 10, 8]} 
-            size={isDarkMode ? 3 : 1.5} 
-            speed={0.2} 
-            opacity={isDarkMode ? 0.4 : 0.15} 
+            size={isDarkMode ? 8 : 2} 
+            speed={isDarkMode ? 0.4 : 0.2} 
+            opacity={isDarkMode ? 0.9 : 0.2} 
             position={[0, -2, 0]} 
             color={isDarkMode ? "#ffd199" : "#ffffff"} 
          />
@@ -249,7 +249,7 @@ function SceneContents() {
               return (
                 <InteractiveProject index={0} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
                    <Suspense fallback={<LoadingSpinner />}>
-                      <FallbackPhotoFrame project={{}} index={0} />
+                      <FallbackPhotoFrame project={{}} index={0} isDarkMode={isDarkMode} />
                    </Suspense>
                 </InteractiveProject>
               );
@@ -271,7 +271,7 @@ function SceneContents() {
                       {project.modelFileUrl ? (
                         <SplineModel url={project.modelFileUrl} scale={0.8 * (project.modelScale || 1)} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
                       ) : (
-                        <FallbackPhotoFrame project={project} index={activeIdx} />
+                        <FallbackPhotoFrame project={project} index={activeIdx} isDarkMode={isDarkMode} />
                       )}
                     </Suspense>
                  </InteractiveProject>

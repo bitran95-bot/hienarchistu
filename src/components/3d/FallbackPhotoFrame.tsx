@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { urlFor } from '../../sanityClient';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
-export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index?: number }) {
+export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: { project: any; index?: number; isDarkMode?: boolean }) {
   // Load mô hình tạp chí từ thư mục public (thêm ?v=2 để tránh cache trình duyệt)
   const { scene: originalScene } = useGLTF('/magazine.glb?v=2') as any;
   const scene = useMemo(() => clone(originalScene), [originalScene]);
@@ -98,7 +98,10 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
                        color: 0xffffff,
                        roughness: 0.85, // Nhám hơn để giống giấy, giảm phản xạ ánh sáng làm mờ ảnh
                        metalness: 0.05,
-                       side: THREE.DoubleSide
+                       side: THREE.DoubleSide,
+                       emissive: isDarkMode ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
+                       emissiveMap: isDarkMode ? mappedTexture : null,
+                       emissiveIntensity: isDarkMode ? 0.3 : 0 // Tỏa sáng nhẹ khi tắt đèn
                     });
                     
                     if (Array.isArray(child.material)) {
@@ -111,7 +114,7 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
            }
         }
      });
-  }, [scene, mappedTexture]);
+  }, [scene, mappedTexture, isDarkMode]);
   
   // Độ nghiêng ngẫu nhiên nhẹ cho tự nhiên trên kệ
   const tiltZ = -0.15; // Ngả ra sau
