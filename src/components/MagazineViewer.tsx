@@ -94,7 +94,10 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
 
       {/* Magazine Container */}
       <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex items-center justify-center pointer-events-none p-4 md:p-8">
-        <div className="pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full h-full max-w-[1200px] max-h-[90vh]">
+        <div 
+           className="pointer-events-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full h-full max-w-[95vw] max-h-[90vh]"
+           style={{ aspectRatio: isMobile ? 'auto' : `${pageWidth * 2} / ${pageHeight}` }}
+        >
           {/* @ts-ignore */}
           <HTMLFlipBook
             width={pageWidth}

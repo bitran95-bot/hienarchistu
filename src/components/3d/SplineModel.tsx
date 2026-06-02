@@ -6,7 +6,7 @@ export function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,
   const { scene } = useGLTF(url) as any;
 
   // Dùng useMemo tính toán các thông số offset dựa trên scene nguyên bản
-  const { autoScale, offsetX, offsetY, offsetZ } = useMemo(() => {
+  const { autoScale, offsetX, offsetY, offsetZ, boxSize } = useMemo(() => {
     // Lưu lại transform cũ (đề phòng)
     const oldPos = scene.position.clone();
     const oldScale = scene.scale.clone();
@@ -59,7 +59,8 @@ export function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,
       autoScale: computedScale,
       offsetX: -center.x,
       offsetY: -box.min.y,
-      offsetZ: -center.z
+      offsetZ: -center.z,
+      boxSize: size
     };
   }, [scene, scale]);
 
@@ -70,6 +71,11 @@ export function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,
           object={scene} 
           position={[offsetX, offsetY, offsetZ]}
         />
+        {/* Hitbox cho click & hover dễ dàng */}
+        <mesh position={[0, boxSize.y / 2, 0]} visible={false}>
+          <boxGeometry args={[boxSize.x, boxSize.y, boxSize.z]} />
+          <meshBasicMaterial />
+        </mesh>
       </group>
     </group>
   );
