@@ -31,9 +31,9 @@ export function calculateProjectLayout(projects: any[]) {
              aspect = w / h;
           }
         }
-        // FallbackPhotoFrame base width = 1.4 * aspect + 0.4 border
+        // FallbackPhotoFrame base width = 1.4 * aspect (no more frame border)
         // InteractiveProject scales by 1.95 on hover
-        const actualWidth = (1.4 * aspect + 0.4) * 1.95;
+        const actualWidth = (1.4 * aspect) * 1.95;
         expectedWidth = actualWidth + 1.5; // padding
       }
       

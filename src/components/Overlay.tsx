@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, memo } from 'react';
 import { urlFor } from '../sanityClient';
 import { useStore } from '../store/useStore';
+import { MagazineViewer } from './MagazineViewer';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
@@ -86,131 +87,17 @@ export const Overlay = memo(function Overlay() {
         <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">Liên Hệ</button>
       </div>
 
-      {/* DETAIL MODAL FULLSCREEN */}
+      {/* DETAIL MODAL FULLSCREEN - NOW MAGAZINE VIEWER */}
       <AnimatePresence>
       {modalOpen && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] flex flex-col lg:flex-row pointer-events-auto bg-[#fdfbf7]"
-        >
-           {/* Nửa bên trái là hình ảnh 2D */}
-            <motion.div 
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: "spring", damping: 30, stiffness: 100 }}
-              className="w-full lg:w-1/2 h-[35vh] lg:h-full relative bg-stone-200 cursor-zoom-in"
-              onClick={() => setSelectedImage(fullImageUrl)}
-            >
-               <img src={imageUrl} alt={currentDetail.name} className="w-full h-full object-cover" />
-               <div className="absolute inset-0 bg-black/10 hover:bg-black/0 transition-colors"></div>
-            </motion.div>
-           
-           {/* Nửa bên phải là thông tin dự án, nền sáng */}
-           <motion.div 
-             initial={{ x: '100%' }}
-             animate={{ x: 0 }}
-             exit={{ x: '100%' }}
-             transition={{ type: "spring", damping: 30, stiffness: 100 }}
-             className="w-full lg:w-1/2 h-[65vh] lg:h-full bg-[#fdfbf7] shadow-2xl flex flex-col overflow-y-auto relative"
-             style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-           >
-              {/* Nút Đóng & Điều hướng (Header) */}
-              <div className="p-4 md:p-12 flex justify-between items-center sticky top-0 z-10" style={{ background: 'linear-gradient(to bottom, #fdfbf7 60%, transparent)' }}>
-                 <div className="flex items-center gap-2 md:gap-4">
-                    <h2 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em] hidden md:block">Dự án</h2>
-                    <div className="flex items-center gap-1 md:gap-2">
-                       <button onClick={handlePrev} className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-stone-300 flex items-center justify-center hover:border-amber-700 hover:text-amber-700 transition-colors bg-white shadow-sm">
-                          <span className="text-base md:text-lg">←</span>
-                       </button>
-                       <span className="text-[10px] md:text-xs font-medium text-stone-500 w-8 md:w-12 text-center">{activeProject + 1} / {actualProjects.length}</span>
-                       <button onClick={handleNext} className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-stone-300 flex items-center justify-center hover:border-amber-700 hover:text-amber-700 transition-colors bg-white shadow-sm">
-                          <span className="text-base md:text-lg">→</span>
-                       </button>
-                    </div>
-                 </div>
-                 <button 
-                   onClick={() => setModalOpen(false)}
-                   className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-2 group"
-                 >
-                   <span className="uppercase text-xs tracking-widest font-bold hidden md:inline">Đóng</span>
-                   <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#2a2a2a] group-hover:border-amber-700 flex items-center justify-center transition-colors bg-[#fdfbf7]">
-                      <span className="mb-1 text-lg md:text-xl leading-none">×</span>
-                   </div>
-                 </button>
-              </div>
-
-              {/* Nội dung chính */}
-              <div className="px-6 md:px-12 pb-24 flex-1 flex flex-col pt-2 md:pt-0">
-                 <motion.h1 
-                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="text-3xl md:text-6xl lg:text-7xl font-heading font-bold leading-[1.1] text-[#2a2a2a] tracking-tighter mb-4 md:mb-8"
-                 >
-                    {currentDetail.name}
-                 </motion.h1>
-
-                 <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, type: "spring" }} className="mb-6 md:mb-8">
-                     <p className="text-lg md:text-2xl text-[#333] leading-relaxed whitespace-pre-wrap">
-                        {currentDetail.generalInfo || currentDetail.desc || "Thông tin chung dự án đang được cập nhật..."}
-                     </p>
-                 </motion.div>
-
-                 <div className="flex flex-col gap-6 md:gap-12 mt-2 md:mt-4 border-t border-stone-300 pt-6 md:pt-8">
-                    {/* Content */}
-                    {currentDetail.content && (
-                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, type: "spring" }}>
-                          <h3 className="text-xs md:text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Nội dung chi tiết
-                          </h3>
-                          <p className="font-serif italic text-base md:text-xl text-[#555] leading-relaxed border-l-4 border-amber-700 pl-4 md:pl-6 whitespace-pre-wrap">
-                            {currentDetail.content}
-                          </p>
-                       </motion.div>
-                    )}
-
-                    {/* YouTube Video */}
-                    {currentDetail.youtubeLink && (
-                       <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5, type: "spring" }}>
-                          <h3 className="text-xs md:text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                            <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Video
-                          </h3>
-                          <div className="w-full aspect-video rounded-md overflow-hidden shadow-sm border border-stone-200">
-                             <iframe 
-                               className="w-full h-full"
-                               src={currentDetail.youtubeLink.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/")} 
-                               title="YouTube video player" 
-                               frameBorder="0" 
-                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                               allowFullScreen
-                             ></iframe>
-                          </div>
-                       </motion.div>
-                    )}
-
-                    {/* Gallery */}
-                    {currentDetail.gallery && currentDetail.gallery.length > 0 && (
-                       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mt-6 md:mt-8">
-                           <h3 className="text-xs md:text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 md:mb-6 flex items-center gap-2">
-                             <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Thư viện hình ảnh
-                           </h3>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                               {currentDetail.gallery.map((img: any, idx: number) => {
-                                   const thumbSrc = urlFor(img).width(800).quality(80).auto('format').url();
-                                   const fullSrc = urlFor(img).quality(100).auto('format').url();
-                                   return (
-                                       <img key={idx} src={thumbSrc} alt={`${currentDetail.name} ${idx}`} onClick={() => setSelectedImage(fullSrc)} className="w-full h-auto object-cover border border-stone-300 shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity" loading="lazy" />
-                                   );
-                               })}
-                           </div>
-                       </motion.div>
-                    )}
-                 </div>
-              </div>
-           </motion.div>
-        </motion.div>
+        <MagazineViewer 
+          project={currentDetail}
+          currentIndex={activeProject}
+          totalIndex={actualProjects.length}
+          onClose={() => setModalOpen(false)}
+          onNext={handleNext}
+          onPrev={handlePrev}
+        />
       )}
       </AnimatePresence>
 
