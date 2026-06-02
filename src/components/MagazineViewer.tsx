@@ -29,32 +29,38 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   const pageHeight = isMobile ? window.innerHeight * 0.6 : 650;
 
   // Prepare gallery images
-  const gallery = project.gallery || [];
+  const groupedGallery: any[][] = [];
+  let pageConfigs: string[] = [];
   
-  // Group gallery images pseudo-randomly (1-3 per page) based on project id
+  // Hash function for pseudo-random grouping
   const hashString = (str: string) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
     return Math.abs(hash);
   };
-  
-  const groupedGallery: any[][] = [];
-  let pageConfigs: string[] = [];
-  if (gallery && gallery.length > 0) {
-     let i = 0;
-     const seed = hashString(project._id || project.name || "default");
-     while (i < gallery.length) {
-        const randomVal = (seed + i * 17) % 100;
-        let chunkSize = 1;
-        if (randomVal > 70 && i + 2 < gallery.length) chunkSize = 3;
-        else if (randomVal > 30 && i + 1 < gallery.length) chunkSize = 2;
-        
-        groupedGallery.push(gallery.slice(i, i + chunkSize));
-        // Randomly assign a layout configuration for the page
-        const configVal = (seed + i * 23) % 3;
-        pageConfigs.push(configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed'));
-        i += chunkSize;
-     }
+
+  if (project.magazinePages && project.magazinePages.length > 0) {
+    project.magazinePages.forEach((page: any) => {
+      groupedGallery.push(page.images || []);
+      pageConfigs.push(page.layout || 'col');
+    });
+  } else {
+    const gallery = project.gallery || [];
+    if (gallery && gallery.length > 0) {
+       let i = 0;
+       const seed = hashString(project._id || project.name || "default");
+       while (i < gallery.length) {
+          const randomVal = (seed + i * 17) % 100;
+          let chunkSize = 1;
+          if (randomVal > 70 && i + 2 < gallery.length) chunkSize = 3;
+          else if (randomVal > 30 && i + 1 < gallery.length) chunkSize = 2;
+          
+          groupedGallery.push(gallery.slice(i, i + chunkSize));
+          const configVal = (seed + i * 23) % 3;
+          pageConfigs.push(configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed'));
+          i += chunkSize;
+       }
+    }
   }
   
   // Front Cover image
@@ -128,33 +134,46 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
      const layoutType = pageConfigs[groupIdx];
      pages.push(
        <Page key={`gallery-page-${groupIdx}`} number={5 + groupIdx}>
-          <div className={`w-full h-full flex gap-4 overflow-hidden ${
-             group.length === 1 ? 'items-center justify-center' :
-             layoutType === 'col' ? 'flex-col items-center justify-center' : 
-             layoutType === 'row' ? 'flex-row items-center justify-center' : 
-             'flex-col md:flex-row items-center justify-center flex-wrap'
-          }`}>
-             {group.map((img: any, idx: number) => {
-                const fullSrc = urlFor(img).quality(100).auto('format').url();
-                return (
-                   <div 
-                     key={idx} 
-                     className={`relative group cursor-zoom-in flex items-center justify-center overflow-hidden shadow-md border border-stone-200/50 ${
-                       group.length === 1 ? 'w-full h-full' : 'flex-1 min-w-[40%] min-h-[30%]'
-                     }`}
-                     onClick={() => setSelectedImage(fullSrc)}
-                   >
-                     <img 
-                       src={fullSrc} 
-                       alt={`Gallery ${groupIdx}-${idx}`} 
-                       className="w-full h-full object-contain bg-white/50 p-2" 
-                       style={{ maxHeight: group.length === 1 ? '100%' : '50vh' }}
-                     />
-                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                   </div>
-                );
-             })}
-          </div>
+          {layoutType === 'full' && group.length >= 1 ? (
+             <div 
+               className="absolute inset-0 z-0 -m-8 md:-m-12 bg-stone-100 flex items-center justify-center cursor-zoom-in" 
+               onClick={() => setSelectedImage(urlFor(group[0]).quality(100).auto('format').url())}
+             >
+               <img 
+                 src={urlFor(group[0]).quality(100).auto('format').url()} 
+                 alt={`Gallery ${groupIdx}`} 
+                 className="w-full h-full object-cover" 
+               />
+             </div>
+          ) : (
+             <div className={`w-full h-full flex gap-4 overflow-hidden relative z-10 ${
+                group.length === 1 ? 'items-center justify-center' :
+                layoutType === 'col' ? 'flex-col items-center justify-center' : 
+                layoutType === 'row' ? 'flex-row items-center justify-center' : 
+                'flex-col md:flex-row items-center justify-center flex-wrap'
+             }`}>
+                {group.map((img: any, idx: number) => {
+                   const fullSrc = urlFor(img).quality(100).auto('format').url();
+                   return (
+                      <div 
+                        key={idx} 
+                        className={`relative group cursor-zoom-in flex items-center justify-center overflow-hidden shadow-md border border-stone-200/50 bg-white ${
+                          group.length === 1 ? 'w-full h-full' : 'flex-1 min-w-[40%] min-h-[30%]'
+                        }`}
+                        onClick={() => setSelectedImage(fullSrc)}
+                      >
+                        <img 
+                          src={fullSrc} 
+                          alt={`Gallery ${groupIdx}-${idx}`} 
+                          className="w-full h-full object-contain p-2" 
+                          style={{ maxHeight: group.length === 1 ? '100%' : '50vh' }}
+                        />
+                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      </div>
+                   );
+                })}
+             </div>
+          )}
        </Page>
      );
   });
