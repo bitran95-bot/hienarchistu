@@ -5,8 +5,8 @@ import { urlFor } from '../../sanityClient';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index?: number }) {
-  // Load mô hình tạp chí từ thư mục public
-  const { scene: originalScene } = useGLTF('/magazine.glb') as any;
+  // Load mô hình tạp chí từ thư mục public (thêm ?v=2 để tránh cache trình duyệt)
+  const { scene: originalScene } = useGLTF('/magazine.glb?v=2') as any;
   const scene = useMemo(() => clone(originalScene), [originalScene]);
   
   const image = project?.image;
@@ -36,9 +36,10 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
                     console.log("FOUND Coverfrontpage! Applying texture:", imageUrl);
                     const newMat = new THREE.MeshStandardMaterial({
                        map: texture,
-                       color: 0xffffff,
+                       color: 0xffffff, // Trả lại màu trắng chuẩn
                        roughness: 0.4,
-                       metalness: 0.1
+                       metalness: 0.1,
+                       side: THREE.DoubleSide
                     });
                     
                     if (Array.isArray(child.material)) {
@@ -109,4 +110,4 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
   );
 }
 
-useGLTF.preload('/magazine.glb');
+useGLTF.preload('/magazine.glb?v=2');
