@@ -17,17 +17,24 @@ export function calculateProjectLayout(projects: any[]) {
       
       if (p.modelFileUrl) {
         const modelScale = p.modelScale || 1;
-        // The max dimension is scaled to 1.92 * modelScale. We add padding.
-        expectedWidth = 1.92 * modelScale + 0.5;
+        // SplineModel maxDim = 2.4 * 0.8 * modelScale = 1.92 * modelScale
+        // InteractiveProject scales by 1.95 on hover
+        const maxPossibleWidth = 1.92 * modelScale * 1.95;
+        expectedWidth = maxPossibleWidth + 1.5; // padding
       } else if (p.image?.asset?._ref) {
+        let aspect = 2.2 / 1.4;
         const match = p.image.asset._ref.match(/-(\d+)x(\d+)-/);
         if (match) {
           const w = parseInt(match[1], 10);
           const h = parseInt(match[2], 10);
           if (w && h) {
-            expectedWidth = 1.4 * (w / h) + 0.5; // aspect ratio width + frame padding
+             aspect = w / h;
           }
         }
+        // FallbackPhotoFrame base width = 1.4 * aspect + 0.4 border
+        // InteractiveProject scales by 1.95 on hover
+        const actualWidth = (1.4 * aspect + 0.4) * 1.95;
+        expectedWidth = actualWidth + 1.5; // padding
       }
       
       // If adding this item exceeds row width, wrap to next line
