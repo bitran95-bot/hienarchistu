@@ -8,7 +8,7 @@ export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], s
   const scene = useMemo(() => clone(originalScene), [originalScene]);
 
   // Dùng useMemo tính toán các thông số offset dựa trên scene
-  const { autoScale, offsetX, offsetY, offsetZ, boxSize } = useMemo(() => {
+  const { autoScale, centerX, centerY, centerZ, boxSize } = useMemo(() => {
     // Lưu lại transform cũ (đề phòng)
     const oldPos = scene.position.clone();
     const oldScale = scene.scale.clone();
@@ -59,9 +59,9 @@ export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], s
 
     return { 
       autoScale: computedScale,
-      offsetX: -center.x,
-      offsetY: -box.min.y,
-      offsetZ: -center.z,
+      centerX: center.x,
+      centerY: center.y,
+      centerZ: center.z,
       boxSize: size
     };
   }, [scene, scale]);
@@ -69,12 +69,13 @@ export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], s
   return (
     <group position={position} rotation={rotation}>
       <group scale={autoScale}>
+        {/* Giữ nguyên điểm gốc (pivot) của mô hình để căn chỉnh chính xác */}
         <primitive 
           object={scene} 
-          position={[offsetX, offsetY, offsetZ]}
+          position={[0, 0, 0]}
         />
-        {/* Hitbox cho click & hover dễ dàng */}
-        <mesh position={[0, boxSize.y / 2, 0]} visible={false}>
+        {/* Hitbox bám theo tâm của bounding box thực tế của mô hình */}
+        <mesh position={[centerX, centerY, centerZ]} visible={false}>
           <boxGeometry args={[boxSize.x, boxSize.y, boxSize.z]} />
           <meshBasicMaterial />
         </mesh>
