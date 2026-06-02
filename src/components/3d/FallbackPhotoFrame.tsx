@@ -31,19 +31,22 @@ export function FallbackPhotoFrame({ image, index = 0 }: { image: any; index?: n
 
   // Chiều dày của tạp chí
   const thickness = 0.15;
+  // Độ nghiêng ngẫu nhiên nhẹ cho tự nhiên
+  const tiltZ = -0.15; // Ngả ra sau
+  const tiltY = (index % 3 === 0) ? -0.05 : ((index % 2 === 0) ? 0.05 : 0);
 
   return (
-    <group position={[0, baseHeight / 2, 0]}>
+    <group position={[0, baseHeight / 2, 0.4]} rotation={[tiltZ, tiltY, 0]}>
        {/* Tạp chí (Magazine Block) */}
        <mesh castShadow receiveShadow>
           <boxGeometry args={[imgW, imgH, thickness]} />
           {/* Thứ tự materials: Right, Left(Spine), Top, Bottom, Front(Cover), Back */}
-          <meshStandardMaterial attach="material-0" color="#fcfbfa" roughness={0.9} />
-          <meshStandardMaterial attach="material-1" color={spineColor} roughness={0.8} />
-          <meshStandardMaterial attach="material-2" color="#fcfbfa" roughness={0.9} />
-          <meshStandardMaterial attach="material-3" color="#fcfbfa" roughness={0.9} />
-          <meshStandardMaterial attach="material-4" map={texture} roughness={0.5} />
-          <meshStandardMaterial attach="material-5" color={spineColor} roughness={0.8} />
+          <meshStandardMaterial attach="material-0" color="#e8decd" roughness={1} /> {/* Pages right */}
+          <meshStandardMaterial attach="material-1" color={spineColor} roughness={0.8} /> {/* Spine */}
+          <meshStandardMaterial attach="material-2" color="#e8decd" roughness={1} /> {/* Pages top */}
+          <meshStandardMaterial attach="material-3" color="#e8decd" roughness={1} /> {/* Pages bottom */}
+          <meshStandardMaterial attach="material-4" map={texture} roughness={0.3} metalness={0.1} /> {/* Cover */}
+          <meshStandardMaterial attach="material-5" color={spineColor} roughness={0.8} /> {/* Back */}
        </mesh>
     </group>
   );

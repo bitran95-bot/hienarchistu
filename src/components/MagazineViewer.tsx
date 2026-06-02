@@ -24,53 +24,81 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Calculate flipbook dimensions based on screen size
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const width = isMobile ? window.innerWidth * 0.9 : 500;
-  const height = isMobile ? window.innerHeight * 0.7 : 700;
+  const pageWidth = isMobile ? window.innerWidth * 0.9 : Math.min(600, window.innerWidth / 2.2);
+  const pageHeight = isMobile ? window.innerHeight * 0.7 : Math.min(800, window.innerHeight * 0.85);
 
   // Prepare gallery images
   const gallery = project.gallery || [];
   
+  // Group gallery images pseudo-randomly (1-3 per page) based on project id
+  const hashString = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+    return Math.abs(hash);
+  };
+  
+  const groupedGallery: any[][] = [];
+  let pageConfigs: string[] = [];
+  if (gallery && gallery.length > 0) {
+     let i = 0;
+     const seed = hashString(project._id || project.name || "default");
+     while (i < gallery.length) {
+        const randomVal = (seed + i * 17) % 100;
+        let chunkSize = 1;
+        if (randomVal > 70 && i + 2 < gallery.length) chunkSize = 3;
+        else if (randomVal > 30 && i + 1 < gallery.length) chunkSize = 2;
+        
+        groupedGallery.push(gallery.slice(i, i + chunkSize));
+        // Randomly assign a layout configuration for the page
+        const configVal = (seed + i * 23) % 3;
+        pageConfigs.push(configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed'));
+        i += chunkSize;
+     }
+  }
+  
   // Front Cover image
   const coverImageUrl = project.image?.asset 
-    ? urlFor(project.image).width(800).quality(80).auto('format').url() 
+    ? urlFor(project.image).width(1200).quality(90).auto('format').url() 
     : (project.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop");
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto bg-black/80 backdrop-blur-sm"
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.4 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto bg-[#e5dfd5]/90 backdrop-blur-md"
     >
       {/* Controls */}
       <div className="absolute top-6 w-full px-6 flex justify-between items-center z-50">
-         <div className="flex items-center gap-4 text-white">
-            <button onClick={onPrev} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+         <div className="flex items-center gap-4 text-[#2a2a2a]">
+            <button onClick={onPrev} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
                ←
             </button>
             <span className="text-sm font-medium">{currentIndex + 1} / {totalIndex}</span>
-            <button onClick={onNext} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+            <button onClick={onNext} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
                →
             </button>
          </div>
-         <button onClick={onClose} className="w-10 h-10 rounded-full border border-white/30 text-white flex items-center justify-center hover:bg-white/20 transition-colors text-xl">
+         <button onClick={onClose} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl">
             ×
          </button>
       </div>
 
       {/* Magazine */}
-      <div className="relative shadow-2xl">
+      <div className="relative shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
         {/* @ts-ignore */}
         <HTMLFlipBook
-          width={width}
-          height={height}
+          width={pageWidth}
+          height={pageHeight}
           size="stretch"
           minWidth={300}
-          maxWidth={800}
+          maxWidth={1000}
           minHeight={400}
-          maxHeight={1000}
-          maxShadowOpacity={0.5}
+          maxHeight={1200}
+          maxShadowOpacity={0.6}
           showCover={true}
+          usePortrait={isMobile}
           mobileScrollSupport={true}
           className="magazine-flipbook"
         >
@@ -80,10 +108,10 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                 <img src={coverImageUrl} alt="Cover" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-12 left-8 right-8 text-white">
-                   <h1 className="text-4xl md:text-6xl font-heading font-bold leading-tight mb-2 tracking-tighter">
+                   <h1 className="text-4xl md:text-6xl font-heading font-bold leading-tight mb-2 tracking-tighter" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
                      {project.name}
                    </h1>
-                   <p className="text-white/80 font-serif italic">Ấn phẩm kiến trúc Hiên studio</p>
+                   <p className="text-white/90 font-serif italic" style={{ textShadow: '0 1px 5px rgba(0,0,0,0.5)' }}>Ấn phẩm kiến trúc Hiên studio</p>
                 </div>
              </div>
           </Page>
@@ -91,14 +119,14 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           {/* Page 2: Inside Cover (Blank/Credits) */}
           <Page number="2">
              <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
-                <p>HIÊN studio</p>
-                <p className="mt-4">Designed with passion.</p>
+                <p className="text-2xl font-heading font-bold text-stone-300 mb-4">HIÊN studio</p>
+                <p>Designed with passion.</p>
              </div>
           </Page>
 
           {/* Page 3: General Info & Content */}
           <Page number="3">
-             <h2 className="text-2xl md:text-4xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Về dự án</h2>
+             <h2 className="text-3xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Về dự án</h2>
              <div className="text-base md:text-lg text-[#333] leading-relaxed whitespace-pre-wrap mb-8 font-medium">
                 {project.generalInfo || project.desc || "Thông tin chung dự án đang được cập nhật..."}
              </div>
@@ -114,11 +142,11 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
              )}
           </Page>
 
-          {/* Page 4: Video (if any) or first gallery image */}
+          {/* Page 4: Video (if any) or Intro */}
           {project.youtubeLink ? (
              <Page number="4">
-                <h2 className="text-xl md:text-2xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Video Thực Tế</h2>
-                <div className="w-full aspect-video rounded-md overflow-hidden shadow-md">
+                <h2 className="text-2xl md:text-3xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Video Thực Tế</h2>
+                <div className="w-full aspect-video rounded-md overflow-hidden shadow-lg border border-stone-200 bg-black">
                    <iframe 
                      className="w-full h-full"
                      src={project.youtubeLink.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/")} 
@@ -132,28 +160,53 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           ) : (
              <Page number="4">
                 <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
-                   <p>Hình ảnh dự án ở các trang tiếp theo...</p>
+                   <p className="text-xl">Thư viện ảnh</p>
+                   <p className="mt-2 text-stone-300">Lật sang trang kế tiếp →</p>
                 </div>
              </Page>
           )}
 
-          {/* Page 5+: Gallery Images */}
-          {gallery.map((img: any, idx: number) => {
-             const fullSrc = urlFor(img).quality(100).auto('format').url();
+          {/* Page 5+: Grouped Gallery Images */}
+          {groupedGallery.map((group: any[], groupIdx: number) => {
+             const layoutType = pageConfigs[groupIdx];
              return (
-               <Page key={`gallery-${idx}`} number={5 + idx}>
-                  <div className="w-full h-full flex items-center justify-center cursor-zoom-in" onClick={() => setSelectedImage(fullSrc)}>
-                     <img src={fullSrc} alt={`Gallery ${idx}`} className="max-w-full max-h-full object-contain shadow-md" />
+               <Page key={`gallery-page-${groupIdx}`} number={5 + groupIdx}>
+                  <div className={`w-full h-full flex gap-4 overflow-hidden ${
+                     group.length === 1 ? 'items-center justify-center' :
+                     layoutType === 'col' ? 'flex-col items-center justify-center' : 
+                     layoutType === 'row' ? 'flex-row items-center justify-center' : 
+                     'flex-col md:flex-row items-center justify-center flex-wrap'
+                  }`}>
+                     {group.map((img: any, idx: number) => {
+                        const fullSrc = urlFor(img).quality(100).auto('format').url();
+                        return (
+                           <div 
+                             key={idx} 
+                             className={`relative group cursor-zoom-in flex items-center justify-center overflow-hidden shadow-md border border-stone-200/50 ${
+                               group.length === 1 ? 'w-full h-full' : 'flex-1 min-w-[40%] min-h-[30%]'
+                             }`}
+                             onClick={() => setSelectedImage(fullSrc)}
+                           >
+                             <img 
+                               src={fullSrc} 
+                               alt={`Gallery ${groupIdx}-${idx}`} 
+                               className="w-full h-full object-contain bg-white/50 p-2" 
+                               style={{ maxHeight: group.length === 1 ? '100%' : '50vh' }}
+                             />
+                             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                           </div>
+                        );
+                     })}
                   </div>
                </Page>
              );
           })}
           
           {/* Ensure even number of pages so back cover exists */}
-          {gallery.length % 2 !== 0 && (
-             <Page number={5 + gallery.length}>
+          {groupedGallery.length % 2 !== 0 && (
+             <Page number={5 + groupedGallery.length}>
                 <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
-                   <p>The End.</p>
+                   <p className="text-2xl font-heading text-stone-300">The End.</p>
                 </div>
              </Page>
           )}

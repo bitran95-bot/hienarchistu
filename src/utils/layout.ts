@@ -64,8 +64,9 @@ export function calculateProjectLayout(projects: any[]) {
     }
   };
 
-  processProjects(photoProjects);
+  // Đưa mô hình lên kệ trên, tạp chí xuống kệ dưới
   processProjects(modelProjects);
+  processProjects(photoProjects);
   
   return layout;
 }
