@@ -235,7 +235,7 @@ function SceneContents() {
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
             <DecorativeLamp 
-               position={[10, 0, -1]} 
+               position={[-5, 0, -1]} 
                scale={9} 
                isDarkMode={isDarkMode} 
                onToggle={() => setIsDarkMode(!isDarkMode)} 
