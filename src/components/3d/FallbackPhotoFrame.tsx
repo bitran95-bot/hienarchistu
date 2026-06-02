@@ -66,7 +66,6 @@ export function FallbackPhotoFrame({ project, index = 0 }: { project: any; index
              anchorX="center"
              anchorY="middle"
              maxWidth={imgW - 0.1}
-             font="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff"
            >
              {project.name.toUpperCase()}
            </Text>

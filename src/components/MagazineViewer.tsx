@@ -24,9 +24,9 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Calculate flipbook dimensions based on screen size
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  // Tăng kích thước lên rất lớn để xem rõ chi tiết
-  const pageWidth = isMobile ? 400 : 800;
-  const pageHeight = isMobile ? 600 : 1100;
+  // Layout Landscape: chiều ngang rộng hơn chiều cao
+  const pageWidth = isMobile ? window.innerWidth * 0.9 : 1000;
+  const pageHeight = isMobile ? window.innerHeight * 0.6 : 650;
 
   // Prepare gallery images
   const gallery = project.gallery || [];
@@ -101,9 +101,9 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
             height={pageHeight}
             size="stretch"
             minWidth={300}
-            maxWidth={1000}
-            minHeight={400}
-            maxHeight={1200}
+            maxWidth={1500}
+            minHeight={300}
+            maxHeight={1000}
             maxShadowOpacity={0.6}
             showCover={true}
             usePortrait={isMobile}

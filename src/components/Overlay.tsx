@@ -72,8 +72,9 @@ export const Overlay = memo(function Overlay() {
 
       {/* DETAIL MODAL FULLSCREEN - NOW MAGAZINE VIEWER */}
       <AnimatePresence>
-      {modalOpen && (
+      {modalOpen && currentDetail && (
         <MagazineViewer 
+          key={currentDetail._id || activeProject}
           project={currentDetail}
           currentIndex={activeProject}
           totalIndex={actualProjects.length}
