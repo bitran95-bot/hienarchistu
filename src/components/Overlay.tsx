@@ -46,7 +46,7 @@ export const Overlay = memo(function Overlay() {
       {/* Logo lớn bắt đầu ở giữa và cuộn về góc */}
       <div 
         id="main-logo"
-        className={`fixed z-[100] cursor-pointer flex flex-col items-start font-heading font-bold uppercase tracking-tighter left-1/2 md:left-[25%] -translate-x-1/2 -translate-y-1/2 ${modalOpen || contactOpen ? 'pointer-events-none' : 'pointer-events-auto'}`}
+        className={`fixed z-[100] cursor-pointer flex flex-col items-start font-heading font-bold tracking-tighter left-1/2 md:left-[25%] -translate-x-1/2 -translate-y-1/2 ${modalOpen || contactOpen ? 'pointer-events-none' : 'pointer-events-auto'}`}
         style={{ 
            top: '40%', 
            color: '#2a2a2a', 
