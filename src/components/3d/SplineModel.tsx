@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
-export function SplineModel({ url, scale = 1, position = [0,0,0], rotation = [0,0,0] }: any) {
-  const { scene } = useGLTF(url) as any;
+export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }: { url: string, position?: [number, number, number], rotation?: [number, number, number], scale?: number }) => {
+  const { scene: originalScene } = useGLTF(url) as any;
+  const scene = useMemo(() => clone(originalScene), [originalScene]);
 
-  // Dùng useMemo tính toán các thông số offset dựa trên scene nguyên bản
+  // Dùng useMemo tính toán các thông số offset dựa trên scene
   const { autoScale, offsetX, offsetY, offsetZ, boxSize } = useMemo(() => {
     // Lưu lại transform cũ (đề phòng)
     const oldPos = scene.position.clone();
