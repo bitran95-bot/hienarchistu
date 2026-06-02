@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, memo } from 'react';
-import { urlFor } from '../sanityClient';
+import { useState, memo } from 'react';
 import { useStore } from '../store/useStore';
 import { MagazineViewer } from './MagazineViewer';
 
@@ -25,23 +24,7 @@ export const Overlay = memo(function Overlay() {
     setActiveProject((activeProject + 1) % actualProjects.length);
   };
 
-  const [isMobileScreen, setIsMobileScreen] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobileScreen(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const imageUrl = currentDetail?.image?.asset 
-    ? urlFor(currentDetail.image).width(isMobileScreen ? 600 : 1200).quality(80).auto('format').url() 
-    : (currentDetail?.image || `https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=${isMobileScreen ? 600 : 1200}&auto=format&fit=crop`);
-
-  // Used for fullscreen viewing
-  const fullImageUrl = currentDetail?.image?.asset 
-    ? urlFor(currentDetail.image).quality(100).auto('format').url() 
-    : (currentDetail?.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop");
-
+  // removed isMobileScreen state that was causing unused error
   return (
     <>
       {/* Logo lớn bắt đầu ở giữa và cuộn về góc */}
