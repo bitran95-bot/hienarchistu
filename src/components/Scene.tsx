@@ -291,7 +291,7 @@ function SceneContents() {
                  >
                     <Suspense fallback={<LoadingSpinner />}>
                       {project.modelFileUrl ? (
-                        <SplineModel url={project.modelFileUrl} scale={0.8} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
+                        <SplineModel url={project.modelFileUrl} scale={0.8 * (project.modelScale || 1)} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
                       ) : (
                         <FallbackPhotoFrame image={project.image} index={activeIdx} />
                       )}
