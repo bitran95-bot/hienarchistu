@@ -172,15 +172,44 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 )}
               </div>
 
-              {product.downloadUrl ? (
+              {product.price === 0 && product.downloadUrl ? (
                 <a
                   href={product.downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full bg-amber-700 hover:bg-amber-800 text-white text-center py-4 rounded-2xl font-bold text-lg transition-colors"
+                  className="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-4 rounded-2xl font-bold text-lg transition-colors"
                 >
-                  {product.price === 0 ? t.shop.downloadFree : t.shop.buyNow}
+                  {t.shop.downloadFree}
                 </a>
+              ) : product.price > 0 ? (
+                <button
+                  onClick={async () => {
+                    try {
+                      const actualPrice = product.salePrice && product.salePrice < product.price
+                        ? product.salePrice : product.price;
+                      const resp = await fetch('/api/create-checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          productId: product._id,
+                          productName: product.name,
+                          price: actualPrice,
+                        }),
+                      });
+                      const data = await resp.json();
+                      if (data.url) {
+                        window.location.href = data.url;
+                      } else {
+                        alert(data.error || 'Checkout error');
+                      }
+                    } catch {
+                      alert('Could not connect to payment server.');
+                    }
+                  }}
+                  className="block w-full bg-amber-700 hover:bg-amber-800 text-white text-center py-4 rounded-2xl font-bold text-lg transition-colors cursor-pointer"
+                >
+                  {t.shop.buyNow}
+                </button>
               ) : (
                 <button disabled className="block w-full bg-stone-300 text-stone-500 text-center py-4 rounded-2xl font-bold text-lg cursor-not-allowed">
                   {t.shop.comingSoon}

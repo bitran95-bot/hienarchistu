@@ -1,5 +1,17 @@
 {
   "rewrites": [
-    { "source": "/((?!assets|favicon|magazine|sitemap|robots).*)", "destination": "/index.html" }
-  ]
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/((?!assets|favicon|magazine|sitemap|robots|api).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/webhook.ts": {
+      "maxDuration": 10
+    },
+    "api/download.ts": {
+      "maxDuration": 10
+    },
+    "api/create-checkout.ts": {
+      "maxDuration": 10
+    }
+  }
 }
