@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { client, urlFor } from '../sanityClient';
+import { useTranslation } from '../i18n';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import type { Product, ProductCategory } from '../types';
 
 // ===== PRODUCT CARD =====
 function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Product) => void }) {
+  const { t } = useTranslation();
   const hasDiscount = product.salePrice && product.salePrice < product.price;
   const displayPrice = hasDiscount ? product.salePrice! : product.price;
   const imageUrl = product.image?.asset
@@ -40,7 +43,7 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
               ? 'bg-amber-100 text-amber-800' 
               : 'bg-blue-100 text-blue-800'
           }`}>
-            {product.category === 'revit-family' ? 'Revit Family' : 'Revit Template'}
+            {product.category === 'revit-family' ? t.shop.filterFamily : t.shop.filterTemplate}
           </span>
         </div>
         {hasDiscount && (
@@ -50,7 +53,7 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
         )}
         {product.featured && (
           <div className="absolute bottom-3 left-3 bg-amber-700 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-            ★ Nổi bật
+            {t.shop.featured}
           </div>
         )}
       </div>
@@ -69,7 +72,7 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
         <div className="flex items-end justify-between">
           <div>
             {product.price === 0 ? (
-              <span className="text-lg font-bold text-green-600">Miễn phí</span>
+              <span className="text-lg font-bold text-green-600">{t.shop.free}</span>
             ) : (
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold text-[#2a2a2a]">{displayPrice.toLocaleString('vi-VN')}₫</span>
@@ -84,7 +87,7 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
             whileTap={{ scale: 0.95 }}
             className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
           >
-            {product.price === 0 ? 'Tải về' : 'Mua ngay'}
+            {product.price === 0 ? t.shop.download : t.shop.buy}
           </motion.div>
         </div>
       </div>
@@ -94,6 +97,7 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
 
 // ===== PRODUCT DETAIL MODAL =====
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
+  const { t } = useTranslation();
   const imageUrl = product.image?.asset
     ? urlFor(product.image as any).width(1200).quality(90).auto('format').url()
     : null;
@@ -113,11 +117,11 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ type: 'spring', damping: 25 }}
-        className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-stone-500 hover:text-stone-800 hover:bg-white transition-all shadow-lg" aria-label="Đóng">
+        <button onClick={onClose} className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center text-stone-500 hover:text-stone-800 hover:bg-white transition-all shadow-lg" aria-label={t.contact.close}>
           ✕
         </button>
 
@@ -136,7 +140,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             <span className={`self-start px-3 py-1 rounded-full text-xs font-semibold mb-4 ${
               product.category === 'revit-family' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
             }`}>
-              {product.category === 'revit-family' ? 'Revit Family' : 'Revit Template'}
+              {product.category === 'revit-family' ? t.shop.filterFamily : t.shop.filterTemplate}
             </span>
 
             <h2 className="font-heading font-bold text-2xl md:text-3xl text-[#2a2a2a] mb-4 tracking-tight">{product.name}</h2>
@@ -147,17 +151,17 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
             <div className="space-y-2 mb-6 text-sm text-stone-500">
               {product.fileFormat && (
-                <div className="flex items-center gap-2"><span className="text-stone-400">📁</span> Định dạng: <strong className="text-stone-700">{product.fileFormat}</strong></div>
+                <div className="flex items-center gap-2"><span className="text-stone-400">📁</span> {t.shop.fileFormat}: <strong className="text-stone-700">{product.fileFormat}</strong></div>
               )}
               {product.compatibility && (
-                <div className="flex items-center gap-2"><span className="text-stone-400">⚙️</span> Tương thích: <strong className="text-stone-700">{product.compatibility}</strong></div>
+                <div className="flex items-center gap-2"><span className="text-stone-400">⚙️</span> {t.shop.compatibility}: <strong className="text-stone-700">{product.compatibility}</strong></div>
               )}
             </div>
 
             <div className="mt-auto">
               <div className="mb-4">
                 {product.price === 0 ? (
-                  <span className="text-2xl font-bold text-green-600">Miễn phí</span>
+                  <span className="text-2xl font-bold text-green-600">{t.shop.free}</span>
                 ) : (
                   <div className="flex items-center gap-3">
                     <span className="text-3xl font-bold text-[#2a2a2a]">{displayPrice.toLocaleString('vi-VN')}₫</span>
@@ -175,11 +179,11 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   rel="noopener noreferrer"
                   className="block w-full bg-amber-700 hover:bg-amber-800 text-white text-center py-4 rounded-2xl font-bold text-lg transition-colors"
                 >
-                  {product.price === 0 ? '📥 Tải về miễn phí' : '🛒 Mua ngay'}
+                  {product.price === 0 ? t.shop.downloadFree : t.shop.buyNow}
                 </a>
               ) : (
                 <button disabled className="block w-full bg-stone-300 text-stone-500 text-center py-4 rounded-2xl font-bold text-lg cursor-not-allowed">
-                  Sắp mở bán
+                  {t.shop.comingSoon}
                 </button>
               )}
             </div>
@@ -189,7 +193,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         {/* Gallery */}
         {product.gallery && product.gallery.length > 0 && (
           <div className="px-8 pb-8">
-            <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">Hình ảnh xem trước</h3>
+            <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">{t.shop.previewImages}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {product.gallery.map((img, i) => (
                 <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100">
@@ -204,19 +208,19 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   );
 }
 
-// ===== CATEGORY FILTER =====
-const CATEGORIES: { value: ProductCategory | 'all'; label: string; icon: string }[] = [
-  { value: 'all', label: 'Tất cả', icon: '🏠' },
-  { value: 'revit-family', label: 'Revit Family', icon: '📦' },
-  { value: 'revit-template', label: 'Revit Template', icon: '📐' },
-];
-
 // ===== MAIN SHOP PAGE =====
 export default function ShopPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<ProductCategory | 'all'>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const CATEGORIES: { value: ProductCategory | 'all'; label: string; icon: string }[] = [
+    { value: 'all', label: t.shop.filterAll, icon: '🏠' },
+    { value: 'revit-family', label: t.shop.filterFamily, icon: '📦' },
+    { value: 'revit-template', label: t.shop.filterTemplate, icon: '📐' },
+  ];
 
   useEffect(() => {
     client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { ..., "slug": slug }`)
@@ -247,10 +251,10 @@ export default function ShopPage() {
   return (
     <>
       <Helmet>
-        <title>Thư viện Revit — Hiên Archi Studio</title>
-        <meta name="description" content="Mua và tải Revit Family, Revit Template chất lượng cao từ Hiên Archi Studio. Được thiết kế tỉ mỉ bởi kiến trúc sư chuyên nghiệp." />
-        <meta property="og:title" content="Thư viện Revit — Hiên Archi Studio" />
-        <meta property="og:description" content="Revit Family & Template chất lượng cao cho kiến trúc sư" />
+        <title>{t.shop.pageTitle}</title>
+        <meta name="description" content={t.shop.pageDesc} />
+        <meta property="og:title" content={t.shop.pageTitle} />
+        <meta property="og:description" content={t.shop.pageDesc} />
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7]">
@@ -263,9 +267,10 @@ export default function ShopPage() {
                 <span className="text-lg ml-1">studio</span>
               </div>
             </Link>
-            <nav className="flex items-center gap-6 text-sm font-medium text-stone-500">
-              <Link to="/" className="hover:text-amber-700 transition-colors hidden md:block">← Trang chủ</Link>
-              <span className="text-amber-700 font-bold">Thư viện Revit</span>
+            <nav className="flex items-center gap-4 md:gap-6 text-sm font-medium text-stone-500">
+              <Link to="/" className="hover:text-amber-700 transition-colors hidden md:block">{t.shop.backHome}</Link>
+              <span className="text-amber-700 font-bold">{t.shop.activeLabel}</span>
+              <LanguageSwitcher />
             </nav>
           </div>
         </header>
@@ -280,7 +285,7 @@ export default function ShopPage() {
               transition={{ duration: 0.6 }}
               className="font-heading font-bold text-4xl md:text-6xl text-[#2a2a2a] tracking-tight mb-4"
             >
-              Thư viện <span className="text-amber-700">Revit</span>
+              {t.shop.heroTitle} <span className="text-amber-700">{t.shop.heroHighlight}</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -288,7 +293,7 @@ export default function ShopPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg md:text-xl text-stone-500 max-w-2xl mx-auto"
             >
-              Revit Family & Template chất lượng cao, thiết kế tỉ mỉ bởi kiến trúc sư Hiên studio
+              {t.shop.heroSubtitle}
             </motion.p>
           </div>
         </section>
@@ -310,7 +315,7 @@ export default function ShopPage() {
               </button>
             ))}
             <div className="ml-auto text-sm text-stone-400">
-              {filtered.length} sản phẩm
+              {t.shop.productCount(filtered.length)}
             </div>
           </div>
         </div>
@@ -333,8 +338,8 @@ export default function ShopPage() {
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-6xl mb-4">📭</div>
-              <h3 className="text-xl font-heading font-bold text-stone-400 mb-2">Chưa có sản phẩm</h3>
-              <p className="text-stone-400">Sản phẩm đang được cập nhật, vui lòng quay lại sau!</p>
+              <h3 className="text-xl font-heading font-bold text-stone-400 mb-2">{t.shop.emptyTitle}</h3>
+              <p className="text-stone-400">{t.shop.emptyText}</p>
             </div>
           ) : (
             <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -351,9 +356,9 @@ export default function ShopPage() {
         <footer className="border-t border-stone-200/50 bg-white/50 py-12">
           <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="font-heading font-bold text-stone-300 text-lg">HIÊN studio</div>
-            <p className="text-sm text-stone-400">© {new Date().getFullYear()} Hiên Archi Studio. Thiết kế với ❤️</p>
+            <p className="text-sm text-stone-400">{t.shop.footerCopy(new Date().getFullYear())}</p>
             <Link to="/" className="text-sm text-amber-700 hover:text-amber-800 font-medium transition-colors">
-              ← Về trang chủ
+              {t.shop.backHomeFooter}
             </Link>
           </div>
         </footer>

@@ -2,11 +2,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { useStore } from '../store/useStore';
 import { MagazineViewer } from './MagazineViewer';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Escape key handler cho modals
   const handleClose = useCallback(() => {
@@ -69,21 +72,23 @@ export const Overlay = memo(function Overlay() {
       <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto">
         <div className="w-1/3 hidden md:block"></div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
-          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">Câu chuyện</button>
-          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors">Dự Án</button>
-          <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">Thư viện</a>
-          <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">Liên Hệ</button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors">{t.nav.projects}</button>
+          <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">{t.nav.library}</a>
+          <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
+          <LanguageSwitcher />
         </div>
       </header>
 
       {/* Floating Bottom Nav for Mobile */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-8 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-8 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50">
-        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">Câu chuyện</button>
-        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">Dự Án</button>
-        <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors whitespace-nowrap">Thư viện</a>
-        <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">Liên Hệ</button>
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-5 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50">
+        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</button>
+        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.projects}</button>
+        <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.library}</a>
+        <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>
+        <LanguageSwitcher />
       </div>
 
       {/* DETAIL MODAL FULLSCREEN - NOW MAGAZINE VIEWER */}
@@ -119,7 +124,7 @@ export const Overlay = memo(function Overlay() {
                onClick={() => setContactOpen(false)}
                className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-2 md:gap-3 group"
              >
-               <span className="uppercase text-xs md:text-sm tracking-widest font-bold hidden md:inline">Đóng</span>
+               <span className="uppercase text-xs md:text-sm tracking-widest font-bold hidden md:inline">{t.contact.close}</span>
                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#2a2a2a] group-hover:border-amber-700 flex items-center justify-center transition-colors">
                   <span className="mb-1 text-xl md:text-2xl leading-none">×</span>
                </div>
@@ -146,7 +151,7 @@ export const Overlay = memo(function Overlay() {
                    transition={{ delay: 0.4 }}
                    className="mt-6 md:mt-8 text-base md:text-2xl text-stone-600 font-serif italic max-w-md border-l-4 border-amber-700 pl-4 md:pl-6"
                 >
-                   "Mỗi dự án là một câu chuyện. Hãy cùng nhau viết nên câu chuyện kiến trúc của bạn."
+                   {t.contact.quote}
                 </motion.p>
              </div>
 
@@ -154,7 +159,7 @@ export const Overlay = memo(function Overlay() {
              <div className="w-full md:w-1/2 flex flex-col justify-center space-y-10 md:space-y-16">
                 <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ delay: 0.3, type: "spring" }}>
                    <h3 className="text-xs md:text-sm font-bold text-stone-400 uppercase tracking-[0.2em] mb-2 md:mb-4 flex items-center gap-2">
-                     <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> Điện thoại
+                     <span className="w-8 h-[1px] bg-stone-300 inline-block"></span> {t.contact.phone}
                    </h3>
                    <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-3xl md:text-5xl lg:text-6xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors inline-block">
                       {settings?.phone || '033 877 7017'}

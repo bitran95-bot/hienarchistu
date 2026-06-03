@@ -1,8 +1,10 @@
 import { useProgress } from '@react-three/drei';
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../i18n';
 
 export function LoadingScreen({ started }: { started: boolean }) {
   const { progress, active } = useProgress();
+  const { t } = useTranslation();
   const [show, setShow] = useState(true);
   
   // Đợi cho đến khi load xong (progress = 100 và active = false) và data đã load xong (started = true)
@@ -39,7 +41,7 @@ export function LoadingScreen({ started }: { started: boolean }) {
         
         {/* Text % */}
         <div className="mt-4 flex justify-between w-full text-xs text-[#666] font-sans tracking-widest uppercase">
-          <span>Đang tải không gian...</span>
+          <span>{t.loading.text}</span>
           <span>{Math.round(progress)}%</span>
         </div>
       </div>

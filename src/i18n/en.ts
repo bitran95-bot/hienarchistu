@@ -1,0 +1,68 @@
+import type { Translations } from './vi';
+
+const en: Translations = {
+  nav: {
+    story: 'Our Story',
+    projects: 'Projects',
+    library: 'Library',
+    contact: 'Contact',
+  },
+  loading: {
+    text: 'Loading space...',
+  },
+  contact: {
+    close: 'Close',
+    phone: 'Phone',
+    quote: '"Every project is a story. Let\'s write your architectural story together."',
+  },
+  scene: {
+    loadingData: 'Loading data...',
+  },
+  about: {
+    title: 'I am Tran Thai Bao, an architect passionate about local identity. I design humble homes that adapt to nature and the homeowner\'s love for life.',
+    text: 'Throughout my career, I seek beauty in the simplicity of wood, concrete, pebbles, and the verandas that welcome sunlight and shelter from rain. Working with skilled local craftsmen, we build peaceful homes where people find connection with nature, with themselves, and with their families.',
+  },
+  magazine: {
+    aboutProject: 'About the Project',
+    details: 'Details',
+    videoTitle: 'Project Video',
+    galleryAlt: 'Photo Gallery',
+    galleryHint: 'Turn to the next page →',
+    theEnd: 'The End.',
+    subtitle: 'Architectural publication by Hiên studio',
+    infoFallback: 'Project information is being updated...',
+  },
+  shop: {
+    pageTitle: 'Revit Library — Hiên Archi Studio',
+    pageDesc: 'Buy and download high-quality Revit Family and Revit Templates from Hiên Archi Studio.',
+    heroTitle: 'Revit',
+    heroHighlight: 'Library',
+    heroSubtitle: 'High-quality Revit Family & Templates, meticulously designed by Hiên studio architects',
+    backHome: '← Home',
+    activeLabel: 'Revit Library',
+    filterAll: 'All',
+    filterFamily: 'Revit Family',
+    filterTemplate: 'Revit Template',
+    productCount: (n: number) => `${n} product${n !== 1 ? 's' : ''}`,
+    free: 'Free',
+    buy: 'Buy now',
+    download: 'Download',
+    downloadFree: '📥 Download free',
+    buyNow: '🛒 Buy now',
+    comingSoon: 'Coming soon',
+    featured: '★ Featured',
+    emptyTitle: 'No products yet',
+    emptyText: 'Products are being updated, please check back later!',
+    previewImages: 'Preview images',
+    fileFormat: 'Format',
+    compatibility: 'Compatibility',
+    backHomeFooter: '← Back to home',
+    footerCopy: (year: number) => `© ${year} Hiên Archi Studio. Crafted with ❤️`,
+  },
+  seo: {
+    siteTitle: 'Hiên Archi Studio',
+    siteDesc: 'Architecture and interior design studio, creating simple and sincere living spaces.',
+  },
+};
+
+export default en;
