@@ -64,3 +64,24 @@ export interface GridData {
   map: (GridLocation | undefined)[];
   path: GridLocation[];
 }
+
+// ===== Shop Types =====
+
+export type ProductCategory = 'revit-family' | 'revit-template';
+
+export interface Product {
+  _id: string;
+  name: string;
+  slug?: { current: string };
+  description?: string;
+  price: number;
+  salePrice?: number;
+  category: ProductCategory;
+  image?: SanityImage;
+  gallery?: SanityImage[];
+  fileFormat?: string;
+  compatibility?: string;
+  downloadUrl?: string;
+  featured?: boolean;
+  order?: number;
+}
