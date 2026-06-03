@@ -3,10 +3,11 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import { urlFor } from '../../sanityClient';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import type { Project } from '../../types';
 
-export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: { project: any; index?: number; isDarkMode?: boolean }) {
+export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: { project: Partial<Project>; index?: number; isDarkMode?: boolean }) {
   // Load mô hình tạp chí từ thư mục public (thêm ?v=2 để tránh cache trình duyệt)
-  const { scene: originalScene } = useGLTF('/magazine.glb?v=2') as any;
+  const { scene: originalScene } = useGLTF('/magazine.glb?v=3') as any;
   const scene = useMemo(() => clone(originalScene), [originalScene]);
   
   const image = project?.image;
@@ -130,4 +131,4 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
   );
 }
 
-useGLTF.preload('/magazine.glb?v=2');
+useGLTF.preload('/magazine.glb?v=3');

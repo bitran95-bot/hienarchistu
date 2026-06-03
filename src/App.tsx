@@ -17,15 +17,61 @@ function App() {
 
   const siteTitle = settings?.title || "Hiên Archi Studio";
   const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";
+  const siteUrl = "https://hienarchi.studio";
+  const ogImage = `${siteUrl}/favicon.svg`;
+
+  // JSON-LD Structured Data cho SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": siteTitle,
+    "description": siteDesc,
+    "url": siteUrl,
+    "telephone": settings?.phone || "033 877 7017",
+    "email": settings?.email || "thaibao95arc@gmail.com",
+    "image": ogImage,
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "VN"
+    },
+    "sameAs": [
+      settings?.instagram || "https://instagram.com/hien.archi"
+    ],
+    "priceRange": "$$",
+    "openingHours": "Mo-Sa 08:00-18:00",
+    "@graph": [{
+      "@type": "WebSite",
+      "name": siteTitle,
+      "url": siteUrl
+    }]
+  };
 
   return (
     <>
       <Helmet>
         <title>{siteTitle}</title>
         <meta name="description" content={siteDesc} />
+        <link rel="canonical" href={siteUrl} />
+        
+        {/* Open Graph */}
         <meta property="og:title" content={siteTitle} />
         <meta property="og:description" content={siteDesc} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:locale" content="vi_VN" />
+        <meta property="og:site_name" content="Hiên Archi Studio" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={siteTitle} />
+        <meta name="twitter:description" content={siteDesc} />
+        <meta name="twitter:image" content={ogImage} />
+
+        {/* JSON-LD Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
       </Helmet>
 
       {/* Màn hình chờ */}

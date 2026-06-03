@@ -1,16 +1,30 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useStore } from '../store/useStore';
 import { MagazineViewer } from './MagazineViewer';
+import type { Project } from '../types';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const fallbackProjects = [
-    { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" },
-    { name: "Sài Gòn Pavilion", generalInfo: "Đang cập nhật...", image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop" }
+  // Escape key handler cho modals
+  const handleClose = useCallback(() => {
+    if (contactOpen) setContactOpen(false);
+    else if (modalOpen) setModalOpen(false);
+  }, [contactOpen, modalOpen, setModalOpen]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [handleClose]);
+
+  const fallbackProjects: Partial<Project>[] = [
+    { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật..." },
+    { name: "Sài Gòn Pavilion", generalInfo: "Đang cập nhật..." }
   ];
 
   const actualProjects = (projects && projects.length > 0) ? projects : fallbackProjects;
@@ -167,27 +181,6 @@ export const Overlay = memo(function Overlay() {
           </div>
         </motion.div>
       )}
-      </AnimatePresence>
-      {/* FULLSCREEN IMAGE VIEWER */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out pointer-events-auto"
-          >
-            <motion.img 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              src={selectedImage}
-              alt="Fullscreen view"
-              className="max-w-full max-h-full object-contain"
-            />
-          </motion.div>
-        )}
       </AnimatePresence>
     </>
   );

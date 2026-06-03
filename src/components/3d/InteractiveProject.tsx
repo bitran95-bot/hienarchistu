@@ -1,10 +1,19 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
 
-export function InteractiveProject({ children, position, index }: any) {
+interface InteractiveProjectProps {
+  children: ReactNode;
+  position: [number, number, number];
+  index: number;
+  title?: string;
+  generalInfo?: string;
+  isDarkMode?: boolean;
+}
+
+export function InteractiveProject({ children, position, index }: InteractiveProjectProps) {
   const { setActiveProject, setModalOpen } = useStore();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);

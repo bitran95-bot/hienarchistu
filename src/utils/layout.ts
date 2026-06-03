@@ -1,18 +1,20 @@
+import type { Project, ProjectLayoutItem } from '../types';
+
 export const MAX_ROW_WIDTH = 30; // Max width per row before wrapping
 export const ITEM_SPACING = 1.5;  // Minimum spacing between items
 
-export function calculateProjectLayout(projects: any[]) {
+export function calculateProjectLayout(projects: Project[]): ProjectLayoutItem[] {
   if (!projects || projects.length === 0) return [];
   
-  const photoProjects = projects.filter((p: any) => !p.modelFileUrl);
-  const modelProjects = projects.filter((p: any) => p.modelFileUrl);
+  const photoProjects = projects.filter((p) => !p.modelFileUrl);
+  const modelProjects = projects.filter((p) => p.modelFileUrl);
   
-  const layout: any[] = [];
+  const layout: ProjectLayoutItem[] = [];
   let r = 0;
   let currentX = 0;
 
-  const processProjects = (projs: any[]) => {
-    projs.forEach((p: any) => {
+  const processProjects = (projs: Project[]) => {
+    projs.forEach((p) => {
       let expectedWidth = 2.5; // fallback width
       
       if (p.modelFileUrl) {
@@ -23,7 +25,7 @@ export function calculateProjectLayout(projects: any[]) {
         expectedWidth = maxPossibleWidth + 1.5; // padding
       } else if (p.image?.asset?._ref) {
         let aspect = 2.2 / 1.4;
-        const match = p.image.asset._ref.match(/-(\d+)x(\d+)-/);
+        const match = p.image.asset._ref.match(/(\d+)x(\d+)/);
         if (match) {
           const w = parseInt(match[1], 10);
           const h = parseInt(match[2], 10);
@@ -70,3 +72,4 @@ export function calculateProjectLayout(projects: any[]) {
   
   return layout;
 }
+

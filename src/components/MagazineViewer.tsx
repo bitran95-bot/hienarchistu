@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { urlFor } from '../sanityClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Project } from '../types';
+import { useIsMobile } from '../hooks';
+
+interface PageProps {
+  children: ReactNode;
+  number?: string;
+}
 
 // Component wrapper for each page
-const Page = React.forwardRef((props: any, ref: any) => {
+const Page = React.forwardRef<HTMLDivElement, PageProps>((props, ref) => {
   return (
     <div className="page bg-[#fdfbf7] shadow-xl overflow-hidden border-r border-stone-200" ref={ref} style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
       <div className="h-full w-full flex flex-col p-8 md:p-12 relative overflow-y-auto">
@@ -19,11 +26,19 @@ const Page = React.forwardRef((props: any, ref: any) => {
   );
 });
 
-export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex, totalIndex }: any) {
+interface MagazineViewerProps {
+  project: Partial<Project> & { _id?: string; name?: string };
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+  currentIndex: number;
+  totalIndex: number;
+}
+
+export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex, totalIndex }: MagazineViewerProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
-  // Calculate flipbook dimensions based on screen size
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useIsMobile();
   // Layout Landscape: chiều ngang rộng hơn chiều cao
   const pageWidth = isMobile ? window.innerWidth * 0.9 : 1000;
   const pageHeight = isMobile ? window.innerHeight * 0.6 : 650;
@@ -65,8 +80,8 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Front Cover image
   const coverImageUrl = project.image?.asset 
-    ? urlFor(project.image).width(1600).quality(100).auto('format').url() 
-    : (project.image || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop");
+    ? urlFor(project.image as any).width(1600).quality(100).auto('format').url() 
+    : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop";
 
   const pages = [
     <Page key="cover">
@@ -92,7 +107,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
     <Page key="info" number="3">
        <h2 className="text-3xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Về dự án</h2>
        <div className="text-base md:text-lg text-[#333] leading-relaxed whitespace-pre-wrap mb-8 font-medium">
-          {project.generalInfo || project.desc || "Thông tin chung dự án đang được cập nhật..."}
+           {project.generalInfo || "Thông tin chung dự án đang được cập nhật..."}
        </div>
        {project.content && (
           <>
@@ -112,7 +127,10 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           <div className="w-full aspect-video rounded-md overflow-hidden shadow-lg border border-stone-200 bg-black">
              <iframe 
                className="w-full h-full"
-               src={project.youtubeLink.replace("watch?v=", "embed/").replace("youtu.be/", "www.youtube.com/embed/")} 
+               src={project.youtubeLink
+                .replace("watch?v=", "embed/")
+                .replace("youtu.be/", "www.youtube-nocookie.com/embed/")
+                .replace("youtube.com", "youtube-nocookie.com")} 
                title="YouTube video player" 
                frameBorder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -133,7 +151,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   groupedGallery.forEach((group: any[], groupIdx: number) => {
      const layoutType = pageConfigs[groupIdx];
      pages.push(
-       <Page key={`gallery-page-${groupIdx}`} number={5 + groupIdx}>
+        <Page key={`gallery-page-${groupIdx}`} number={String(5 + groupIdx)}>
           {layoutType === 'full' && group.length >= 1 ? (
              <div 
                className="absolute inset-0 z-0 -m-8 md:-m-12 bg-stone-100 flex items-center justify-center cursor-zoom-in" 
@@ -180,7 +198,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
 
   if (groupedGallery.length % 2 !== 0) {
      pages.push(
-        <Page key="end" number={5 + groupedGallery.length}>
+        <Page key="end" number={String(5 + groupedGallery.length)}>
            <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
               <p className="text-2xl font-heading text-stone-300">The End.</p>
            </div>

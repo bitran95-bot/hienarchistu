@@ -45,7 +45,7 @@ export function Bookshelf() {
       {/* Đợt kệ */}
       {(() => {
         const layout = calculateProjectLayout(projects || []);
-        const totalRows = layout.length > 0 ? Math.max(...layout.map((l: any) => l.computedRow)) + 1 : 0;
+        const totalRows = layout.length > 0 ? Math.max(...layout.map((l) => l.computedRow)) + 1 : 0;
         const shelfRows = Math.max(1, totalRows);
         
         return Array.from({ length: shelfRows }).map((_, r) => (

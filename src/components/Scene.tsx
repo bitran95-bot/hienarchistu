@@ -14,6 +14,8 @@ import { InteractiveProject } from './3d/InteractiveProject';
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
 import { calculateProjectLayout } from '../utils/layout';
+import type { GridData, GridLocation } from '../types';
+import { useIsMobile } from '../hooks';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
@@ -22,21 +24,22 @@ function SceneContents() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Tính toán Grid Layout
-  const gridData = useMemo(() => {
-    if (!projects || projects.length === 0) return { map: [], path: [] };
-    const layout = calculateProjectLayout(projects);
-    const map = new Array(projects.length);
-    const path: any[] = [];
+  const gridLayout = useMemo(() => calculateProjectLayout(projects || []), [projects]);
+
+  const gridData = useMemo((): GridData => {
+    if (gridLayout.length === 0) return { map: [], path: [] };
+    const map = new Array<GridLocation | undefined>(projects.length);
+    const path: GridLocation[] = [];
     
-    layout.forEach((p: any) => {
-       const origIdx = projects.findIndex((op: any) => op._id === p._id);
-       const loc = { gridRow: p.computedRow, computedX: p.computedX };
+    gridLayout.forEach((p) => {
+       const origIdx = projects.findIndex((op) => op._id === p._id);
+       const loc: GridLocation = { gridRow: p.computedRow, computedX: p.computedX };
        if (origIdx >= 0) map[origIdx] = loc;
        path.push(loc);
     });
     
     return { map, path };
-  }, [projects]);
+  }, [gridLayout, projects]);
 
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
   // Cache các DOM element để tránh gọi document.getElementById mỗi frame (Performance Tweak)
@@ -65,14 +68,17 @@ function SceneContents() {
     };
   }, [scroll]);
 
-  // Cờ kiểm tra mobile
-  const [isMobileScreen, setIsMobileScreen] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  // Cờ kiểm tra mobile (dùng hook tái sử dụng)
+  const isMobileScreen = useIsMobile();
 
+  // Sync dark mode state lên body element cho CSS selectors
   useEffect(() => {
-    const handleResize = () => setIsMobileScreen(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    document.body.classList.toggle('dark-mode', isDarkMode);
+  }, [isDarkMode]);
+
+  // Cache Vector3 objects để tránh tạo mới mỗi frame (60fps)
+  const camTargetPosRef = useRef(new THREE.Vector3());
+  const lookTargetRef = useRef(new THREE.Vector3());
 
   useFrame((state) => {
     const s = scroll.offset; // 0 to 1
@@ -114,21 +120,21 @@ function SceneContents() {
     const lookX = THREE.MathUtils.lerp(0, gridX, zoomT);
 
     if (modalOpen && gridData.map[activeProject]) {
-       const activeLoc = gridData.map[activeProject];
+       const activeLoc = gridData.map[activeProject]!;
        const targetX = activeLoc.computedX;
        const targetY_grid = -activeLoc.gridRow * 4;
        // Zoom lại gần mô hình đang chọn, chếch sang trái một chút để chừa chỗ cho bảng thông tin bên phải
-       const camTargetPos = new THREE.Vector3(targetX - 2.0, -3.2 + targetY_grid, 4.5); 
-       const lookTarget = new THREE.Vector3(targetX, -3.8 + targetY_grid, 0);
+       camTargetPosRef.current.set(targetX - 2.0, -3.2 + targetY_grid, 4.5);
+       lookTargetRef.current.set(targetX, -3.8 + targetY_grid, 0);
 
-       state.camera.position.lerp(camTargetPos, 0.08);
-       currentLookAt.current.lerp(lookTarget, 0.08);
+       state.camera.position.lerp(camTargetPosRef.current, 0.08);
+       currentLookAt.current.lerp(lookTargetRef.current, 0.08);
     } else {
-       const camTargetPos = new THREE.Vector3(camX, camY, camZ);
-       const lookTarget = new THREE.Vector3(lookX, lookY, 0);
+       camTargetPosRef.current.set(camX, camY, camZ);
+       lookTargetRef.current.set(lookX, lookY, 0);
 
-       state.camera.position.lerp(camTargetPos, 0.08);
-       currentLookAt.current.lerp(lookTarget, 0.08);
+       state.camera.position.lerp(camTargetPosRef.current, 0.08);
+       currentLookAt.current.lerp(lookTargetRef.current, 0.08);
     }
     
     state.camera.lookAt(currentLookAt.current);
@@ -242,21 +248,15 @@ function SceneContents() {
             />
          </Suspense>
          
-         {(() => {
-            const gridProjects = calculateProjectLayout(projects || []);
-
-            if (gridProjects.length === 0) {
-              return (
+         {gridLayout.length === 0 ? (
                 <InteractiveProject index={0} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
                    <Suspense fallback={<LoadingSpinner />}>
-                      <FallbackPhotoFrame project={{}} index={0} isDarkMode={isDarkMode} />
+                      <FallbackPhotoFrame project={{} as any} index={0} isDarkMode={isDarkMode} />
                    </Suspense>
                 </InteractiveProject>
-              );
-            }
-
-            return gridProjects.map((project: any, index: number) => {
-               const originalIndex = projects.findIndex((p: any) => p._id === project._id);
+         ) : (
+            gridLayout.map((project, index) => {
+               const originalIndex = projects.findIndex((p) => p._id === project._id);
                const activeIdx = originalIndex !== -1 ? originalIndex : index;
                return (
                  <InteractiveProject 
@@ -276,8 +276,8 @@ function SceneContents() {
                     </Suspense>
                  </InteractiveProject>
                );
-            });
-         })()}
+            })
+         )}
       </group>
 
       {/* --- HIỆU ỨNG HẬU KỲ (POST-PROCESSING) --- */}

@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { client } from '../sanityClient';
+import type { Project, SiteSettings } from '../types';
 
 interface AppState {
-  projects: any[];
-  settings: any;
+  projects: Project[];
+  settings: SiteSettings | null;
   modalOpen: boolean;
   activeProject: number;
   isDataLoaded: boolean;
+  error: string | null;
   
   // Actions
   fetchData: () => Promise<void>;
@@ -20,13 +22,14 @@ export const useStore = create<AppState>((set, get) => ({
   modalOpen: false,
   activeProject: 0,
   isDataLoaded: false,
+  error: null,
 
   fetchData: async () => {
     // Tránh fetch lại nếu dữ liệu đã được nạp
     if (get().isDataLoaded) return;
 
     try {
-      const data = await client.fetch(`{
+      const data = await client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
         "projects": *[_type == "project"] | order(order asc) {
           ...,
           "modelFileUrl": modelFile.asset->url
@@ -37,10 +40,13 @@ export const useStore = create<AppState>((set, get) => ({
       set({ 
         projects: data.projects || [], 
         settings: data.settings || null,
-        isDataLoaded: true 
+        isDataLoaded: true,
+        error: null,
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tải dữ liệu';
       console.error("Error fetching data:", error);
+      set({ error: message });
     }
   },
 
