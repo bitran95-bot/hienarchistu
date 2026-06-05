@@ -98,7 +98,7 @@ function App() {
       {/* Không gian 3D nền (Ban ngày sáng sủa) */}
       <ErrorBoundary>
       <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
-         <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : [1, 1.5]} gl={{ antialias: true }} style={{ touchAction: 'pan-y' }}>
+         <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : [1, 1.5]} gl={{ antialias: true }} style={{ touchAction: 'none' }}>
            <Suspense fallback={null}>
              <Scene />
            </Suspense>

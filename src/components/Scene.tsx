@@ -308,7 +308,7 @@ export function Scene() {
  
   return (
     <ScrollControls 
-      horizontal={isMobile} 
+      horizontal={false} 
       pages={3} 
       damping={isMobile ? 0.05 : 0.2}
     >
