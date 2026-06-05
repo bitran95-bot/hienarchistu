@@ -148,56 +148,58 @@ export default function ProjectsPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-[#fdfbf7] rounded-2xl shadow-2xl overflow-y-auto"
+              className="relative w-full h-[95vh] max-w-[1400px] bg-[#fdfbf7] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
             >
               <button 
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur hover:bg-stone-100 rounded-full text-stone-600 transition-colors"
+                className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur hover:bg-stone-100 rounded-full text-stone-600 transition-colors shadow-sm"
               >
                 ✕
               </button>
 
+              {/* Left Side: Main Image */}
               {selectedProject.image?.asset && (
-                <div className="w-full h-64 sm:h-80 md:h-96 relative">
+                <div className="w-full md:w-1/2 h-64 md:h-full relative shrink-0 border-r border-stone-200">
                   <img 
-                    src={urlFor(selectedProject.image as any).width(1200).height(800).quality(85).auto('format').url()} 
+                    src={urlFor(selectedProject.image as any).width(1200).height(1600).quality(85).auto('format').url()} 
                     alt={selectedProject.name}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <h2 className="absolute bottom-6 left-6 right-6 text-3xl sm:text-4xl font-heading font-bold text-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <h2 className="absolute bottom-6 left-6 right-6 text-3xl sm:text-4xl font-heading font-bold text-white drop-shadow-lg">
                     {selectedProject.name}
                   </h2>
                 </div>
               )}
 
-              <div className="p-6 sm:p-10">
+              {/* Right Side: Content */}
+              <div className={`w-full ${selectedProject.image?.asset ? 'md:w-1/2' : ''} h-full overflow-y-auto p-6 md:p-12 custom-scrollbar`}>
                 {!selectedProject.image?.asset && (
-                  <h2 className="text-3xl sm:text-4xl font-heading font-bold text-[#2a2a2a] mb-6 border-b border-stone-200 pb-4">
+                  <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                     {selectedProject.name}
                   </h2>
                 )}
 
                 {selectedProject.generalInfo && (
-                  <div className="mb-8">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-2">Thông tin chung</h4>
+                  <div className="mb-10">
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-3">Thông tin chung</h4>
                     <p className="text-lg text-stone-600 whitespace-pre-wrap leading-relaxed">{selectedProject.generalInfo}</p>
                   </div>
                 )}
 
                 {selectedProject.content && (
-                  <div className="mb-10">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-2">Câu chuyện dự án</h4>
-                    <p className="text-stone-700 whitespace-pre-wrap leading-loose font-serif">{selectedProject.content}</p>
+                  <div className="mb-12">
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Câu chuyện dự án</h4>
+                    <p className="text-stone-700 whitespace-pre-wrap leading-[2.5] font-handwriting text-lg">{selectedProject.content}</p>
                   </div>
                 )}
 
                 {selectedProject.gallery && selectedProject.gallery.length > 0 && (
-                  <div>
+                  <div className="mb-12">
                     <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Thư viện ảnh</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {selectedProject.gallery.map((img, i) => (
-                        <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100">
+                        <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100">
                           <img 
                             src={urlFor(img as any).width(800).height(600).quality(85).auto('format').url()} 
                             alt={`Gallery ${i}`}
@@ -211,9 +213,9 @@ export default function ProjectsPage() {
                 )}
 
                 {selectedProject.youtubeLink && (
-                  <div className="mt-10">
+                  <div className="mt-10 pb-10">
                     <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Video Dự Án</h4>
-                    <div className="aspect-video w-full rounded-xl overflow-hidden shadow-lg">
+                    <div className="aspect-video w-full rounded-xl overflow-hidden shadow-md">
                       <iframe 
                         className="w-full h-full"
                         src={selectedProject.youtubeLink.replace('watch?v=', 'embed/').split('&')[0]}
