@@ -16,6 +16,13 @@ export function Bookshelf() {
   const shelfGeometry = useMemo(() => new THREE.BoxGeometry(80, 0.2, 2.5), []);
   const shelfMaterial = useMemo(() => new THREE.MeshStandardMaterial({ map: shelfTexture, roughness: 0.8, color: 0xffffff }), [shelfTexture]);
 
+  // Tính số hàng kệ dựa trên grid layout (memoized để tránh tính lại mỗi render)
+  const shelfRows = useMemo(() => {
+    const layout = calculateProjectLayout(projects || []);
+    const totalRows = layout.length > 0 ? Math.max(...layout.map((l) => l.computedRow)) + 1 : 0;
+    return Math.max(1, totalRows);
+  }, [projects]);
+
   useEffect(() => {
     Object.values(wallTextures).forEach((texture) => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -43,15 +50,9 @@ export function Bookshelf() {
       </mesh>
 
       {/* Đợt kệ */}
-      {(() => {
-        const layout = calculateProjectLayout(projects || []);
-        const totalRows = layout.length > 0 ? Math.max(...layout.map((l) => l.computedRow)) + 1 : 0;
-        const shelfRows = Math.max(1, totalRows);
-        
-        return Array.from({ length: shelfRows }).map((_, r) => (
-          <mesh key={r} geometry={shelfGeometry} material={shelfMaterial} position={[10, -4 - r * 4, 0]} receiveShadow castShadow />
-        ));
-      })()}
+      {Array.from({ length: shelfRows }).map((_, r) => (
+        <mesh key={r} geometry={shelfGeometry} material={shelfMaterial} position={[10, -4 - r * 4, 0]} receiveShadow castShadow />
+      ))}
     </group>
   );
 }

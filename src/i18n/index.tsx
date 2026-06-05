@@ -25,9 +25,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return 'vi';
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === 'en' || saved === 'vi') return saved;
-    // Auto-detect từ trình duyệt
+    // Auto-detect từ trình duyệt — mặc định tiếng Việt nếu không phải English
     const browserLang = navigator.language?.slice(0, 2);
-    return browserLang === 'vi' ? 'vi' : 'vi'; // Mặc định tiếng Việt
+    return browserLang === 'en' ? 'en' : 'vi';
   });
 
   const setLang = (newLang: Language) => {

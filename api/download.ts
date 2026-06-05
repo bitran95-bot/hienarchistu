@@ -3,15 +3,27 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { createClient } from '@sanity/client';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil',
 });
 
-const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET || 'hien-archi-download-secret-change-me';
+const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('DOWNLOAD_JWT_SECRET environment variable is required. Set it in Vercel dashboard.');
+}
 
-// In-memory store cho used tokens (reset mỗi cold start — OK vì token chỉ valid 30 phút)
-const usedTokens = new Set<string>();
+// ⚠️ LIMITATION: In-memory store resets on each cold start in serverless.
+// We use Upstash Redis if configured, falling back to memory if not.
+const usedTokensMemory = new Set<string>();
+
+const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
 
 // Sanity client để lấy downloadUrl của sản phẩm
 const sanityClient = createClient({
@@ -57,7 +69,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Kiểm tra token đã dùng chưa (anti-replay)
-      if (usedTokens.has(decoded.tokenId)) {
+      let isUsed = false;
+      if (redis) {
+        const value = await redis.get(`token:${decoded.tokenId}`);
+        isUsed = !!value;
+      } else {
+        isUsed = usedTokensMemory.has(decoded.tokenId);
+      }
+
+      if (isUsed) {
         return res.status(410).json({
           error: 'expired',
           message: 'Link tải đã được sử dụng. Vui lòng liên hệ hỗ trợ nếu cần tải lại.',
@@ -65,8 +85,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      // Đánh dấu token đã sử dụng
-      usedTokens.add(decoded.tokenId);
+      // Đánh dấu token đã sử dụng (expire sau 30 phút = 1800s)
+      if (redis) {
+        await redis.setex(`token:${decoded.tokenId}`, 1800, 'used');
+      } else {
+        usedTokensMemory.add(decoded.tokenId);
+      }
 
       // Lấy downloadUrl từ Sanity
       const product = await sanityClient.fetch<{ downloadUrl?: string; name?: string }>(

@@ -242,6 +242,7 @@ export default function ShopPage() {
   const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<ProductCategory | 'all'>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -251,7 +252,9 @@ export default function ShopPage() {
     { value: 'revit-template', label: t.shop.filterTemplate, icon: '📐' },
   ];
 
-  useEffect(() => {
+  const fetchProducts = () => {
+    setLoading(true);
+    setError(null);
     client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { ..., "slug": slug }`)
       .then((data) => {
         setProducts(data || []);
@@ -259,8 +262,13 @@ export default function ShopPage() {
       })
       .catch((err) => {
         console.error('Failed to fetch products:', err);
+        setError(err instanceof Error ? err.message : 'Không thể tải sản phẩm');
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   // Escape closes modal
@@ -363,6 +371,18 @@ export default function ShopPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-heading font-bold text-stone-500 mb-2">Không thể tải sản phẩm</h3>
+              <p className="text-stone-400 mb-6 max-w-md mx-auto">{error}</p>
+              <button 
+                onClick={fetchProducts}
+                className="inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
+              >
+                🔄 Thử lại
+              </button>
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">

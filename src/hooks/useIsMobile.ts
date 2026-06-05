@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook responsive để kiểm tra kích thước màn hình.
- * Tái sử dụng thay vì copy-paste logic `window.innerWidth < 768` khắp nơi.
+ * Dùng matchMedia thay vì resize event — chỉ fire khi vượt qua breakpoint,
+ * tránh re-render liên tục khi kéo cửa sổ.
  */
 export function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(
@@ -10,9 +11,12 @@ export function useIsMobile(breakpoint = 768): boolean {
   );
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    // Sync initial state
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, [breakpoint]);
 
   return isMobile;

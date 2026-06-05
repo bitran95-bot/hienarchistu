@@ -56,7 +56,7 @@ export function AboutSection() {
         <p ref={text1Ref} className="text-xl md:text-[32px] font-medium italic font-serif text-[#333333] mb-4 md:mb-8 leading-relaxed drop-shadow-sm md:drop-shadow-none" style={{ clipPath: 'inset(0 100% 0 0)' }}>
           {text1}
         </p>
-        <p ref={text2Ref} className="text-sm md:text-lg text-[#555555] leading-relaxed drop-shadow-sm md:drop-shadow-none" style={{ clipPath: 'inset(0 100% 0 0)' }}>
+        <p ref={text2Ref} className="text-base md:text-xl font-handwriting-guides text-[#555555] leading-loose drop-shadow-sm md:drop-shadow-none" style={{ clipPath: 'inset(0 100% 0 0)' }}>
           {text2}
         </p>
       </div>

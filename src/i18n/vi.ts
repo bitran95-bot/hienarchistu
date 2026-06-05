@@ -3,6 +3,12 @@ export interface Translations {
   nav: { story: string; projects: string; library: string; contact: string };
   loading: { text: string };
   contact: { close: string; phone: string; quote: string };
+  contactForm: {
+    title: string; name: string; namePlaceholder: string;
+    email: string; emailPlaceholder: string;
+    message: string; messagePlaceholder: string;
+    send: string; sending: string; success: string; error: string;
+  };
   scene: { loadingData: string };
   about: { title: string; text: string };
   magazine: { aboutProject: string; details: string; videoTitle: string; galleryAlt: string; galleryHint: string; theEnd: string; subtitle: string; infoFallback: string };
@@ -37,6 +43,19 @@ const vi: Translations = {
     close: 'Đóng',
     phone: 'Điện thoại',
     quote: '"Mỗi dự án là một câu chuyện. Hãy cùng nhau viết nên câu chuyện kiến trúc của bạn."',
+  },
+  contactForm: {
+    title: 'Gửi tin nhắn',
+    name: 'Họ và tên',
+    namePlaceholder: 'Nguyễn Văn A',
+    email: 'Email',
+    emailPlaceholder: 'email@example.com',
+    message: 'Tin nhắn',
+    messagePlaceholder: 'Mô tả yêu cầu hoặc câu hỏi của bạn...',
+    send: 'Gửi tin nhắn',
+    sending: 'Đang gửi...',
+    success: 'Tin nhắn đã được gửi thành công! Chúng tôi sẽ phản hồi sớm nhất.',
+    error: 'Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ qua điện thoại.',
   },
   // 3D Scene
   scene: {

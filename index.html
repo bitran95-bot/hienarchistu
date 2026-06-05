@@ -6,9 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Hiên Archi Studio - Nơi kiến tạo không gian sống mộc mạc và chân thành." />
     <title>Hiên Archi Studio</title>
+
+    <!-- Preconnect to Google Fonts for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload critical 3D asset -->
+    <link rel="preload" href="/magazine.glb" as="fetch" crossorigin />
+
+    <!-- Google Analytics 4 (GA4) Stub -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX'); // Thay G-XXXXXXXXXX bằng mã GA4 thực tế
+    </script>
   </head>
   <body>
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: serif; color: #333; background: #fdfbf7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="font-size: 2rem; margin-bottom: 1rem;">Hiên Archi Studio</h1>
+        <p style="max-width: 500px; line-height: 1.6;">Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.</p>
+        <p style="margin-top: 1rem; color: #888;">Vui lòng bật JavaScript để xem trải nghiệm 3D tương tác đầy đủ.</p>
+        <p style="margin-top: 2rem;">📞 033 877 7017 &nbsp;|&nbsp; ✉️ thaibao95arc@gmail.com</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

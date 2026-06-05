@@ -15,6 +15,8 @@ export default {
         serif: ['"Playfair Display"', 'serif'],
         heading: ['"Playfair Display"', 'serif'],
         body: ['"Noto Sans"', 'sans-serif'],
+        handwriting: ['"Playwrite DE Grund"', 'cursive'],
+        'handwriting-guides': ['"Playwrite DE Grund Guides"', 'cursive'],
       }
     },
   },

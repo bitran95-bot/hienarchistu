@@ -1,5 +1,5 @@
 import { useGLTF, useTexture } from '@react-three/drei';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { urlFor } from '../../sanityClient';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
@@ -48,6 +48,9 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
   }, [scene]);
 
   // Xử lý Texture (Crop hình ảnh để không bị méo tỉ lệ)
+  // Lưu ref của texture cũ để dispose khi thay đổi, tránh GPU memory leak
+  const prevTextureRef = useRef<THREE.Texture | null>(null);
+
   const mappedTexture = useMemo(() => {
      const t = texture.clone();
      t.colorSpace = THREE.SRGBColorSpace;
@@ -81,6 +84,17 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
      t.needsUpdate = true;
      return t;
   }, [texture, image, boxSize]);
+
+  // Dispose cloned texture cũ khi deps thay đổi hoặc unmount → giải phóng GPU memory
+  useEffect(() => {
+     if (prevTextureRef.current && prevTextureRef.current !== mappedTexture) {
+        prevTextureRef.current.dispose();
+     }
+     prevTextureRef.current = mappedTexture;
+     return () => {
+        mappedTexture.dispose();
+     };
+  }, [mappedTexture]);
 
   useMemo(() => {
      scene.traverse((child: any) => {

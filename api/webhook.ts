@@ -7,11 +7,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil',
 });
 
-const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET || 'hien-archi-download-secret-change-me';
+const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('DOWNLOAD_JWT_SECRET environment variable is required. Set it in Vercel dashboard.');
+}
 
-// In-memory store cho used tokens (Vercel serverless = ngắn hạn, OK cho anti-replay cơ bản)
-// Trong production nên dùng Vercel KV hoặc Redis
-const usedTokens = new Set<string>();
+// Webhook endpoint does not need to store used tokens.
 
 /**
  * Tạo download token (JWT) chứa thông tin sản phẩm + hết hạn
@@ -47,8 +48,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Cần raw body cho verify
       const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
       event = stripe.webhooks.constructEvent(rawBody, sig as string, webhookSecret);
+    } else if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+      // ❌ KHÔNG cho phép bypass signature verification trên production
+      console.error('Webhook rejected: STRIPE_WEBHOOK_SECRET is required in production');
+      return res.status(500).json({ error: 'Webhook not configured for production' });
     } else {
-      // Test mode — không verify signature (chỉ dùng khi dev)
+      // Dev/preview mode — cho phép test không verify signature
+      console.warn('⚠️ Webhook signature verification skipped (dev mode)');
       event = req.body as Stripe.Event;
     }
   } catch (err: any) {
@@ -75,4 +81,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 // Export helper function cho download route dùng
-export { createDownloadToken, JWT_SECRET, usedTokens };
+export { createDownloadToken, JWT_SECRET };

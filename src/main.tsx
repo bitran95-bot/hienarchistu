@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { I18nProvider } from './i18n'
 import './index.css'
+import 'virtual:pwa-register'
 import App from './App.tsx'
 
 // Lazy load trang Shop và Download để không ảnh hưởng trang chính 3D

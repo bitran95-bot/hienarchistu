@@ -1,9 +1,36 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'magazine.glb'],
+      manifest: {
+        name: 'Hiên Archi Studio',
+        short_name: 'Hiên Archi',
+        description: 'Studio thiết kế kiến trúc và nội thất',
+        theme_color: '#fdfbf7',
+        background_color: '#fdfbf7',
+        display: 'standalone',
+        icons: [
+          {
+            src: 'favicon.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml'
+          },
+          {
+            src: 'favicon.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml'
+          }
+        ]
+      }
+    })
+  ],
   build: {
     rollupOptions: {
       output: {

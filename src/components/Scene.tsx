@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, Environment, ContactShadows, Scroll, Sparkles } from '@react-three/drei';
+import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
@@ -19,7 +19,7 @@ import { useIsMobile } from '../hooks';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
-  const { modalOpen, activeProject, projects, settings } = useStore();
+  const { modalOpen, activeProject, projects, settings, setScrollProgress } = useStore();
   const scroll = useScroll();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -82,6 +82,9 @@ function SceneContents() {
 
   useFrame((state) => {
     const s = scroll.offset; // 0 to 1
+    
+    // Báo cáo scroll progress về store
+    setScrollProgress(s);
 
     // 1. Chuyển động Camera (Cinematic Camera)
     const zoomT = THREE.MathUtils.smoothstep(s, 0.25, 0.45); // Camera hạ xuống rất sớm
@@ -219,7 +222,7 @@ function SceneContents() {
       {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
 
       {/* Màn 1: Hero (HTML Overlay theo mẫu) */}
-      <Scroll html style={{ width: '100vw', height: '100vh', pointerEvents: 'none' }}>
+      <Html fullscreen style={{ pointerEvents: 'none', zIndex: 10 }}>
         <div className="w-full h-full relative" style={{ pointerEvents: 'none' }}>
           {/* Chữ HIÊN studio đã được chuyển sang Overlay.tsx để cố định và hiệu ứng trượt */}
           
@@ -233,7 +236,7 @@ function SceneContents() {
           {/* Màn 2: About (HTML với hiệu ứng gõ phím) */}
           <AboutSection />
         </div>
-      </Scroll>
+      </Html>
 
       {/* --- CÁC MÔ HÌNH DỰ ÁN (PROJECTS) --- */}
       <group position={[0, -3.9, -1]}>
@@ -241,8 +244,8 @@ function SceneContents() {
          {/* Phụ kiện trang trí */}
          <Suspense fallback={null}>
             <DecorativeLamp 
-               position={[-5, 0, -1]} 
-               scale={9} 
+               position={isMobileScreen ? [-1.5, 0, -1] : [-5, 0, -1]} 
+               scale={isMobileScreen ? 7 : 9} 
                isDarkMode={isDarkMode} 
                onToggle={() => setIsDarkMode(!isDarkMode)} 
             />
@@ -295,12 +298,18 @@ function SceneContents() {
 }
 
 export function Scene() {
+   const isMobile = useIsMobile();
+
    useEffect(() => {
      return () => { document.body.style.cursor = 'auto'; };
    }, []);
  
   return (
-    <ScrollControls pages={3} damping={typeof window !== 'undefined' && window.innerWidth < 768 ? 0.05 : 0.2}>
+    <ScrollControls 
+      horizontal={isMobile} 
+      pages={3} 
+      damping={isMobile ? 0.05 : 0.2}
+    >
       <SceneContents />
      </ScrollControls>
    );

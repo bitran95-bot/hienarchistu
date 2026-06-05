@@ -1,4 +1,4 @@
-import React, { useState, type ReactNode } from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { urlFor } from '../sanityClient';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,6 +42,19 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   // Layout Landscape: chiều ngang rộng hơn chiều cao
   const pageWidth = isMobile ? window.innerWidth * 0.9 : 1000;
   const pageHeight = isMobile ? window.innerHeight * 0.6 : 650;
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        onNext();
+      } else if (e.key === 'ArrowLeft') {
+        onPrev();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onNext, onPrev]);
 
   // Prepare gallery images
   const groupedGallery: any[][] = [];
@@ -155,10 +168,10 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           {layoutType === 'full' && group.length >= 1 ? (
              <div 
                className="absolute inset-0 z-0 -m-8 md:-m-12 bg-stone-100 flex items-center justify-center cursor-zoom-in" 
-               onClick={() => setSelectedImage(urlFor(group[0]).quality(100).auto('format').url())}
+               onClick={() => setSelectedImage(urlFor(group[0]).quality(85).auto('format').url())}
              >
                <img 
-                 src={urlFor(group[0]).quality(100).auto('format').url()} 
+                 src={urlFor(group[0]).quality(85).auto('format').url()} 
                  alt={`Gallery ${groupIdx}`} 
                  className="w-full h-full object-cover" 
                />
@@ -171,7 +184,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                 'flex-col md:flex-row items-center justify-center flex-wrap'
              }`}>
                 {group.map((img: any, idx: number) => {
-                   const fullSrc = urlFor(img).quality(100).auto('format').url();
+                   const fullSrc = urlFor(img).quality(85).auto('format').url();
                    return (
                       <div 
                         key={idx} 
@@ -223,15 +236,15 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
       {/* Controls */}
       <div className="absolute top-6 w-full px-6 flex justify-between items-center z-50 pointer-events-none">
          <div className="flex items-center gap-4 text-[#2a2a2a] pointer-events-auto">
-            <button onClick={onPrev} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
+            <button onClick={onPrev} aria-label="Previous project" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
                ←
             </button>
             <span className="text-sm font-medium">{currentIndex + 1} / {totalIndex}</span>
-            <button onClick={onNext} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
+            <button onClick={onNext} aria-label="Next project" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors">
                →
             </button>
          </div>
-         <button onClick={onClose} className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl pointer-events-auto">
+         <button onClick={onClose} aria-label="Close viewer" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl pointer-events-auto">
             ×
          </button>
       </div>
