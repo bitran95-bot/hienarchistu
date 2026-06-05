@@ -11,18 +11,7 @@ import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
 import { DecorativeLamp } from './3d/DecorativeLamp';
 import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
-import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
-import * as THREE from 'three';
 
-import { useStore } from '../store/useStore';
-import { LoadingSpinner } from './3d/LoadingSpinner';
-import { SplineModel } from './3d/SplineModel';
-import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
-import { DecorativeLamp } from './3d/DecorativeLamp';
-import { CursorLight } from './3d/CursorLight';
-import { InteractiveProject } from './3d/InteractiveProject';
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
 import { calculateProjectLayout } from '../utils/layout';
