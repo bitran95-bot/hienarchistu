@@ -7,7 +7,7 @@ import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
 export const Overlay = memo(function Overlay() {
-  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings, scrollProgress } = useStore();
+  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -56,7 +56,7 @@ export const Overlay = memo(function Overlay() {
     <>
       {/* Scroll Progress Indicator */}
       <div className={`fixed top-0 left-0 w-full h-1 bg-stone-200 z-[120] transition-opacity duration-300 ${modalOpen || contactOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className="h-full bg-amber-700 transition-all duration-75" style={{ width: `${scrollProgress * 100}%` }} />
+        <div id="scroll-progress-bar" className="h-full bg-amber-700" style={{ width: '0%' }} />
       </div>
 
       {/* Logo lớn bắt đầu ở giữa và cuộn về góc */}

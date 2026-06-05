@@ -9,13 +9,11 @@ interface AppState {
   activeProject: number;
   isDataLoaded: boolean;
   error: string | null;
-  scrollProgress: number;
   
   // Actions
   fetchData: () => Promise<void>;
   setModalOpen: (open: boolean) => void;
   setActiveProject: (index: number) => void;
-  setScrollProgress: (progress: number) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -25,7 +23,6 @@ export const useStore = create<AppState>((set, get) => ({
   activeProject: 0,
   isDataLoaded: false,
   error: null,
-  scrollProgress: 0,
 
   fetchData: async () => {
     // Tránh fetch lại nếu dữ liệu đã được nạp
@@ -55,5 +52,4 @@ export const useStore = create<AppState>((set, get) => ({
 
   setModalOpen: (open) => set({ modalOpen: open }),
   setActiveProject: (index) => set({ activeProject: index }),
-  setScrollProgress: (progress) => set({ scrollProgress: progress }),
 }));

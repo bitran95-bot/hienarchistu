@@ -11,6 +11,18 @@ import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
 import { DecorativeLamp } from './3d/DecorativeLamp';
 import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
+import { useFrame } from '@react-three/fiber';
+import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html } from '@react-three/drei';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
+import * as THREE from 'three';
+
+import { useStore } from '../store/useStore';
+import { LoadingSpinner } from './3d/LoadingSpinner';
+import { SplineModel } from './3d/SplineModel';
+import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
+import { DecorativeLamp } from './3d/DecorativeLamp';
+import { CursorLight } from './3d/CursorLight';
+import { InteractiveProject } from './3d/InteractiveProject';
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
 import { calculateProjectLayout } from '../utils/layout';
@@ -19,7 +31,7 @@ import { useIsMobile } from '../hooks';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
-  const { modalOpen, activeProject, projects, settings, setScrollProgress } = useStore();
+  const { modalOpen, activeProject, projects, settings } = useStore();
   const scroll = useScroll();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -83,8 +95,9 @@ function SceneContents() {
   useFrame((state) => {
     const s = scroll.offset; // 0 to 1
     
-    // Báo cáo scroll progress về store
-    setScrollProgress(s);
+    // Direct DOM update for performance (avoids React re-renders)
+    const progressBar = document.getElementById('scroll-progress-bar');
+    if (progressBar) progressBar.style.width = `${s * 100}%`;
 
     // 1. Chuyển động Camera (Cinematic Camera)
     const zoomT = THREE.MathUtils.smoothstep(s, 0.25, 0.45); // Camera hạ xuống rất sớm
