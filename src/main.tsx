@@ -7,9 +7,10 @@ import './index.css'
 import 'virtual:pwa-register'
 import App from './App.tsx'
 
-// Lazy load trang Shop và Download để không ảnh hưởng trang chính 3D
+// Lazy load trang phụ để không ảnh hưởng trang chính 3D
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
+const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center">
@@ -32,6 +33,11 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/download" element={
               <Suspense fallback={<LoadingFallback />}>
                 <DownloadPage />
+              </Suspense>
+            } />
+            <Route path="/projects" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <ProjectsPage />
               </Suspense>
             } />
           </Routes>

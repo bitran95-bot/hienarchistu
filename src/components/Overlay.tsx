@@ -88,7 +88,8 @@ export const Overlay = memo(function Overlay() {
         <div className="w-1/3 hidden md:block"></div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
-          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors">{t.nav.projects}</button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors">{t.nav.projects} (3D)</button>
+          <a href="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects} (List)</a>
           <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">{t.nav.library}</a>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
         </div>
@@ -100,7 +101,8 @@ export const Overlay = memo(function Overlay() {
       {/* Floating Bottom Nav for Mobile */}
       <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-5 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50">
         <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</button>
-        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.projects}</button>
+        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-projects'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.projects} 3D</button>
+        <a href="/projects" className="hover:text-amber-700 transition-colors whitespace-nowrap">Dự án 2D</a>
         <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.library}</a>
         <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>
         <LanguageSwitcher />
