@@ -149,7 +149,7 @@ export default function ProjectsPage() {
       {/* Project Detail Modal */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -162,7 +162,7 @@ export default function ProjectsPage() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full h-[95vh] max-w-[1400px] bg-[#fdfbf7] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+              className="relative w-full h-[100dvh] max-w-none bg-[#fdfbf7] shadow-2xl overflow-hidden flex flex-col md:flex-row"
             >
               <button 
                 onClick={() => setSelectedProject(null)}
