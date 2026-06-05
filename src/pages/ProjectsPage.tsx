@@ -9,6 +9,17 @@ import type { Project } from '../types';
 export default function ProjectsPage() {
   const { projects, isDataLoaded, fetchData } = useStore();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+
+  // Helper cho Youtube URL
+  const getYoutubeEmbedUrl = (url: string) => {
+    let videoId = '';
+    if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
+    else if (url.includes('shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
+    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  };
 
   useEffect(() => {
     if (!isDataLoaded) {
@@ -16,14 +27,17 @@ export default function ProjectsPage() {
     }
   }, [fetchData, isDataLoaded]);
 
-  // Handle escape key to close modal
+  // Handle escape key to close modal or fullscreen image
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedProject(null);
+      if (e.key === 'Escape') {
+        if (fullscreenImage) setFullscreenImage(null);
+        else setSelectedProject(null);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [fullscreenImage]);
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] selection:bg-stone-300">
@@ -159,26 +173,23 @@ export default function ProjectsPage() {
 
               {/* Left Side: Main Image */}
               {selectedProject.image?.asset && (
-                <div className="w-full md:w-1/2 h-64 md:h-full relative shrink-0 border-r border-stone-200">
+                <div className="w-full md:w-3/5 h-64 md:h-full relative shrink-0 border-r border-stone-200 bg-stone-100 flex items-center justify-center cursor-pointer group" onClick={() => setFullscreenImage(urlFor(selectedProject.image as any).width(2000).quality(90).auto('format').url())}>
                   <img 
-                    src={urlFor(selectedProject.image as any).width(1200).height(1600).quality(85).auto('format').url()} 
+                    src={urlFor(selectedProject.image as any).width(1600).quality(85).auto('format').url()} 
                     alt={selectedProject.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <h2 className="absolute bottom-6 left-6 right-6 text-3xl sm:text-4xl font-heading font-bold text-white drop-shadow-lg">
-                    {selectedProject.name}
-                  </h2>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">Phóng to</span>
+                  </div>
                 </div>
               )}
 
               {/* Right Side: Content */}
-              <div className={`w-full ${selectedProject.image?.asset ? 'md:w-1/2' : ''} h-full overflow-y-auto p-6 md:p-12 custom-scrollbar`}>
-                {!selectedProject.image?.asset && (
-                  <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
-                    {selectedProject.name}
-                  </h2>
-                )}
+              <div className={`w-full ${selectedProject.image?.asset ? 'md:w-2/5' : ''} h-full overflow-y-auto p-6 md:p-10 custom-scrollbar`}>
+                <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
+                  {selectedProject.name}
+                </h2>
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">
@@ -199,13 +210,14 @@ export default function ProjectsPage() {
                     <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Thư viện ảnh</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {selectedProject.gallery.map((img, i) => (
-                        <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100">
+                        <div key={i} className="aspect-square rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100 cursor-pointer relative group" onClick={() => setFullscreenImage(urlFor(img as any).width(2000).quality(90).auto('format').url())}>
                           <img 
-                            src={urlFor(img as any).width(800).height(600).quality(85).auto('format').url()} 
+                            src={urlFor(img as any).width(800).height(800).quality(85).auto('format').url()} 
                             alt={`Gallery ${i}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                         </div>
                       ))}
                     </div>
@@ -218,7 +230,7 @@ export default function ProjectsPage() {
                     <div className="aspect-video w-full rounded-xl overflow-hidden shadow-md">
                       <iframe 
                         className="w-full h-full"
-                        src={selectedProject.youtubeLink.replace('watch?v=', 'embed/').split('&')[0]}
+                        src={getYoutubeEmbedUrl(selectedProject.youtubeLink)}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -230,6 +242,34 @@ export default function ProjectsPage() {
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Image Viewer */}
+      <AnimatePresence>
+        {fullscreenImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 cursor-zoom-out"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <button 
+              onClick={() => setFullscreenImage(null)}
+              className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            >
+              ✕
+            </button>
+            <motion.img 
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              src={fullscreenImage}
+              alt="Fullscreen view"
+              className="max-w-full max-h-[95vh] object-contain shadow-2xl rounded-sm"
+            />
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
