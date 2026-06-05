@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
+import { useIsMobile } from '../../hooks';
 
 interface InteractiveProjectProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface InteractiveProjectProps {
 
 export function InteractiveProject({ children, position, index }: InteractiveProjectProps) {
   const { setActiveProject, setModalOpen } = useStore();
+  const isMobile = useIsMobile();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
@@ -79,6 +81,9 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            setModalOpen(true);
         }}
         onPointerDown={(e: any) => {
+           // Trên mobile, không chặn sự kiện để người dùng lướt web bình thường
+           if (isMobile) return;
+           
            e.stopPropagation();
            if (e.target.setPointerCapture) {
              e.target.setPointerCapture(e.pointerId);
@@ -90,6 +95,7 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            document.body.style.cursor = 'grabbing';
         }}
         onPointerMove={(e: any) => {
+           if (isMobile) return;
            if (dragState.current.isDragging) {
               e.stopPropagation();
               const deltaX = e.clientX - dragState.current.startX;
@@ -122,6 +128,7 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            }
         }}
         onPointerUp={(e: any) => {
+           if (isMobile) return;
            e.stopPropagation();
            if (e.target.releasePointerCapture) {
              e.target.releasePointerCapture(e.pointerId);
@@ -132,12 +139,14 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            document.body.style.cursor = hovered ? 'pointer' : 'auto';
         }}
         onPointerCancel={() => {
+           if (isMobile) return;
            dragState.current.isDragging = false;
            setDragRotY(0);
            setDragRotX(0);
            document.body.style.cursor = hovered ? 'pointer' : 'auto';
         }}
         onPointerOver={(e) => { 
+           if (isMobile) return;
            e.stopPropagation(); 
            setHovered(true); 
            if (!dragState.current.isDragging) {
@@ -145,6 +154,7 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            }
         }}
         onPointerOut={(e) => { 
+           if (isMobile) return;
            e.stopPropagation(); 
            setHovered(false); 
            if (!dragState.current.isDragging) {
