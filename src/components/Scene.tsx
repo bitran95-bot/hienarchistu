@@ -173,6 +173,32 @@ function SceneContents() {
       const t = Math.min(s / 0.1, 1);
       heroDesc.style.opacity = `${1 - t}`;
     }
+
+    // --- Animate About Section ---
+    const aboutSection = document.getElementById('about-section');
+    if (aboutSection) {
+       if (s > 0.25) {
+          const fade = 1 - THREE.MathUtils.clamp((s - 0.25) / 0.05, 0, 1);
+          aboutSection.style.opacity = `${fade}`;
+       } else {
+          aboutSection.style.opacity = '1';
+       }
+    }
+
+    const progress1 = THREE.MathUtils.clamp((s - 0.05) / 0.1, 0, 1);
+    const progress2 = THREE.MathUtils.clamp((s - 0.1) / 0.1, 0, 1); 
+    
+    const text1 = document.getElementById('about-text-1');
+    if (text1) {
+       const clipRight = (1 - progress1) * 100;
+       text1.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
+    }
+    
+    const text2 = document.getElementById('about-text-2');
+    if (text2) {
+       const clipRight = (1 - progress2) * 100;
+       text2.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
+    }
   });
 
   return (
