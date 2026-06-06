@@ -205,24 +205,45 @@ export default function ProjectsPage() {
                   </div>
                 )}
 
-                {selectedProject.gallery && selectedProject.gallery.length > 0 && (
-                  <div className="mb-12">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Thư viện ảnh</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {selectedProject.gallery.map((img, i) => (
-                        <div key={i} className="aspect-square rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100 cursor-pointer relative group" onClick={() => setFullscreenImage(urlFor(img as any).width(2000).quality(90).auto('format').url())}>
-                          <img 
-                            src={urlFor(img as any).width(800).height(800).quality(85).auto('format').url()} 
-                            alt={`Gallery ${i}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                        </div>
-                      ))}
+                {(() => {
+                  const hasMagazinePages = selectedProject.magazinePages && selectedProject.magazinePages.length > 0;
+                  const hasGallery = selectedProject.gallery && selectedProject.gallery.length > 0;
+                  
+                  if (!hasMagazinePages && !hasGallery) return null;
+
+                  let imagesToRender: any[] = [];
+                  
+                  if (hasMagazinePages) {
+                     selectedProject.magazinePages?.forEach(page => {
+                       if (page.images) {
+                         imagesToRender = [...imagesToRender, ...page.images];
+                       }
+                     });
+                  } else if (hasGallery) {
+                     imagesToRender = selectedProject.gallery || [];
+                  }
+
+                  if (imagesToRender.length === 0) return null;
+
+                  return (
+                    <div className="mb-12">
+                      <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Thư viện ảnh</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {imagesToRender.map((img, i) => (
+                          <div key={i} className="aspect-square rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100 cursor-pointer relative group" onClick={() => setFullscreenImage(urlFor(img as any).width(2000).quality(90).auto('format').url())}>
+                            <img 
+                              src={urlFor(img as any).width(800).height(800).quality(85).auto('format').url()} 
+                              alt={`Gallery ${i}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {selectedProject.youtubeLink && (
                   <div className="mt-10 pb-10">
