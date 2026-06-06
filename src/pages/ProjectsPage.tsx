@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,36 @@ export default function ProjectsPage() {
   const { projects, isDataLoaded, fetchData } = useStore();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+
+  const projectImages = useMemo(() => {
+    if (!selectedProject) return [];
+    
+    let images: any[] = [];
+    
+    if (selectedProject.image?.asset) {
+       images.push(selectedProject.image);
+    }
+
+    const hasMagazinePages = selectedProject.magazinePages && selectedProject.magazinePages.length > 0;
+    const hasGallery = selectedProject.gallery && selectedProject.gallery.length > 0;
+    
+    if (hasMagazinePages) {
+       selectedProject.magazinePages?.forEach(page => {
+         if (page.images) {
+           images = [...images, ...page.images];
+         }
+       });
+    } else if (hasGallery) {
+       images = [...images, ...(selectedProject.gallery || [])];
+    }
+    
+    return images;
+  }, [selectedProject]);
+
+  useEffect(() => {
+     setActiveImageIndex(0);
+  }, [selectedProject]);
 
   // Helper cho Youtube URL
   const getYoutubeEmbedUrl = (url: string) => {
@@ -171,22 +201,8 @@ export default function ProjectsPage() {
                 ✕
               </button>
 
-              {/* Left Side: Main Image */}
-              {selectedProject.image?.asset && (
-                <div className="w-full md:w-3/5 h-64 md:h-full relative shrink-0 border-r border-stone-200 bg-stone-100 flex items-center justify-center cursor-pointer group" onClick={() => setFullscreenImage(urlFor(selectedProject.image as any).width(2000).quality(90).auto('format').url())}>
-                  <img 
-                    src={urlFor(selectedProject.image as any).width(1600).quality(85).auto('format').url()} 
-                    alt={selectedProject.name}
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">Phóng to</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Right Side: Content */}
-              <div className={`w-full ${selectedProject.image?.asset ? 'md:w-2/5' : ''} h-full overflow-y-auto p-6 md:p-10 custom-scrollbar`}>
+              {/* Left Side: Content */}
+              <div className="w-full md:w-2/5 h-1/2 md:h-full overflow-y-auto p-6 md:p-10 custom-scrollbar border-r border-stone-200 order-2 md:order-1">
                 <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                   {selectedProject.name}
                 </h2>
@@ -205,46 +221,6 @@ export default function ProjectsPage() {
                   </div>
                 )}
 
-                {(() => {
-                  const hasMagazinePages = selectedProject.magazinePages && selectedProject.magazinePages.length > 0;
-                  const hasGallery = selectedProject.gallery && selectedProject.gallery.length > 0;
-                  
-                  if (!hasMagazinePages && !hasGallery) return null;
-
-                  let imagesToRender: any[] = [];
-                  
-                  if (hasMagazinePages) {
-                     selectedProject.magazinePages?.forEach(page => {
-                       if (page.images) {
-                         imagesToRender = [...imagesToRender, ...page.images];
-                       }
-                     });
-                  } else if (hasGallery) {
-                     imagesToRender = selectedProject.gallery || [];
-                  }
-
-                  if (imagesToRender.length === 0) return null;
-
-                  return (
-                    <div className="mb-12">
-                      <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Thư viện ảnh</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {imagesToRender.map((img, i) => (
-                          <div key={i} className="aspect-square rounded-xl overflow-hidden bg-stone-100 shadow-sm border border-stone-100 cursor-pointer relative group" onClick={() => setFullscreenImage(urlFor(img as any).width(2000).quality(90).auto('format').url())}>
-                            <img 
-                              src={urlFor(img as any).width(800).height(800).quality(85).auto('format').url()} 
-                              alt={`Gallery ${i}`}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
                 {selectedProject.youtubeLink && (
                   <div className="mt-10 pb-10">
                     <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Video Dự Án</h4>
@@ -258,6 +234,53 @@ export default function ProjectsPage() {
                         allowFullScreen
                       />
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Side: Slideshow */}
+              <div className="w-full md:w-3/5 h-1/2 md:h-full relative shrink-0 bg-stone-100 flex flex-col p-4 md:p-6 order-1 md:order-2">
+                {projectImages.length > 0 ? (
+                  <>
+                    <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group cursor-pointer" onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}>
+                       <AnimatePresence mode="wait">
+                         <motion.img 
+                           key={activeImageIndex}
+                           initial={{ opacity: 0 }}
+                           animate={{ opacity: 1 }}
+                           exit={{ opacity: 0 }}
+                           transition={{ duration: 0.3 }}
+                           src={urlFor(projectImages[activeImageIndex]).width(1600).quality(85).auto('format').url()}
+                           alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
+                           className="w-full h-full object-contain"
+                         />
+                       </AnimatePresence>
+                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                         <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">Phóng to</span>
+                       </div>
+                    </div>
+                    
+                    {projectImages.length > 1 && (
+                      <div className="mt-4 flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 h-24 md:h-32 shrink-0">
+                         {projectImages.map((img, idx) => (
+                           <div 
+                             key={idx}
+                             onClick={() => setActiveImageIndex(idx)}
+                             className={`shrink-0 aspect-square h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${activeImageIndex === idx ? 'border-amber-700 opacity-100 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                           >
+                             <img 
+                               src={urlFor(img).width(200).height(200).quality(60).auto('format').url()}
+                               alt={`Thumbnail ${idx}`}
+                               className="w-full h-full object-cover"
+                             />
+                           </div>
+                         ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-stone-400">
+                     Không có hình ảnh
                   </div>
                 )}
               </div>
