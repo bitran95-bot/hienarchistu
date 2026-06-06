@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../i18n';
+import { SubpageNavigation } from '../components/SubpageNavigation';
 
 type DownloadState = 'loading' | 'ready' | 'expired' | 'error';
 
@@ -57,18 +58,7 @@ export default function DownloadPage() {
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7] flex flex-col">
-        {/* HEADER */}
-        <header className="bg-[#fdfbf7]/90 backdrop-blur-lg border-b border-stone-200/50">
-          <div className="max-w-3xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-            <Link to="/" className="font-heading font-bold text-[#2a2a2a] hover:text-amber-700 transition-colors">
-              <span className="text-2xl">HIÊN</span>
-              <span className="text-lg ml-1">studio</span>
-            </Link>
-            <Link to="/shop" className="text-sm text-stone-500 hover:text-amber-700 transition-colors font-medium">
-              {isVi ? '← Quay lại cửa hàng' : '← Back to shop'}
-            </Link>
-          </div>
-        </header>
+        <SubpageNavigation />
 
         {/* CONTENT */}
         <main className="flex-1 flex items-center justify-center px-4 py-16">

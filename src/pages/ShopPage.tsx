@@ -4,8 +4,9 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { client, urlFor } from '../sanityClient';
 import { useTranslation } from '../i18n';
-import { LanguageSwitcher } from '../components/LanguageSwitcher';
+
 import type { Product, ProductCategory } from '../types';
+import { SubpageNavigation } from '../components/SubpageNavigation';
 
 // ===== PRODUCT CARD =====
 function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Product) => void }) {
@@ -295,22 +296,7 @@ export default function ShopPage() {
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7]">
-        {/* HEADER */}
-        <header className="sticky top-0 z-50 bg-[#fdfbf7]/90 backdrop-blur-lg border-b border-stone-200/50">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="font-heading font-bold text-[#2a2a2a] leading-none group-hover:text-amber-700 transition-colors">
-                <span className="text-2xl">HIÊN</span>
-                <span className="text-lg ml-1">studio</span>
-              </div>
-            </Link>
-            <nav className="flex items-center gap-4 md:gap-6 text-sm font-medium text-stone-500">
-              <Link to="/" className="hover:text-amber-700 transition-colors hidden md:block">{t.shop.backHome}</Link>
-              <span className="text-amber-700 font-bold">{t.shop.activeLabel}</span>
-              <LanguageSwitcher />
-            </nav>
-          </div>
-        </header>
+        <SubpageNavigation />
 
         {/* HERO */}
         <section className="relative overflow-hidden py-16 md:py-24">

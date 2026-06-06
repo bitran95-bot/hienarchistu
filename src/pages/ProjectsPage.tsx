@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import type { Project } from '../types';
+import { SubpageNavigation } from '../components/SubpageNavigation';
 
 export default function ProjectsPage() {
   const { projects, isDataLoaded, fetchData } = useStore();
@@ -76,18 +77,7 @@ export default function ProjectsPage() {
         <meta name="description" content="Khám phá các dự án thiết kế kiến trúc và nội thất mộc mạc, gần gũi với tự nhiên của Hiên Archi Studio." />
       </Helmet>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#fdfbf7]/80 backdrop-blur-md border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="font-heading font-bold text-xl text-[#2a2a2a] tracking-widest uppercase hover:opacity-70 transition-opacity">
-            Hiên.
-          </Link>
-          <div className="flex items-center gap-6 text-sm font-medium text-stone-500">
-            <Link to="/" className="hover:text-[#2a2a2a] transition-colors">Trang chủ 3D</Link>
-            <Link to="/shop" className="hover:text-[#2a2a2a] transition-colors">Cửa hàng</Link>
-          </div>
-        </div>
-      </header>
+      <SubpageNavigation />
 
       {/* Hero Section */}
       <section className="pt-20 pb-12 px-4">
