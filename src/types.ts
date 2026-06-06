@@ -34,6 +34,7 @@ export interface Project {
   modelFile?: { asset?: SanityImageAsset };
   modelScale?: number;
   youtubeLink?: string;
+  pdfFileUrl?: string;
   order?: number;
 }
 

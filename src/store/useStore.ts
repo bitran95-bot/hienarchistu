@@ -32,7 +32,8 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
         "projects": *[_type == "project"] | order(order asc) {
           ...,
-          "modelFileUrl": modelFile.asset->url
+          "modelFileUrl": modelFile.asset->url,
+          "pdfFileUrl": pdfFile.asset->url
         },
         "settings": *[_type == "siteSettings"][0]
       }`);

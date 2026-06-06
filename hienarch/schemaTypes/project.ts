@@ -53,6 +53,8 @@ export default defineType({
       title: 'Thư viện hình ảnh (Các góc nhìn khác)',
       type: 'array',
       group: 'media',
+      description: 'Kéo thả nhiều ảnh cùng lúc để upload.',
+      options: { layout: 'grid' },
       of: [{ type: 'image', options: { hotspot: true } }]
     }),
     defineField({
@@ -128,6 +130,16 @@ export default defineType({
       type: 'url',
       group: 'media',
       description: 'Đường dẫn video YouTube của dự án (nếu có)',
+    }),
+    defineField({
+      name: 'pdfFile',
+      title: 'File PDF (Layout / Trình bày)',
+      type: 'file',
+      group: 'media',
+      description: 'Upload file PDF trình bày dự án để khách xem nhanh. Nếu có file này, hệ thống sẽ ưu tiên hiển thị PDF.',
+      options: {
+        accept: '.pdf'
+      }
     }),
     defineField({
       name: 'modelScale',
