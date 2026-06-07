@@ -6,12 +6,21 @@ import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
+import { useIsMobile } from '../hooks';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 export default function ProjectsPage() {
   const { projects, isDataLoaded, fetchData } = useStore();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  const [numPdfPages, setNumPdfPages] = useState<number | null>(null);
+  const isMobile = useIsMobile();
 
   const projectImages = useMemo(() => {
     if (!selectedProject) return [];
@@ -40,6 +49,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
      setActiveImageIndex(0);
+     setNumPdfPages(null);
   }, [selectedProject]);
 
   // Helper cho Youtube URL
@@ -228,9 +238,52 @@ export default function ProjectsPage() {
                 )}
               </div>
 
-              {/* Right Side: Slideshow */}
+              {/* Right Side: Slideshow / PDF Viewer */}
               <div className="w-full md:w-3/5 h-1/2 md:h-full relative shrink-0 bg-stone-100 flex flex-col p-4 md:p-6 order-1 md:order-2">
-                {projectImages.length > 0 ? (
+                {selectedProject.pdfFileUrl ? (
+                   <Document 
+                       file={selectedProject.pdfFileUrl}
+                       onLoadSuccess={({ numPages }) => setNumPdfPages(numPages)}
+                       className="w-full h-full flex flex-col"
+                   >
+                     {!numPdfPages ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-700"></div>
+                        </div>
+                     ) : (
+                        <>
+                          <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex items-center justify-center p-2 group cursor-pointer">
+                             <PdfPage 
+                                 pageNumber={activeImageIndex + 1} 
+                                 height={isMobile ? window.innerHeight * 0.4 : window.innerHeight * 0.7}
+                                 renderTextLayer={false} 
+                                 renderAnnotationLayer={false}
+                                 className="max-w-full max-h-full flex items-center justify-center [&_canvas]:!w-auto [&_canvas]:!h-full [&_canvas]:!max-w-full [&_canvas]:!object-contain"
+                             />
+                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center pointer-events-none"></div>
+                          </div>
+                          {numPdfPages > 1 && (
+                            <div className="mt-4 flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 h-24 md:h-32 shrink-0">
+                               {Array.from(new Array(numPdfPages), (_, idx) => (
+                                 <div 
+                                   key={idx}
+                                   onClick={() => setActiveImageIndex(idx)}
+                                   className={`shrink-0 aspect-[1/1.4] h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 bg-white flex items-center justify-center ${activeImageIndex === idx ? 'border-amber-700 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                 >
+                                    <PdfPage 
+                                        pageNumber={idx + 1} 
+                                        height={100}
+                                        renderTextLayer={false} 
+                                        renderAnnotationLayer={false}
+                                    />
+                                 </div>
+                               ))}
+                            </div>
+                          )}
+                        </>
+                     )}
+                   </Document>
+                ) : projectImages.length > 0 ? (
                   <>
                     <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group cursor-pointer" onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}>
                        <AnimatePresence mode="wait">

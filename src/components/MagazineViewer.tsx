@@ -2,6 +2,13 @@ import React, { useState, useEffect, type ReactNode } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { urlFor } from '../sanityClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
+
 import type { Project } from '../types';
 import { useIsMobile } from '../hooks';
 
@@ -37,6 +44,7 @@ interface MagazineViewerProps {
 
 export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex, totalIndex }: MagazineViewerProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
   
   const isMobile = useIsMobile();
   // Layout Landscape: chiều ngang rộng hơn chiều cao
@@ -251,13 +259,55 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
 
       {/* PDF Viewer if available */}
       {project.pdfFileUrl ? (
-        <div className="w-full h-full pt-20 pb-4 px-4 md:px-12 flex items-center justify-center pointer-events-auto relative z-40">
-           <iframe 
-             src={project.pdfFileUrl} 
-             title={`PDF Layout cho dự án ${project.name}`}
-             className="w-full h-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-lg bg-white"
-             frameBorder="0"
-           ></iframe>
+        <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex items-center justify-center pointer-events-none p-4 md:p-8">
+          <div 
+             className="pointer-events-auto w-full h-full max-w-[95vw] max-h-[90vh] flex flex-col items-center justify-center"
+             style={{ aspectRatio: isMobile ? 'auto' : `${pageWidth * 2} / ${pageHeight}` }}
+          >
+             {!numPages && (
+                <div className="absolute inset-0 flex items-center justify-center z-50">
+                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700"></div>
+                </div>
+             )}
+             <Document 
+                 file={project.pdfFileUrl} 
+                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                 className="w-full h-full flex items-center justify-center"
+                 loading={null}
+             >
+                 {numPages && (
+                     /* @ts-ignore */
+                     <HTMLFlipBook
+                       width={pageWidth}
+                       height={pageHeight}
+                       size="stretch"
+                       minWidth={300}
+                       maxWidth={1500}
+                       minHeight={300}
+                       maxHeight={1000}
+                       maxShadowOpacity={0.6}
+                       showCover={true}
+                       usePortrait={isMobile}
+                       mobileScrollSupport={true}
+                       className="magazine-flipbook shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                     >
+                         {Array.from(new Array(numPages), (_, index) => (
+                             <Page key={`pdf-page-${index}`} number={String(index + 1)}>
+                                 <div className="w-full h-full flex items-center justify-center -m-8 md:-m-12 relative" style={{ width: 'calc(100% + 4rem)', height: 'calc(100% + 6rem)' }}>
+                                     <PdfPage 
+                                         pageNumber={index + 1} 
+                                         width={isMobile ? pageWidth : pageWidth}
+                                         renderTextLayer={false} 
+                                         renderAnnotationLayer={false} 
+                                         className="w-full h-full flex items-center justify-center [&_canvas]:!w-full [&_canvas]:!h-full [&_canvas]:!object-contain"
+                                     />
+                                 </div>
+                             </Page>
+                         ))}
+                     </HTMLFlipBook>
+                 )}
+             </Document>
+          </div>
         </div>
       ) : (
         /* Magazine Container */
