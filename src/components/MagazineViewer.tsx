@@ -180,11 +180,11 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                <img 
                  src={urlFor(group[0]).quality(85).auto('format').url()} 
                  alt={`Gallery ${groupIdx}`} 
-                 className="w-full h-full object-cover" 
+                 className="w-full h-full object-contain" 
                />
              </div>
           ) : (
-             <div className={`w-full h-full flex gap-4 overflow-hidden relative z-10 ${
+             <div className={`flex-1 min-h-0 w-full flex gap-4 overflow-hidden relative z-10 ${
                 group.length === 1 ? 'items-center justify-center' :
                 layoutType === 'col' ? 'flex-col items-center justify-center' : 
                 layoutType === 'row' ? 'flex-row items-center justify-center' : 
@@ -196,7 +196,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                       <div 
                         key={idx} 
                         className={`relative group cursor-zoom-in flex items-center justify-center overflow-hidden shadow-md border border-stone-200/50 bg-white ${
-                          group.length === 1 ? 'w-full h-full' : 'flex-1 min-w-[40%] min-h-[30%]'
+                          group.length === 1 ? 'w-full h-full' : 'flex-1 min-h-0 min-w-[40%]'
                         }`}
                         onClick={() => setSelectedImage(fullSrc)}
                       >
@@ -204,7 +204,6 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                           src={fullSrc} 
                           alt={`Gallery ${groupIdx}-${idx}`} 
                           className="w-full h-full object-contain p-2" 
-                          style={{ maxHeight: group.length === 1 ? '100%' : '50vh' }}
                         />
                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
