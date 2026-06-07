@@ -21,7 +21,6 @@
     "framer-motion": "^12.40.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
-    "pdfjs-dist": "^6.0.227",
     "postprocessing": "^6.39.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
