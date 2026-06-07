@@ -105,7 +105,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
 
   const pages = [
     <Page key="cover">
-       <div className="w-full h-full relative -m-8 md:-m-12" style={{ width: 'calc(100% + 4rem)', height: 'calc(100% + 6rem)' }}>
+       <div className="absolute inset-0 z-0">
           <img src={coverImageUrl} alt="Cover" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
           <div className="absolute bottom-12 left-8 right-8 text-white">
@@ -174,7 +174,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
         <Page key={`gallery-page-${groupIdx}`} number={String(5 + groupIdx)}>
           {layoutType === 'full' && group.length >= 1 ? (
              <div 
-               className="absolute inset-0 z-0 -m-8 md:-m-12 bg-stone-100 flex items-center justify-center cursor-zoom-in" 
+               className="absolute inset-0 z-0 bg-[#fdfbf7] flex items-center justify-center cursor-zoom-in" 
                onClick={() => setSelectedImage(urlFor(group[0]).quality(85).auto('format').url())}
              >
                <img 
@@ -291,7 +291,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                      >
                          {Array.from(new Array(numPages), (_, index) => (
                              <Page key={`pdf-page-${index}`} number={String(index + 1)}>
-                                 <div className="w-full h-full flex items-center justify-center -m-8 md:-m-12 relative" style={{ width: 'calc(100% + 4rem)', height: 'calc(100% + 6rem)' }}>
+                                 <div className="absolute inset-0 z-0 flex items-center justify-center bg-[#fdfbf7]">
                                      <PdfPage 
                                          pageNumber={index + 1} 
                                          width={isMobile ? pageWidth : pageWidth}
