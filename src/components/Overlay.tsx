@@ -147,9 +147,9 @@ export const Overlay = memo(function Overlay() {
           </div>
 
           {/* Content */}
-          <div className="flex-1 flex flex-col md:flex-row px-6 pb-12 pt-4 md:p-12 lg:p-24 gap-12 lg:gap-24 h-full max-w-7xl mx-auto w-full">
-             {/* Left side: Info */}
-             <div className="w-full md:w-1/2 flex flex-col justify-center">
+          <div className="flex-1 flex flex-col px-6 pb-12 pt-4 md:p-12 lg:p-24 h-full max-w-4xl mx-auto w-full justify-center">
+             {/* Info */}
+             <div className="w-full flex flex-col justify-center items-center text-center">
                 <motion.h2 
                    initial={{ opacity: 0, y: 50 }}
                    animate={{ opacity: 1, y: 0 }}
@@ -164,70 +164,34 @@ export const Overlay = memo(function Overlay() {
                    animate={{ opacity: 1 }}
                    exit={{ opacity: 0 }}
                    transition={{ delay: 0.3 }}
-                   className="mt-6 md:mt-8 text-base md:text-xl text-stone-600 font-serif italic max-w-md border-l-4 border-amber-700 pl-4 mb-10"
+                   className="mt-6 md:mt-10 text-lg md:text-2xl text-stone-600 font-serif italic max-w-2xl mb-12 md:mb-16"
                 >
                    {t.contact.quote}
                 </motion.p>
                 
-                <div className="space-y-6">
-                   <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-1">{t.contact.phone}</h3>
-                      <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-2xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors">
+                <div className="space-y-10 flex flex-col items-center">
+                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">{t.contact.phone}</h3>
+                      <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors">
                          {settings?.phone || '033 877 7017'}
                       </a>
                    </motion.div>
                    
-                   <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-1">Email</h3>
-                      <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-2xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors break-all">
+                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Email</h3>
+                      <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors break-all">
                          {settings?.email || 'thaibao95arc@gmail.com'}
                       </a>
                    </motion.div>
 
-                   <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-1">Instagram</h3>
-                      <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-2xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors flex items-center gap-2 group w-fit">
+                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Instagram</h3>
+                      <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors flex items-center justify-center gap-2 md:gap-4 group w-fit mx-auto">
                          {settings?.instagram ? (() => { try { return new URL(settings.instagram).pathname.replace(/\//g, ''); } catch(e) { return settings.instagram; }})() : 'hien.archi'}
-                         <span className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform text-amber-700">↗</span>
+                         <span className="transform group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform text-amber-700">↗</span>
                       </a>
                    </motion.div>
                 </div>
-             </div>
-
-             {/* Right side: Contact Form */}
-             <div className="w-full md:w-1/2 flex flex-col justify-center">
-                <motion.form 
-                   initial={{ opacity: 0, y: 50 }} 
-                   animate={{ opacity: 1, y: 0 }} 
-                   transition={{ delay: 0.4 }}
-                   className="space-y-6 bg-white/50 backdrop-blur-sm p-8 rounded-2xl border border-stone-200/50 shadow-xl"
-                   onSubmit={(e) => {
-                     e.preventDefault();
-                     alert(t.contactForm?.success || "Thành công!");
-                     // In a real app, integrate with Formspree, Sanity, or an API route here
-                   }}
-                >
-                   <h3 className="text-2xl font-heading font-bold text-[#2a2a2a] mb-6">{t.contactForm?.title || "Gửi tin nhắn"}</h3>
-                   
-                   <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm?.name || "Họ và tên"}</label>
-                      <input required type="text" placeholder={t.contactForm?.namePlaceholder || "Nguyễn Văn A"} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
-                   </div>
-                   
-                   <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm?.email || "Email"}</label>
-                      <input required type="email" placeholder={t.contactForm?.emailPlaceholder || "email@example.com"} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
-                   </div>
-                   
-                   <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm?.message || "Tin nhắn"}</label>
-                      <textarea required placeholder={t.contactForm?.messagePlaceholder || "Mô tả yêu cầu..."} rows={4} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a] resize-none"></textarea>
-                   </div>
-                   
-                   <button type="submit" className="w-full bg-[#2a2a2a] text-white py-4 font-bold tracking-widest uppercase text-sm hover:bg-amber-700 transition-colors rounded-lg mt-4">
-                      {t.contactForm?.send || "Gửi tin nhắn"}
-                   </button>
-                </motion.form>
              </div>
           </div>
         </motion.div>
