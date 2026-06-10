@@ -1,8 +1,8 @@
 import { urlFor } from '../sanityClient';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+// Removed broken import
 
 interface ResponsiveImageProps {
-  source: SanityImageSource | undefined | null;
+  source: any | undefined | null;
   /** Aspect ratio string like '3/2' or just a number like 1.5. If not provided, height is automatic based on original. */
   aspectRatio?: number;
   /** Comma separated sizes attribute for the img tag. e.g., "(max-width: 768px) 100vw, 50vw" */

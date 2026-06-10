@@ -1,4 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import type { Project } from '../types';
+import { AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback, memo, lazy, Suspense } from 'react';
 import { useStore } from '../store/useStore';
 const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ default: m.MagazineViewer })));
@@ -8,7 +9,7 @@ import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
 
 export const Overlay = memo(function Overlay() {
-  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
+  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const { t } = useTranslation();
 

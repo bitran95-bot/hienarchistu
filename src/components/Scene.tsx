@@ -1,8 +1,7 @@
-import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useState, useMemo, Suspense } from 'react';
+import { useThree } from '@react-three/fiber';
 import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
-import * as THREE from 'three';
 
 import { useStore } from '../store/useStore';
 import { LoadingSpinner } from './3d/LoadingSpinner';
