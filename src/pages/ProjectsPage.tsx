@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
+import { getResponsiveImageProps } from '../utils/image';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
@@ -11,7 +12,8 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { useIsMobile } from '../hooks';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Self-host PDF worker để tránh phụ thuộc CDN bên ngoài (thống nhất với MagazineViewer)
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function ProjectsPage() {
   const { projects, isDataLoaded, fetchData } = useStore();
@@ -126,9 +128,15 @@ export default function ProjectsPage() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {projects.map((project, idx) => {
-                const imageUrl = project.image?.asset
-                  ? urlFor(project.image as any).width(800).height(600).quality(85).auto('format').url()
-                  : null;
+                const imgProps = getResponsiveImageProps({
+                  source: project.image,
+                  aspectRatio: 4 / 3,
+                  baseWidth: 800,
+                  sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+                  className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-700",
+                  alt: project.name,
+                  loading: 'lazy'
+                });
 
                 return (
                   <motion.div
@@ -140,13 +148,8 @@ export default function ProjectsPage() {
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
-                      {imageUrl ? (
-                        <img 
-                          src={imageUrl} 
-                          alt={project.name} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                          loading="lazy" 
-                        />
+                      {imgProps ? (
+                        <img {...imgProps} />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-stone-300">
                           Không có ảnh
@@ -292,9 +295,13 @@ export default function ProjectsPage() {
                            animate={{ opacity: 1 }}
                            exit={{ opacity: 0 }}
                            transition={{ duration: 0.3 }}
-                           src={urlFor(projectImages[activeImageIndex]).width(1600).quality(85).auto('format').url()}
-                           alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
-                           className="w-full h-full object-contain"
+                           {...getResponsiveImageProps({
+                             source: projectImages[activeImageIndex],
+                             baseWidth: 1600,
+                             sizes: '(max-width: 768px) 100vw, 60vw',
+                             className: "w-full h-full object-contain",
+                             alt: `${selectedProject.name} image ${activeImageIndex + 1}`
+                           })}
                          />
                        </AnimatePresence>
                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -310,11 +317,23 @@ export default function ProjectsPage() {
                              onClick={() => setActiveImageIndex(idx)}
                              className={`shrink-0 aspect-square h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${activeImageIndex === idx ? 'border-amber-700 opacity-100 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
                            >
-                             <img 
-                               src={urlFor(img).width(200).height(200).quality(60).auto('format').url()}
-                               alt={`Thumbnail ${idx}`}
-                               className="w-full h-full object-cover"
-                             />
+                             {getResponsiveImageProps({
+                               source: img,
+                               aspectRatio: 1,
+                               baseWidth: 200,
+                               sizes: '100px',
+                               className: "w-full h-full object-cover",
+                               alt: `Thumbnail ${idx}`
+                             }) && (
+                               <img {...getResponsiveImageProps({
+                                 source: img,
+                                 aspectRatio: 1,
+                                 baseWidth: 200,
+                                 sizes: '100px',
+                                 className: "w-full h-full object-cover",
+                                 alt: `Thumbnail ${idx}`
+                               })} />
+                             )}
                            </div>
                          ))}
                       </div>

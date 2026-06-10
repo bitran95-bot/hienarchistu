@@ -8,7 +8,41 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'magazine.glb'],
+      includeAssets: ['favicon.svg', 'magazine.glb', 'pdf.worker.min.mjs'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,glb,mjs}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/cdn\.sanity\.io\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'sanity-images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/[a-zA-Z0-9.-]+\.sanity\.io\/v\d+\/data\/query\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'sanity-api-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 Day
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
       manifest: {
         name: 'Hiên Archi Studio',
         short_name: 'Hiên Archi',
@@ -16,6 +50,7 @@ export default defineConfig({
         theme_color: '#fdfbf7',
         background_color: '#fdfbf7',
         display: 'standalone',
+        orientation: 'portrait-primary',
         icons: [
           {
             src: 'favicon.svg',

@@ -6,7 +6,8 @@ import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Tối ưu quản lý PDF Worker (Self-host thay vì gọi qua CDN để tránh lỗi network/Vercel)
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 import type { Project } from '../types';
 import { useIsMobile } from '../hooks';
@@ -180,7 +181,8 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                <img 
                  src={urlFor(group[0]).quality(85).auto('format').url()} 
                  alt={`Gallery ${groupIdx}`} 
-                 className="w-full h-full object-contain" 
+                 className="w-full h-full object-contain"
+                 loading="lazy"
                />
              </div>
           ) : (
@@ -203,7 +205,8 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                         <img 
                           src={fullSrc} 
                           alt={`Gallery ${groupIdx}-${idx}`} 
-                          className="w-full h-full object-contain p-2" 
+                          className="w-full h-full object-contain p-2"
+                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>

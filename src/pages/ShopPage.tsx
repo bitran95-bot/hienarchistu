@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { client, urlFor } from '../sanityClient';
+import { client } from '../sanityClient';
 import { useTranslation } from '../i18n';
+import { getResponsiveImageProps } from '../utils/image';
 
 import type { Product, ProductCategory } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
@@ -13,9 +14,16 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
   const { t } = useTranslation();
   const hasDiscount = product.salePrice && product.salePrice < product.price;
   const displayPrice = hasDiscount ? product.salePrice! : product.price;
-  const imageUrl = product.image?.asset
-    ? urlFor(product.image as any).width(600).height(400).quality(85).auto('format').url()
-    : null;
+  
+  const imgProps = getResponsiveImageProps({
+    source: product.image,
+    aspectRatio: 3 / 2,
+    baseWidth: 600,
+    sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+    className: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500',
+    alt: product.name,
+    loading: 'lazy'
+  });
 
   return (
     <motion.div
@@ -30,8 +38,8 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
     >
       {/* Image */}
       <div className="relative aspect-[3/2] bg-stone-100 overflow-hidden">
-        {imageUrl ? (
-          <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+        {imgProps ? (
+          <img {...imgProps} />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-stone-300">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
@@ -99,9 +107,15 @@ function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Pr
 // ===== PRODUCT DETAIL MODAL =====
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const { t } = useTranslation();
-  const imageUrl = product.image?.asset
-    ? urlFor(product.image as any).width(1200).quality(90).auto('format').url()
-    : null;
+  const imgProps = getResponsiveImageProps({
+    source: product.image,
+    aspectRatio: 1, // Used in an aspect-square container
+    baseWidth: 800,
+    sizes: '(max-width: 768px) 100vw, 50vw',
+    className: 'w-full h-full object-cover',
+    alt: product.name,
+    loading: 'eager'
+  });
   const hasDiscount = product.salePrice && product.salePrice < product.price;
   const displayPrice = hasDiscount ? product.salePrice! : product.price;
 
@@ -129,8 +143,8 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         <div className="md:flex">
           {/* Image side */}
           <div className="md:w-1/2 aspect-square bg-stone-100">
-            {imageUrl ? (
-              <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+            {imgProps ? (
+              <img {...imgProps} />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-stone-300 text-6xl">📦</div>
             )}
@@ -225,11 +239,22 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
           <div className="px-8 pb-8">
             <h3 className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-4">{t.shop.previewImages}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {product.gallery.map((img, i) => (
-                <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100">
-                  <img src={urlFor(img as any).width(400).quality(80).auto('format').url()} alt={`Preview ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                </div>
-              ))}
+              {product.gallery.map((img, i) => {
+                const galleryImgProps = getResponsiveImageProps({
+                  source: img,
+                  aspectRatio: 4 / 3,
+                  baseWidth: 400,
+                  sizes: '(max-width: 768px) 50vw, 25vw',
+                  className: 'w-full h-full object-cover hover:scale-105 transition-transform duration-300',
+                  alt: `Preview ${i + 1}`,
+                  loading: 'lazy'
+                });
+                return (
+                  <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden bg-stone-100">
+                    {galleryImgProps && <img {...galleryImgProps} />}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

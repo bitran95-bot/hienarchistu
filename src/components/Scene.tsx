@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useMemo, Suspense } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
@@ -18,11 +18,16 @@ import { calculateProjectLayout } from '../utils/layout';
 import type { GridData, GridLocation } from '../types';
 import { useIsMobile } from '../hooks';
 
+import { useCameraController } from './3d/hooks/useCameraController';
+import { useHeroAnimations } from './3d/hooks/useHeroAnimations';
+
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
+  const { gl } = useThree();
   const { modalOpen, activeProject, projects, settings } = useStore();
   const scroll = useScroll();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [perfQuality, setPerfQuality] = useState<'high' | 'low'>('high');
 
   // Tính toán Grid Layout
   const gridLayout = useMemo(() => calculateProjectLayout(projects || []), [projects]);
@@ -41,11 +46,6 @@ function SceneContents() {
     
     return { map, path };
   }, [gridLayout, projects]);
-
-  const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
-  // Cache các DOM element để tránh gọi document.getElementById mỗi frame (Performance Tweak)
-  const logoRef = useRef<HTMLElement | null>(null);
-  const heroDescRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleScrollHome = () => {
@@ -77,132 +77,27 @@ function SceneContents() {
     document.body.classList.toggle('dark-mode', isDarkMode);
   }, [isDarkMode]);
 
-  // Cache Vector3 objects để tránh tạo mới mỗi frame (60fps)
-  const camTargetPosRef = useRef(new THREE.Vector3());
-  const lookTargetRef = useRef(new THREE.Vector3());
-
-  useFrame((state) => {
-    const s = scroll.offset; // 0 to 1
-    
-    // Direct DOM update for performance (avoids React re-renders)
-    const progressBar = document.getElementById('scroll-progress-bar');
-    if (progressBar) progressBar.style.width = `${s * 100}%`;
-
-    // 1. Chuyển động Camera (Cinematic Camera)
-    const zoomT = THREE.MathUtils.smoothstep(s, 0.25, 0.45); // Camera hạ xuống rất sớm
-    const panT = THREE.MathUtils.smoothstep(s, 0.45, 1.0);  // Trượt ngang kéo dài
-
-    // 2. Parallax góc nhìn lắc nhẹ theo chuột
-    const parallaxX = state.pointer.x * 1.2;
-    const parallaxY = state.pointer.y * 1.2;
-
-    // 3. Tính toán vị trí theo Grid Layout
-    let gridX = 0;
-    let gridY = 0;
-    
-    if (gridData.path.length > 0) {
-       const totalItems = gridData.path.length;
-       const currentIndex = panT * Math.max(0, totalItems - 1);
-       const floorIdx = Math.floor(currentIndex);
-       const ceilIdx = Math.min(Math.ceil(currentIndex), totalItems - 1);
-       const fraction = currentIndex - floorIdx;
-
-       const p1 = gridData.path[floorIdx];
-       const p2 = gridData.path[ceilIdx];
-
-       gridX = THREE.MathUtils.lerp(p1.computedX, p2.computedX, fraction);
-       gridY = THREE.MathUtils.lerp(-p1.gridRow * 4, -p2.gridRow * 4, fraction);
-    }
-
-    const isMobileCam = state.size.width < 768;
-
-    const camY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT) + parallaxY;
-    // Tăng khoảng cách Z trên mobile để người dùng có thể thấy tổng quan rộng hơn, không bị ngợp
-    const camZ = THREE.MathUtils.lerp(isMobileCam ? 24 : 18, isMobileCam ? 16 : 11, zoomT);
-    const camX = THREE.MathUtils.lerp(0, gridX, zoomT) + parallaxX;
-
-    const lookY = THREE.MathUtils.lerp(1.5, -2.5 + gridY, zoomT);
-    const lookX = THREE.MathUtils.lerp(0, gridX, zoomT);
-
-    if (modalOpen && gridData.map[activeProject]) {
-       const activeLoc = gridData.map[activeProject]!;
-       const targetX = activeLoc.computedX;
-       const targetY_grid = -activeLoc.gridRow * 4;
-       // Zoom lại gần mô hình đang chọn, chếch sang trái một chút để chừa chỗ cho bảng thông tin bên phải
-       camTargetPosRef.current.set(targetX - 2.0, -3.2 + targetY_grid, 4.5);
-       lookTargetRef.current.set(targetX, -3.8 + targetY_grid, 0);
-
-       state.camera.position.lerp(camTargetPosRef.current, 0.08);
-       currentLookAt.current.lerp(lookTargetRef.current, 0.08);
-    } else {
-       camTargetPosRef.current.set(camX, camY, camZ);
-       lookTargetRef.current.set(lookX, lookY, 0);
-
-       state.camera.position.lerp(camTargetPosRef.current, 0.08);
-       currentLookAt.current.lerp(lookTargetRef.current, 0.08);
-    }
-    
-    state.camera.lookAt(currentLookAt.current);
-
-    // --- Animate Main Logo ---
-    if (!logoRef.current) logoRef.current = document.getElementById('main-logo');
-    const logo = logoRef.current;
-    if (logo) {
-      const isMobile = state.size.width < 768;
-      const t = Math.min(s / 0.15, 1); 
-      const easeT = t * (2 - t); // easeOut quadratic
-      
-      const startTop = state.size.height * (isMobile ? 0.35 : 0.4);
-      const startLeft = state.size.width * (isMobile ? 0.5 : 0.25);
-      const endTop = isMobile ? 40 : 60; // Approximate final top-left y center
-      const endLeft = isMobile ? state.size.width / 2 : 140; // Approximate final x center (center on mobile)
-      
-      const currentTop = THREE.MathUtils.lerp(startTop, endTop, easeT);
-      const currentLeft = THREE.MathUtils.lerp(startLeft, endLeft, easeT);
-      const scale = THREE.MathUtils.lerp(1, isMobile ? 0.3 : 0.15, easeT); // scale down
-      
-      logo.style.top = `${currentTop}px`;
-      logo.style.left = `${currentLeft}px`;
-      logo.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    }
-
-    // --- Fade out Hero Description ---
-    if (!heroDescRef.current) heroDescRef.current = document.getElementById('hero-desc');
-    const heroDesc = heroDescRef.current;
-    if (heroDesc) {
-      const t = Math.min(s / 0.1, 1);
-      heroDesc.style.opacity = `${1 - t}`;
-    }
-
-    // --- Animate About Section ---
-    const aboutSection = document.getElementById('about-section');
-    if (aboutSection) {
-       if (s > 0.25) {
-          const fade = 1 - THREE.MathUtils.clamp((s - 0.25) / 0.05, 0, 1);
-          aboutSection.style.opacity = `${fade}`;
-       } else {
-          aboutSection.style.opacity = '1';
-       }
-    }
-
-    const progress1 = THREE.MathUtils.clamp((s - 0.05) / 0.1, 0, 1);
-    const progress2 = THREE.MathUtils.clamp((s - 0.1) / 0.1, 0, 1); 
-    
-    const text1 = document.getElementById('about-text-1');
-    if (text1) {
-       const clipRight = (1 - progress1) * 100;
-       text1.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
-    }
-    
-    const text2 = document.getElementById('about-text-2');
-    if (text2) {
-       const clipRight = (1 - progress2) * 100;
-       text2.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
-    }
-  });
+  // Use Custom Hooks for Animations
+  useCameraController(gridData, modalOpen, activeProject);
+  useHeroAnimations();
 
   return (
     <>
+      <PerformanceMonitor 
+        onDecline={() => {
+           setPerfQuality('low');
+           gl.setPixelRatio(1);
+        }}
+        onIncline={() => {
+           setPerfQuality('high');
+           gl.setPixelRatio(window.devicePixelRatio || 1.5);
+        }}
+        flipflops={3}
+        onFallback={() => {
+           setPerfQuality('low');
+           gl.setPixelRatio(0.75); // Cứu cánh cuối cùng nếu vẫn lag
+        }}
+      />
       {/* Môi trường HDRI: Tạo ánh sáng studio và phản xạ thực tế (rất mượt) */}
       <Suspense fallback={null}>
          <Environment preset={isDarkMode ? "night" : "city"} environmentIntensity={isDarkMode ? 0.1 : 0.8} />
@@ -229,8 +124,8 @@ function SceneContents() {
       
       <CursorLight isDarkMode={isDarkMode} />
 
-      {/* Hiệu ứng hạt bụi bay lơ lửng / đom đóm */}
-      {!isMobileScreen && (
+      {/* Hiệu ứng hạt bụi bay lơ lửng / đom đóm (Chỉ bật khi quality high) */}
+      {!isMobileScreen && perfQuality === 'high' && (
          <Sparkles 
             count={isDarkMode ? 60 : 20} 
             scale={[40, 25, 10]} 
@@ -311,16 +206,18 @@ function SceneContents() {
          )}
       </group>
 
-      {/* --- HIỆU ỨNG HẬU KỲ (POST-PROCESSING) --- */}
-      <EffectComposer>
-         <Bloom 
-            luminanceThreshold={isDarkMode ? 0.2 : 0.8} 
-            luminanceSmoothing={0.9} 
-            intensity={isDarkMode ? 1.2 : 0.2} 
-            opacity={1}
-         />
-         <Vignette eskil={false} offset={0.1} darkness={isDarkMode ? 0.6 : 0.25} />
-      </EffectComposer>
+      {/* --- HIỆU ỨNG HẬU KỲ (POST-PROCESSING) (Tắt khi perf low) --- */}
+      {perfQuality === 'high' && (
+        <EffectComposer>
+           <Bloom 
+              luminanceThreshold={isDarkMode ? 0.2 : 0.8} 
+              luminanceSmoothing={0.9} 
+              intensity={isDarkMode ? 1.2 : 0.2} 
+              opacity={1}
+           />
+           <Vignette eskil={false} offset={0.1} darkness={isDarkMode ? 0.6 : 0.25} />
+        </EffectComposer>
+      )}
     </>
   );
 }

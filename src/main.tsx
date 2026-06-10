@@ -11,6 +11,7 @@ import App from './App.tsx'
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center">
@@ -40,9 +41,15 @@ createRoot(document.getElementById('root')!).render(
                 <ProjectsPage />
               </Suspense>
             } />
+            <Route path="*" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <NotFoundPage />
+              </Suspense>
+            } />
           </Routes>
         </BrowserRouter>
       </I18nProvider>
     </HelmetProvider>
   </StrictMode>,
 )
+

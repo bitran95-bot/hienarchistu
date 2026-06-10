@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, lazy, Suspense } from 'react';
 import { useStore } from '../store/useStore';
-import { MagazineViewer } from './MagazineViewer';
+const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ default: m.MagazineViewer })));
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ContactModal } from './ui/ContactModal';
+import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
-import type { Project } from '../types';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects, settings } = useStore();
@@ -98,104 +99,34 @@ export const Overlay = memo(function Overlay() {
       </header>
 
       {/* Floating Bottom Nav for Mobile */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-5 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50">
-        <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</button>
-        <a href="/projects" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.projects}</a>
-        <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.library}</a>
-        <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>
-        <LanguageSwitcher />
-      </div>
+      <MobileNav onContactClick={() => setContactOpen(true)} />
 
       {/* DETAIL MODAL FULLSCREEN - NOW MAGAZINE VIEWER */}
       <AnimatePresence>
       {modalOpen && currentDetail && (
-        <MagazineViewer 
-          key={currentDetail._id || activeProject}
-          project={currentDetail}
-          currentIndex={activeProject}
-          totalIndex={actualProjects.length}
-          onClose={() => setModalOpen(false)}
-          onNext={handleNext}
-          onPrev={handlePrev}
-        />
+        <Suspense fallback={
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5dfd5]/90 backdrop-blur-md">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700"></div>
+          </div>
+        }>
+          <MagazineViewer 
+            key={currentDetail._id || activeProject}
+            project={currentDetail}
+            currentIndex={activeProject}
+            totalIndex={actualProjects.length}
+            onClose={() => setModalOpen(false)}
+            onNext={handleNext}
+            onPrev={handlePrev}
+          />
+        </Suspense>
       )}
       </AnimatePresence>
 
       {/* CONTACT FULLPAGE */}
       <AnimatePresence>
-      {contactOpen && (
-        <motion.div 
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: "spring", damping: 30, stiffness: 100 }}
-          className="fixed inset-0 z-[110] bg-[#fdfbf7] pointer-events-auto flex flex-col overflow-y-auto"
-          style={{ backgroundImage: 'radial-gradient(#d5d5d5 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center p-6 md:p-12 w-full">
-             <div className="text-2xl md:text-3xl font-heading font-bold tracking-tighter text-[#2a2a2a]">HIÊN studio</div>
-             <button 
-               onClick={() => setContactOpen(false)}
-               className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-2 md:gap-3 group"
-             >
-               <span className="uppercase text-xs md:text-sm tracking-widest font-bold hidden md:inline">{t.contact.close}</span>
-               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#2a2a2a] group-hover:border-amber-700 flex items-center justify-center transition-colors">
-                  <span className="mb-1 text-xl md:text-2xl leading-none">×</span>
-               </div>
-             </button>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 flex flex-col px-6 pb-12 pt-4 md:p-12 lg:p-24 h-full max-w-4xl mx-auto w-full justify-center">
-             {/* Info */}
-             <div className="w-full flex flex-col justify-center items-center text-center">
-                <motion.h2 
-                   initial={{ opacity: 0, y: 50 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -50 }}
-                   transition={{ delay: 0.2, duration: 0.5 }}
-                   className="text-6xl md:text-8xl font-heading font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
-                >
-                   Let's<br/>Talk.
-                </motion.h2>
-                <motion.p 
-                   initial={{ opacity: 0 }}
-                   animate={{ opacity: 1 }}
-                   exit={{ opacity: 0 }}
-                   transition={{ delay: 0.3 }}
-                   className="mt-6 md:mt-10 text-lg md:text-2xl text-stone-600 font-serif italic max-w-2xl mb-12 md:mb-16"
-                >
-                   {t.contact.quote}
-                </motion.p>
-                
-                <div className="space-y-10 flex flex-col items-center">
-                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">{t.contact.phone}</h3>
-                      <a href={`tel:${settings?.phone?.replace(/ /g, '') || '0338777017'}`} className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors">
-                         {settings?.phone || '033 877 7017'}
-                      </a>
-                   </motion.div>
-                   
-                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Email</h3>
-                      <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors break-all">
-                         {settings?.email || 'thaibao95arc@gmail.com'}
-                      </a>
-                   </motion.div>
-
-                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-                      <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-2">Instagram</h3>
-                      <a href={settings?.instagram || "https://instagram.com/hien.archi"} target="_blank" rel="noopener noreferrer" className="text-3xl md:text-5xl font-medium text-[#2a2a2a] hover:text-amber-700 transition-colors flex items-center justify-center gap-2 md:gap-4 group w-fit mx-auto">
-                         {settings?.instagram ? (() => { try { return new URL(settings.instagram).pathname.replace(/\//g, ''); } catch(e) { return settings.instagram; }})() : 'hien.archi'}
-                         <span className="transform group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform text-amber-700">↗</span>
-                      </a>
-                   </motion.div>
-                </div>
-             </div>
-          </div>
-        </motion.div>
-      )}
+        {contactOpen && (
+          <ContactModal variant="centered" onClose={() => setContactOpen(false)} />
+        )}
       </AnimatePresence>
     </>
   );
