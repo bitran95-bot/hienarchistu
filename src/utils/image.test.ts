@@ -4,7 +4,7 @@ import { getResponsiveImageProps } from './image';
 // Mock sanityClient since urlFor uses it
 vi.mock('../sanityClient', () => {
   return {
-    urlFor: vi.fn((source) => {
+    urlFor: vi.fn(() => {
       // Return a dummy builder chain
       return {
         auto: vi.fn().mockReturnThis(),

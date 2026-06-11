@@ -1,7 +1,7 @@
 import React, { useState, useEffect, type ReactNode } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { urlFor } from '../sanityClient';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
