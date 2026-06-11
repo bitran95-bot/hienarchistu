@@ -105,26 +105,25 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
            if (child.material) {
               const materials = Array.isArray(child.material) ? child.material : [child.material];
               
-              materials.forEach((mat: any, i: number) => {
+              materials.forEach((mat: any) => {
                  // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
                  if (mat.name === 'Coverfrontpage') {
-                    const newMat = new THREE.MeshStandardMaterial({
-                       map: mappedTexture,
-                       color: 0xffffff,
-                       roughness: 0.85, // Nhám hơn để giống giấy, giảm phản xạ ánh sáng làm mờ ảnh
-                       metalness: 0.05,
-                       side: THREE.DoubleSide,
-                       emissive: isDarkMode ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
-                       emissiveMap: isDarkMode ? mappedTexture : null,
-                       emissiveIntensity: isDarkMode ? 0.8 : 0 // Tỏa sáng mạnh hơn khi tắt đèn
-                    });
-                    
-                    if (Array.isArray(child.material)) {
-                       child.material[i] = newMat;
-                    } else {
-                       child.material = newMat;
+                    mat.map = mappedTexture;
+                    mat.color.setHex(0xffffff);
+                    mat.roughness = 0.85;
+                    mat.metalness = 0.05;
+                    mat.side = THREE.DoubleSide;
+                    mat.emissive.setHex(isDarkMode ? 0xffffff : 0x000000);
+                    mat.emissiveMap = isDarkMode ? mappedTexture : null;
+                    mat.emissiveIntensity = isDarkMode ? 0.8 : 0;
+                 } else {
+                    // Cải thiện vật liệu sách (các mặt khác) trong bóng tối để không bị đen hoàn toàn
+                    if (mat.emissive) {
+                       mat.emissive.setHex(isDarkMode ? 0x333333 : 0x000000);
+                       mat.emissiveIntensity = isDarkMode ? 1.0 : 0;
                     }
                  }
+                 mat.needsUpdate = true;
               });
            }
         }
