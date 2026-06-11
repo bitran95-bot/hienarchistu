@@ -23,9 +23,8 @@ import { useHeroAnimations } from './3d/hooks/useHeroAnimations';
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
   const { gl } = useThree();
-  const { modalOpen, activeProject, projects, settings } = useStore();
+  const { modalOpen, activeProject, projects, settings, isDarkMode, toggleDarkMode } = useStore();
   const scroll = useScroll();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [perfQuality, setPerfQuality] = useState<'high' | 'low'>('high');
 
   // Tính toán Grid Layout
@@ -71,10 +70,7 @@ function SceneContents() {
   // Cờ kiểm tra mobile (dùng hook tái sử dụng)
   const isMobileScreen = useIsMobile();
 
-  // Sync dark mode state lên body element cho CSS selectors
-  useEffect(() => {
-    document.body.classList.toggle('dark-mode', isDarkMode);
-  }, [isDarkMode]);
+  // Body dark-mode class is now synced by Zustand toggleDarkMode action
 
   // Use Custom Hooks for Animations
   useCameraController(gridData, modalOpen, activeProject);
@@ -169,12 +165,12 @@ function SceneContents() {
                position={isMobileScreen ? [-1.5, 0, -1] : [-5, 0, -1]} 
                scale={isMobileScreen ? 7 : 9} 
                isDarkMode={isDarkMode} 
-               onToggle={() => setIsDarkMode(!isDarkMode)} 
+               onToggle={toggleDarkMode} 
             />
          </Suspense>
          
          {gridLayout.length === 0 ? (
-                <InteractiveProject index={0} position={[0, 0, 0]} title="Đang tải dữ liệu..." isDarkMode={isDarkMode}>
+                <InteractiveProject index={0} position={[0, 0, 0]}>
                    <Suspense fallback={<LoadingSpinner />}>
                       <FallbackPhotoFrame project={{} as any} index={0} isDarkMode={isDarkMode} />
                    </Suspense>
@@ -188,9 +184,6 @@ function SceneContents() {
                     key={project._id || index} 
                     index={activeIdx} 
                     position={[project.computedX, -project.computedRow * 4, 0]} 
-                    title={project.name}
-                    generalInfo={project.generalInfo}
-                    isDarkMode={isDarkMode}
                  >
                     <Suspense fallback={<LoadingSpinner />}>
                       {project.modelFileUrl ? (

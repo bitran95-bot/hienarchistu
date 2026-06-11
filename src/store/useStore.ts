@@ -9,11 +9,13 @@ interface AppState {
   activeProject: number;
   isDataLoaded: boolean;
   error: string | null;
+  isDarkMode: boolean;
   
   // Actions
   fetchData: () => Promise<void>;
   setModalOpen: (open: boolean) => void;
   setActiveProject: (index: number) => void;
+  toggleDarkMode: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -23,6 +25,7 @@ export const useStore = create<AppState>((set, get) => ({
   activeProject: 0,
   isDataLoaded: false,
   error: null,
+  isDarkMode: false,
 
   fetchData: async () => {
     // Tránh fetch lại nếu dữ liệu đã được nạp
@@ -32,6 +35,21 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
         "projects": *[_type == "project"] | order(order asc) {
           ...,
+          image {
+            ...,
+            "lqip": asset->metadata.lqip
+          },
+          gallery[] {
+            ...,
+            "lqip": asset->metadata.lqip
+          },
+          magazinePages[] {
+            ...,
+            images[] {
+               ...,
+               "lqip": asset->metadata.lqip
+            }
+          },
           "modelFileUrl": modelFile.asset->url,
           "pdfFileUrl": pdfFile.asset->url
         },
@@ -53,4 +71,9 @@ export const useStore = create<AppState>((set, get) => ({
 
   setModalOpen: (open) => set({ modalOpen: open }),
   setActiveProject: (index) => set({ activeProject: index }),
+  toggleDarkMode: () => set((state) => {
+    const next = !state.isDarkMode;
+    document.body.classList.toggle('dark-mode', next);
+    return { isDarkMode: next };
+  }),
 }));

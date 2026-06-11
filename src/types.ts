@@ -8,6 +8,7 @@ export interface SanityImageAsset {
 export interface SanityImage {
   _type?: 'image';
   asset?: SanityImageAsset;
+  lqip?: string;
   hotspot?: {
     x: number;
     y: number;

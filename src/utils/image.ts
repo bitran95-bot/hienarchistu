@@ -56,7 +56,8 @@ export function getResponsiveImageProps({
       sizes,
       className,
       alt,
-      loading
+      loading,
+      style: source.lqip ? { backgroundImage: `url(${source.lqip})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined
     };
   } catch (error) {
     console.error('Failed to generate responsive image:', error);

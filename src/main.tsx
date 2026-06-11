@@ -6,6 +6,7 @@ import { I18nProvider } from './i18n'
 import './index.css'
 import 'virtual:pwa-register'
 import App from './App.tsx'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 // Lazy load trang phụ để không ảnh hưởng trang chính 3D
 const ShopPage = lazy(() => import('./pages/ShopPage'))
@@ -27,19 +28,25 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/shop" element={
-              <Suspense fallback={<LoadingFallback />}>
-                <ShopPage />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ShopPage />
+                </Suspense>
+              </ErrorBoundary>
             } />
             <Route path="/download" element={
-              <Suspense fallback={<LoadingFallback />}>
-                <DownloadPage />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingFallback />}>
+                  <DownloadPage />
+                </Suspense>
+              </ErrorBoundary>
             } />
             <Route path="/projects" element={
-              <Suspense fallback={<LoadingFallback />}>
-                <ProjectsPage />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ProjectsPage />
+                </Suspense>
+              </ErrorBoundary>
             } />
             <Route path="*" element={
               <Suspense fallback={<LoadingFallback />}>

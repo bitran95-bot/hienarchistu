@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'magazine.glb', 'pdf.worker.min.mjs'],
       workbox: {
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB to allow 9.5MB texture
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,glb,mjs}'],
+        globPatterns: ['**/*.{js,css,html,ico,svg,mjs}'],
+        globIgnores: ['**/textures/**', '**/Models/**', '**/LampModel/**'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/cdn\.sanity\.io\/.*/i,

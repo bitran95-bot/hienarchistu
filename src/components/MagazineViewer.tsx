@@ -11,6 +11,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 import type { Project } from '../types';
 import { useIsMobile } from '../hooks';
+import { groupGalleryImages, getGalleryImageUrl } from '../utils/gallery';
+import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 
 interface PageProps {
   children: ReactNode;
@@ -64,40 +66,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onNext, onPrev]);
 
-  // Prepare gallery images
-  const groupedGallery: any[][] = [];
-  let pageConfigs: string[] = [];
-  
-  // Hash function for pseudo-random grouping
-  const hashString = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
-    return Math.abs(hash);
-  };
-
-  if (project.magazinePages && project.magazinePages.length > 0) {
-    project.magazinePages.forEach((page: any) => {
-      groupedGallery.push(page.images || []);
-      pageConfigs.push(page.layout || 'col');
-    });
-  } else {
-    const gallery = project.gallery || [];
-    if (gallery && gallery.length > 0) {
-       let i = 0;
-       const seed = hashString(project._id || project.name || "default");
-       while (i < gallery.length) {
-          const randomVal = (seed + i * 17) % 100;
-          let chunkSize = 1;
-          if (randomVal > 70 && i + 2 < gallery.length) chunkSize = 3;
-          else if (randomVal > 30 && i + 1 < gallery.length) chunkSize = 2;
-          
-          groupedGallery.push(gallery.slice(i, i + chunkSize));
-          const configVal = (seed + i * 23) % 3;
-          pageConfigs.push(configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed'));
-          i += chunkSize;
-       }
-    }
-  }
+  const groupedGallery = groupGalleryImages(project);
   
   // Front Cover image
   const coverImageUrl = project.image?.asset 
@@ -107,7 +76,12 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   const pages = [
     <Page key="cover">
        <div className="absolute inset-0 z-0">
-          <img src={coverImageUrl} alt="Cover" className="w-full h-full object-cover" />
+          <img 
+            src={coverImageUrl} 
+            alt="Cover" 
+            className="w-full h-full object-cover" 
+            style={project.image?.lqip ? { backgroundImage: `url(${project.image.lqip})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
           <div className="absolute bottom-12 left-8 right-8 text-white">
              <h1 className="text-4xl md:text-6xl font-heading font-bold leading-tight mb-2 tracking-tighter" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
@@ -169,20 +143,20 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
     )
   ];
 
-  groupedGallery.forEach((group: any[], groupIdx: number) => {
-     const layoutType = pageConfigs[groupIdx];
+  groupedGallery.forEach(({ images: group, layout: layoutType }, groupIdx: number) => {
      pages.push(
         <Page key={`gallery-page-${groupIdx}`} number={String(5 + groupIdx)}>
           {layoutType === 'full' && group.length >= 1 ? (
              <div 
                className="absolute inset-0 z-0 bg-[#fdfbf7] flex items-center justify-center cursor-zoom-in" 
-               onClick={() => setSelectedImage(urlFor(group[0]).quality(85).auto('format').url())}
+               onClick={() => setSelectedImage(getGalleryImageUrl(group[0]))}
              >
                <img 
-                 src={urlFor(group[0]).quality(85).auto('format').url()} 
+                 src={getGalleryImageUrl(group[0])} 
                  alt={`Gallery ${groupIdx}`} 
                  className="w-full h-full object-contain"
                  loading="lazy"
+                 style={group[0].lqip ? { backgroundImage: `url(${group[0].lqip})`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' } : undefined}
                />
              </div>
           ) : (
@@ -193,7 +167,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                 'flex-col md:flex-row items-center justify-center flex-wrap'
              }`}>
                 {group.map((img: any, idx: number) => {
-                   const fullSrc = urlFor(img).quality(85).auto('format').url();
+                   const fullSrc = getGalleryImageUrl(img);
                    return (
                       <div 
                         key={idx} 
@@ -207,6 +181,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                           alt={`Gallery ${groupIdx}-${idx}`} 
                           className="w-full h-full object-contain p-2"
                           loading="lazy"
+                          style={img.lqip ? { backgroundImage: `url(${img.lqip})`, backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' } : undefined}
                         />
                         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
@@ -339,26 +314,10 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
       )}
 
       {/* FULLSCREEN IMAGE VIEWER */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
-          >
-            <motion.img 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              src={selectedImage}
-              alt="Fullscreen view"
-              className="max-w-full max-h-full object-contain"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <FullscreenImageOverlay 
+        selectedImage={selectedImage} 
+        onClose={() => setSelectedImage(null)} 
+      />
     </motion.div>
   );
 }

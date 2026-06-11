@@ -7,6 +7,7 @@ import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { FullscreenImageOverlay } from '../components/ui/FullscreenImageOverlay';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -86,6 +87,10 @@ export default function ProjectsPage() {
       <Helmet>
         <title>Dự án | Hiên Archi Studio</title>
         <meta name="description" content="Khám phá các dự án thiết kế kiến trúc và nội thất mộc mạc, gần gũi với tự nhiên của Hiên Archi Studio." />
+        <meta property="og:title" content="Dự án | Hiên Archi Studio" />
+        <meta property="og:description" content="Khám phá các dự án thiết kế kiến trúc và nội thất mộc mạc, gần gũi với tự nhiên của Hiên Archi Studio." />
+        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <SubpageNavigation />
@@ -311,31 +316,25 @@ export default function ProjectsPage() {
                     
                     {projectImages.length > 1 && (
                       <div className="mt-4 flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 h-24 md:h-32 shrink-0">
-                         {projectImages.map((img, idx) => (
-                           <div 
-                             key={idx}
-                             onClick={() => setActiveImageIndex(idx)}
-                             className={`shrink-0 aspect-square h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${activeImageIndex === idx ? 'border-amber-700 opacity-100 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                           >
-                             {getResponsiveImageProps({
-                               source: img,
-                               aspectRatio: 1,
-                               baseWidth: 200,
-                               sizes: '100px',
-                               className: "w-full h-full object-cover",
-                               alt: `Thumbnail ${idx}`
-                             }) && (
-                               <img {...getResponsiveImageProps({
-                                 source: img,
-                                 aspectRatio: 1,
-                                 baseWidth: 200,
-                                 sizes: '100px',
-                                 className: "w-full h-full object-cover",
-                                 alt: `Thumbnail ${idx}`
-                               })} />
-                             )}
-                           </div>
-                         ))}
+                         {projectImages.map((img, idx) => {
+                           const thumbProps = getResponsiveImageProps({
+                             source: img,
+                             aspectRatio: 1,
+                             baseWidth: 200,
+                             sizes: '100px',
+                             className: "w-full h-full object-cover",
+                             alt: `Thumbnail ${idx}`
+                           });
+                           return (
+                             <div 
+                               key={idx}
+                               onClick={() => setActiveImageIndex(idx)}
+                               className={`shrink-0 aspect-square h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${activeImageIndex === idx ? 'border-amber-700 opacity-100 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                             >
+                               {thumbProps && <img {...thumbProps} />}
+                             </div>
+                           );
+                         })}
                       </div>
                     )}
                   </>
@@ -351,32 +350,10 @@ export default function ProjectsPage() {
       </AnimatePresence>
 
       {/* Fullscreen Image Viewer */}
-      <AnimatePresence>
-        {fullscreenImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 cursor-zoom-out"
-            onClick={() => setFullscreenImage(null)}
-          >
-            <button 
-              onClick={() => setFullscreenImage(null)}
-              className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
-            >
-              ✕
-            </button>
-            <motion.img 
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              src={fullscreenImage}
-              alt="Fullscreen view"
-              className="max-w-full max-h-[95vh] object-contain shadow-2xl rounded-sm"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <FullscreenImageOverlay 
+        selectedImage={fullscreenImage} 
+        onClose={() => setFullscreenImage(null)} 
+      />
     </div>
   );
 }

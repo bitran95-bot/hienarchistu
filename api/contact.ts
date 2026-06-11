@@ -1,5 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { Redis } from '@upstash/redis';
+import { Ratelimit } from '@upstash/ratelimit';
+
+// Initialize Redis only if keys are present (prevent crash in dev/build)
+const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    }) 
+  : null;
+
+// Create a new ratelimiter, that allows 5 requests per 10 minutes
+const ratelimit = redis ? new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(5, '10 m'),
+}) : null;
+
 /**
  * Contact form API — gửi email thông qua Resend hoặc fallback log.
  *
@@ -7,6 +24,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  *   RESEND_API_KEY   — API key từ https://resend.com (free tier: 100 emails/day)
  *   CONTACT_TO_EMAIL — Email nhận form (default: thaibao95arc@gmail.com)
  *   CONTACT_FROM     — Email gửi (default: onboarding@resend.dev cho Resend free tier)
+ *   UPSTASH_REDIS_REST_URL   — Redis URL cho Rate Limiting
+ *   UPSTASH_REDIS_REST_TOKEN — Redis Token cho Rate Limiting
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Security headers
@@ -29,8 +48,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid email format' });
   }
 
-  // Rate limit: simple check (cùng IP gửi tối đa 5 lần / 10 phút)
-  // Production nên dùng Upstash Redis rate limiter
+  // Rate limit: 5 lần / 10 phút / IP
+  if (ratelimit) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const identifier = Array.isArray(ip) ? ip[0] : ip;
+    const { success, limit, reset, remaining } = await ratelimit.limit(`contact_${identifier}`);
+    
+    res.setHeader('X-RateLimit-Limit', limit);
+    res.setHeader('X-RateLimit-Remaining', remaining);
+    res.setHeader('X-RateLimit-Reset', reset);
+
+    if (!success) {
+      console.warn(`Rate limit exceeded for IP: ${identifier}`);
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+  }
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL || 'thaibao95arc@gmail.com';

@@ -281,7 +281,18 @@ export default function ShopPage() {
   const fetchProducts = () => {
     setLoading(true);
     setError(null);
-    client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { ..., "slug": slug }`)
+    client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { 
+      ..., 
+      "slug": slug,
+      image {
+        ...,
+        "lqip": asset->metadata.lqip
+      },
+      gallery[] {
+        ...,
+        "lqip": asset->metadata.lqip
+      }
+    }`)
       .then((data) => {
         setProducts(data || []);
         setLoading(false);
@@ -318,6 +329,8 @@ export default function ShopPage() {
         <meta name="description" content={t.shop.pageDesc} />
         <meta property="og:title" content={t.shop.pageTitle} />
         <meta property="og:description" content={t.shop.pageDesc} />
+        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7]">

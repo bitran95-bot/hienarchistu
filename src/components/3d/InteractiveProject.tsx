@@ -9,9 +9,6 @@ interface InteractiveProjectProps {
   children: ReactNode;
   position: [number, number, number];
   index: number;
-  title?: string;
-  generalInfo?: string;
-  isDarkMode?: boolean;
 }
 
 export function InteractiveProject({ children, position, index }: InteractiveProjectProps) {
