@@ -105,26 +105,33 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
            if (child.material) {
               const materials = Array.isArray(child.material) ? child.material : [child.material];
               
-              materials.forEach((mat: any) => {
+              const newMaterials = materials.map((mat: any) => {
+                 // Chỉ clone material lần đầu tiên để mỗi quyển sách có material độc lập
+                 const m = mat.userData.isCloned ? mat : mat.clone();
+                 m.userData.isCloned = true;
+
                  // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
-                 if (mat.name === 'Coverfrontpage') {
-                    mat.map = mappedTexture;
-                    mat.color.setHex(0xffffff);
-                    mat.roughness = 0.85;
-                    mat.metalness = 0.05;
-                    mat.side = THREE.DoubleSide;
-                    mat.emissive.setHex(isDarkMode ? 0xffffff : 0x000000);
-                    mat.emissiveMap = isDarkMode ? mappedTexture : null;
-                    mat.emissiveIntensity = isDarkMode ? 0.8 : 0;
+                 if (m.name === 'Coverfrontpage') {
+                    m.map = mappedTexture;
+                    m.color.setHex(0xffffff);
+                    m.roughness = 0.85;
+                    m.metalness = 0.05;
+                    m.side = THREE.DoubleSide;
+                    m.emissive.setHex(isDarkMode ? 0xffffff : 0x000000);
+                    m.emissiveMap = isDarkMode ? mappedTexture : null;
+                    m.emissiveIntensity = isDarkMode ? 0.8 : 0;
                  } else {
                     // Cải thiện vật liệu sách (các mặt khác) trong bóng tối để không bị đen hoàn toàn
-                    if (mat.emissive) {
-                       mat.emissive.setHex(isDarkMode ? 0x333333 : 0x000000);
-                       mat.emissiveIntensity = isDarkMode ? 1.0 : 0;
+                    if (m.emissive) {
+                       m.emissive.setHex(isDarkMode ? 0x333333 : 0x000000);
+                       m.emissiveIntensity = isDarkMode ? 1.0 : 0;
                     }
                  }
-                 mat.needsUpdate = true;
+                 m.needsUpdate = true;
+                 return m;
               });
+
+              child.material = Array.isArray(child.material) ? newMaterials : newMaterials[0];
            }
         }
      });
