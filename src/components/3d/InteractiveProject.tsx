@@ -12,7 +12,7 @@ interface InteractiveProjectProps {
 }
 
 export function InteractiveProject({ children, position, index }: InteractiveProjectProps) {
-  const { setActiveProject, setModalOpen, isDarkMode } = useStore();
+  const { setActiveProject, setModalOpen } = useStore();
   const isMobile = useIsMobile();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -64,20 +64,8 @@ export function InteractiveProject({ children, position, index }: InteractivePro
     }
   });
 
-  // Calculate a warm, flickering light intensity if hovered or steady if not
-  const lightIntensity = isDarkMode ? (hovered ? 1.2 : 0.8) : 0;
-
   return (
     <group position={position}>
-      {isDarkMode && (
-         <pointLight 
-           position={[0, 1.5, 2]} 
-           intensity={lightIntensity} 
-           distance={6} 
-           color="#ffdbac" 
-           castShadow
-         />
-      )}
       <group
         ref={group}
         onClick={(e) => {
