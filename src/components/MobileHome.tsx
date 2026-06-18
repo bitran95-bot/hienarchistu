@@ -4,16 +4,12 @@ import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
 import { useTranslation } from '../i18n';
-import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import type { Project } from '../types';
 
 /**
- * MobileHome — Trang chủ 2D dành riêng cho thiết bị di động.
- * 
- * Thay thế hoàn toàn Canvas 3D + Overlay trên mobile.
- * Giao diện đơn giản, mượt mà, tối ưu cho cảm ứng & hiệu năng.
+ * MobileHome — Trang chủ 2D tối giản, phong cách editorial
  */
 export const MobileHome = memo(function MobileHome() {
   const { projects, settings, isDataLoaded } = useStore();
@@ -22,7 +18,6 @@ export const MobileHome = memo(function MobileHome() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [activeSection, setActiveSection] = useState<'home' | 'about'>('home');
 
   // Handle escape key
   useEffect(() => {
@@ -41,17 +36,6 @@ export const MobileHome = memo(function MobileHome() {
   useEffect(() => {
     setActiveImageIndex(0);
   }, [selectedProject]);
-
-  // Observe scroll for section transitions
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const heroHeight = window.innerHeight * 0.7;
-      setActiveSection(scrollY > heroHeight ? 'about' : 'home');
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
@@ -85,189 +69,208 @@ export const MobileHome = memo(function MobileHome() {
     return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
   };
 
-  const siteTitle = settings?.title || 'Hiên Archi Studio';
+  const currentDate = new Date();
+  const day = currentDate.getDate().toString().padStart(2, '0');
+  const month = currentDate.toLocaleString('en-US', { month: 'long' });
+  const year = currentDate.getFullYear();
 
   return (
-    <div className="min-h-screen bg-[#fdfbf7] overflow-x-hidden selection:bg-stone-300">
+    <div className="min-h-screen bg-[#f1efe7] text-[#1a1a1a] overflow-x-hidden selection:bg-[#d8d3c5] font-sans">
 
       {/* ━━━ HERO SECTION ━━━ */}
-      <section id="mobile-hero" className="relative min-h-[100dvh] flex flex-col justify-center items-center px-6 pt-16 pb-24">
-        {/* Decorative dots background */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#1a1a1a 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      <section className="relative min-h-[100dvh] flex flex-col px-8 pt-12 pb-12">
         
-        {/* Logo */}
+        {/* Header / Meta */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-8 relative z-10"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex justify-between items-start mb-16"
         >
-          <h1 className="font-heading font-bold text-[#2a2a2a] tracking-tighter leading-[0.85]">
-            <span className="block text-[72px]">HIÊN</span>
-            <span className="block text-[72px] ml-6">studio</span>
+          <div className="flex items-start gap-1">
+            <span className="text-[44px] font-extrabold leading-[0.8] tracking-tighter">{day}</span>
+            <span className="text-[11px] font-bold leading-tight uppercase tracking-wide mt-1">
+              {month}<br/>
+              {year}
+            </span>
+          </div>
+          <button onClick={() => setContactOpen(true)} className="p-2 -mr-2 outline-none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-[#1a1a1a]">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
+        </motion.div>
+
+        {/* Main Title */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="mb-10"
+        >
+          <h1 className="text-[48px] sm:text-[56px] font-black leading-[1.05] tracking-tight">
+            Hiên<br/>
+            <span className="inline-flex items-center">
+              studio
+              <span className="inline-block w-16 sm:w-24 h-[1.5px] bg-[#1a1a1a] ml-4 align-middle" />
+            </span>
           </h1>
         </motion.div>
 
-        {/* Hero description */}
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="text-center text-base text-stone-600 font-serif italic leading-relaxed max-w-sm relative z-10"
-        >
-          {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
-        </motion.p>
-
-        {/* Scroll indicator */}
+        {/* Quote & Author */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-stone-400"
+          transition={{ duration: 1, delay: 0.5 }}
+          className="mb-12 flex-grow"
         >
-          <span className="text-xs tracking-widest uppercase font-medium">Khám phá</span>
-          <motion.div 
-            animate={{ y: [0, 6, 0] }} 
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-5 h-8 border-2 border-stone-300 rounded-full flex items-start justify-center p-1"
-          >
-            <div className="w-1 h-2 bg-stone-400 rounded-full" />
-          </motion.div>
+          <p className="text-[14px] font-medium leading-[1.7] max-w-[280px] text-[#1a1a1a]/90">
+            '{settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên."}'
+          </p>
+          <p className="text-[13px] font-bold mt-6 tracking-wide">
+            Thái Bảo / Hiên Archi
+          </p>
         </motion.div>
-      </section>
 
-      {/* ━━━ ABOUT SECTION ━━━ */}
-      <section id="mobile-about" className="px-6 py-16 bg-white/60">
+        {/* Footer Meta */}
         <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-          className="max-w-lg mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="mt-auto pt-8"
         >
-          <div className="w-12 h-[2px] bg-amber-700 mb-8" />
-          <p className="text-xl font-serif italic text-[#2a2a2a] leading-relaxed mb-6">
-            {settings?.aboutTitle || t.about.title}
-          </p>
-          <p className="text-base text-stone-600 leading-loose">
-            {settings?.aboutText || t.about.text}
-          </p>
+          <div className="w-16 h-[1.5px] bg-[#1a1a1a]/30 mb-5" />
+          <div className="flex justify-between items-end">
+            <div className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider">
+              portfolio by<br/>
+              <span className="text-[11px] font-bold text-[#1a1a1a]">Hiên Studio</span>
+            </div>
+            <div className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-right">
+              based in<br/>
+              <span className="text-[11px] font-bold text-[#1a1a1a]">Vietnam</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Scroll indicator - absolute bottom center */}
+        <motion.div
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           transition={{ delay: 1.5, duration: 1 }}
+           className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+           <button onClick={() => scrollToSection('mobile-projects')} className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity">
+              <span className="text-[9px] uppercase tracking-[0.2em] font-bold mb-2">Cuộn</span>
+              <div className="w-[1px] h-8 bg-[#1a1a1a] origin-top animate-pulse" />
+           </button>
         </motion.div>
       </section>
 
       {/* ━━━ PROJECTS SECTION ━━━ */}
-      <section id="mobile-projects" className="px-5 py-16">
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="max-w-lg mx-auto"
-        >
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-8 h-[2px] bg-amber-700" />
-            <h2 className="text-sm font-bold text-stone-400 uppercase tracking-[0.2em]">{t.nav.projects}</h2>
+      <section id="mobile-projects" className="px-8 py-20 bg-[#ebe6db]">
+        <div className="mb-16 flex items-center">
+          <h2 className="text-[32px] font-black tracking-tight uppercase">Dự án</h2>
+          <div className="w-full h-[1.5px] bg-[#1a1a1a] ml-6 opacity-20" />
+        </div>
+
+        {!isDataLoaded ? (
+          <div className="space-y-16">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[4/5] bg-[#e0dbd0] mb-4" />
+                <div className="h-5 bg-[#e0dbd0] w-2/3 mb-2" />
+                <div className="h-4 bg-[#e0dbd0] w-1/3" />
+              </div>
+            ))}
           </div>
+        ) : projects.length === 0 ? (
+          <p className="text-[#1a1a1a]/50 text-sm font-medium">Chưa có dự án nào.</p>
+        ) : (
+          <div className="space-y-20">
+            {projects.map((project, idx) => {
+              const imgProps = getResponsiveImageProps({
+                source: project.image,
+                aspectRatio: 4 / 5,
+                baseWidth: 600,
+                sizes: '100vw',
+                className: 'w-full h-full object-cover transition-transform duration-700 hover:scale-105',
+                alt: project.name,
+                loading: idx < 2 ? 'eager' : 'lazy'
+              });
 
-          {!isDataLoaded ? (
-            <div className="space-y-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-[4/3] bg-stone-200 rounded-2xl mb-3" />
-                  <div className="h-5 bg-stone-200 rounded w-2/3" />
-                </div>
-              ))}
-            </div>
-          ) : projects.length === 0 ? (
-            <p className="text-stone-400 text-center py-12">Chưa có dự án nào.</p>
-          ) : (
-            <div className="space-y-8">
-              {projects.map((project, idx) => {
-                const imgProps = getResponsiveImageProps({
-                  source: project.image,
-                  aspectRatio: 4 / 3,
-                  baseWidth: 600,
-                  sizes: '100vw',
-                  className: 'w-full h-full object-cover',
-                  alt: project.name,
-                  loading: idx < 3 ? 'eager' : 'lazy'
-                });
-
-                return (
-                  <motion.div
-                    key={project._id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ delay: idx * 0.05, duration: 0.5 }}
-                    className="group cursor-pointer"
-                    onClick={() => setSelectedProject(project)}
-                  >
-                    <div className="relative aspect-[4/3] bg-stone-100 rounded-2xl overflow-hidden shadow-sm active:shadow-lg transition-shadow">
-                      {imgProps ? (
-                        <img {...imgProps} />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-300">
-                          Không có ảnh
-                        </div>
-                      )}
-                      {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-5">
-                        <h3 className="text-white font-heading font-bold text-xl leading-tight mb-1" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.4)' }}>
-                          {project.name}
-                        </h3>
-                        {project.generalInfo && (
-                          <p className="text-white/80 text-xs line-clamp-1">{project.generalInfo}</p>
-                        )}
+              return (
+                <motion.div
+                  key={project._id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedProject(project)}
+                >
+                  <div className="relative aspect-[4/5] bg-[#e0dbd0] mb-6 overflow-hidden">
+                    {imgProps ? (
+                      <img {...imgProps} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]/30 text-sm font-medium">
+                        Không có ảnh
                       </div>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-start">
+                    <div className="pr-4">
+                      <h3 className="text-xl font-bold leading-tight tracking-tight mb-2">
+                        {project.name}
+                      </h3>
+                      {project.generalInfo && (
+                        <p className="text-[13px] font-medium text-[#1a1a1a]/60 line-clamp-2 leading-relaxed">
+                          {project.generalInfo}
+                        </p>
+                      )}
                     </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
+                    <div className="shrink-0 w-8 h-8 rounded-full border border-[#1a1a1a]/20 flex items-center justify-center rotate-45 group-hover:bg-[#1a1a1a] group-hover:text-[#f1efe7] transition-colors">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* ━━━ FOOTER ━━━ */}
-      <footer className="px-6 py-12 bg-[#2a2a2a] text-white/70">
-        <div className="max-w-lg mx-auto text-center">
-          <div className="font-heading font-bold text-white/90 text-xl mb-4 tracking-tighter">HIÊN studio</div>
-          <p className="text-sm mb-6 font-serif italic">{settings?.heroDescription ? settings.heroDescription.slice(0, 80) + '...' : 'Kiến tạo không gian sống mộc mạc và chân thành.'}</p>
-          <div className="flex items-center justify-center gap-6 text-sm mb-8">
-            <a href={`tel:${(settings?.phone || '033 877 7017').replace(/ /g, '')}`} className="hover:text-amber-400 transition-colors">
-              {settings?.phone || '033 877 7017'}
-            </a>
-            <span className="text-white/30">|</span>
-            <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="hover:text-amber-400 transition-colors">
-              Email
-            </a>
-          </div>
-          <p className="text-xs text-white/40">© {new Date().getFullYear()} {siteTitle}</p>
+      <footer className="px-8 py-16 bg-[#1a1a1a] text-[#f1efe7]">
+        <div className="mb-12">
+          <h2 className="text-[32px] font-black tracking-tight mb-6">HIÊN<br/>studio</h2>
+          <p className="text-[13px] font-medium text-white/60 max-w-[250px] leading-relaxed">
+            {settings?.heroDescription ? settings.heroDescription.slice(0, 100) + '...' : 'Kiến tạo không gian sống mộc mạc và chân thành.'}
+          </p>
+        </div>
+        
+        <div className="w-full h-[1px] bg-white/10 mb-8" />
+        
+        <div className="flex flex-col gap-4 text-[13px] font-bold tracking-wide uppercase">
+          <a href={`tel:${(settings?.phone || '033 877 7017').replace(/ /g, '')}`} className="flex items-center justify-between py-2 border-b border-white/5">
+            <span>Điện thoại</span>
+            <span className="text-white/60 font-medium">{settings?.phone || '033 877 7017'}</span>
+          </a>
+          <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="flex items-center justify-between py-2 border-b border-white/5">
+            <span>Email</span>
+            <span className="text-white/60 font-medium lowercase tracking-normal">{settings?.email || 'thaibao95arc@gmail.com'}</span>
+          </a>
+          <a href="/shop" className="flex items-center justify-between py-2 border-b border-white/5">
+            <span>Thư viện</span>
+            <span className="text-white/60 font-medium">Xem sản phẩm →</span>
+          </a>
+        </div>
+        
+        <div className="mt-16 text-[10px] font-semibold text-white/40 tracking-widest uppercase text-center">
+          © {new Date().getFullYear()} HIÊN STUDIO. ALL RIGHTS RESERVED.
         </div>
       </footer>
-
-      {/* ━━━ FLOATING BOTTOM NAV ━━━ */}
-      <nav 
-        className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl px-5 py-3.5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex items-center justify-center gap-5 text-xs font-medium text-[#444444] z-50 border border-stone-200/60" 
-        aria-label="Mobile navigation"
-      >
-        <button 
-          onClick={() => scrollToSection('mobile-about')} 
-          className={`transition-colors whitespace-nowrap ${activeSection === 'about' ? 'text-amber-700' : 'hover:text-amber-700'}`}
-        >
-          {t.nav.story}
-        </button>
-        <button 
-          onClick={() => scrollToSection('mobile-projects')} 
-          className="hover:text-amber-700 transition-colors whitespace-nowrap"
-        >
-          {t.nav.projects}
-        </button>
-        <a href="/shop" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.library}</a>
-        <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>
-        <LanguageSwitcher />
-      </nav>
 
       {/* ━━━ PROJECT DETAIL MODAL ━━━ */}
       <AnimatePresence>
@@ -276,149 +279,131 @@ export const MobileHome = memo(function MobileHome() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100]"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] bg-[#f1efe7] overflow-y-auto overscroll-contain"
           >
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" onClick={() => setSelectedProject(null)} />
-            
-            {/* Content */}
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-              className="absolute inset-x-0 bottom-0 top-0 bg-[#fdfbf7] overflow-y-auto overscroll-contain"
-            >
-              {/* Close button */}
+            {/* Header Sticky */}
+            <div className="sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-6 py-4 bg-[#f1efe7]/90 backdrop-blur-md border-b border-[#1a1a1a]/10">
+              <span className="text-[11px] font-bold tracking-widest uppercase">Chi tiết dự án</span>
               <button 
                 onClick={() => setSelectedProject(null)}
-                className="sticky top-4 right-4 ml-auto mr-4 z-20 w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur hover:bg-stone-100 rounded-full text-stone-600 transition-colors shadow-md"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1a1a1a] text-[#f1efe7]"
               >
-                ✕
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
+            </div>
 
-              {/* Hero image */}
+            <div className="px-6 py-8">
+              <h2 className="text-[36px] font-black leading-[1.05] tracking-tight mb-6">
+                {selectedProject.name}
+              </h2>
+
+              {/* Hero image for detail view */}
               {selectedProject.image?.asset && (
-                <div className="-mt-10 relative aspect-[4/3] bg-stone-100 overflow-hidden">
+                <div className="aspect-[4/3] bg-[#e0dbd0] mb-10">
                   <img 
                     src={urlFor(selectedProject.image).width(800).quality(85).auto('format').url()}
                     alt={selectedProject.name}
                     className="w-full h-full object-cover"
                     style={selectedProject.image.lqip ? { backgroundImage: `url(${selectedProject.image.lqip})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h2 className="text-3xl font-heading font-bold text-white leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                      {selectedProject.name}
-                    </h2>
-                  </div>
                 </div>
               )}
 
-              {/* Info */}
-              <div className="p-6 pb-32">
-                {!selectedProject.image?.asset && (
-                  <h2 className="text-3xl font-heading font-bold text-[#2a2a2a] mb-6">
-                    {selectedProject.name}
-                  </h2>
-                )}
-
+              {/* Info grid */}
+              <div className="grid grid-cols-1 gap-10 mb-12">
                 {selectedProject.generalInfo && (
-                  <div className="mb-8">
-                    <h4 className="text-xs font-bold text-stone-400 uppercase tracking-[0.15em] mb-3">Thông tin chung</h4>
-                    <p className="text-base text-stone-700 whitespace-pre-wrap leading-relaxed">{selectedProject.generalInfo}</p>
+                  <div>
+                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Thông tin chung</h4>
+                    <p className="text-[14px] font-medium leading-relaxed text-[#1a1a1a] whitespace-pre-wrap">
+                      {selectedProject.generalInfo}
+                    </p>
                   </div>
                 )}
 
                 {selectedProject.content && (
-                  <div className="mb-8">
-                    <h4 className="text-xs font-bold text-stone-400 uppercase tracking-[0.15em] mb-3">Câu chuyện dự án</h4>
-                    <p className="text-stone-600 whitespace-pre-wrap leading-[2] font-serif italic text-base pl-4 border-l-2 border-amber-700">{selectedProject.content}</p>
-                  </div>
-                )}
-
-                {/* YouTube Video */}
-                {selectedProject.youtubeLink && (
-                  <div className="mb-8">
-                    <h4 className="text-xs font-bold text-stone-400 uppercase tracking-[0.15em] mb-3">Video Dự Án</h4>
-                    <div className="aspect-video w-full rounded-xl overflow-hidden shadow-md">
-                      <iframe 
-                        className="w-full h-full"
-                        src={getYoutubeEmbedUrl(selectedProject.youtubeLink)}
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
+                  <div>
+                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Câu chuyện</h4>
+                    <div className="pl-4 border-l-[1.5px] border-[#1a1a1a]">
+                      <p className="text-[14px] font-medium leading-relaxed text-[#1a1a1a]/80 whitespace-pre-wrap">
+                        {selectedProject.content}
+                      </p>
                     </div>
                   </div>
                 )}
-
-                {/* Gallery images */}
-                {projectImages.length > 1 && (
-                  <div className="mb-8">
-                    <h4 className="text-xs font-bold text-stone-400 uppercase tracking-[0.15em] mb-3">Hình ảnh dự án</h4>
-                    
-                    {/* Main image viewer */}
-                    <div 
-                      className="relative aspect-[4/3] bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-3 cursor-pointer active:opacity-90 transition-opacity"
-                      onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
-                    >
-                      <AnimatePresence mode="wait">
-                        <motion.img
-                          key={activeImageIndex}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          src={urlFor(projectImages[activeImageIndex]).width(1200).quality(85).auto('format').url()}
-                          alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
-                          className="w-full h-full object-contain"
-                        />
-                      </AnimatePresence>
-                      <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
-                        {activeImageIndex + 1} / {projectImages.length}
-                      </div>
-                    </div>
-
-                    {/* Thumbnails */}
-                    <div className="flex gap-2 overflow-x-auto pb-2 pt-1 snap-x snap-mandatory">
-                      {projectImages.map((img, idx) => {
-                        const thumbProps = getResponsiveImageProps({
-                          source: img,
-                          aspectRatio: 1,
-                          baseWidth: 150,
-                          sizes: '72px',
-                          className: 'w-full h-full object-cover',
-                          alt: `Thumbnail ${idx}`
-                        });
-                        return (
-                          <div 
-                            key={idx}
-                            onClick={() => setActiveImageIndex(idx)}
-                            className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden snap-start cursor-pointer transition-all duration-200 border-2 ${
-                              activeImageIndex === idx 
-                                ? 'border-amber-700 shadow-md scale-105' 
-                                : 'border-transparent opacity-60'
-                            }`}
-                          >
-                            {thumbProps && <img {...thumbProps} />}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* View all projects link */}
-                <a 
-                  href="/projects" 
-                  className="inline-flex items-center gap-2 text-sm font-medium text-amber-800 hover:text-amber-900 transition-colors mt-4"
-                >
-                  Xem tất cả dự án →
-                </a>
               </div>
-            </motion.div>
+
+              {/* YouTube Video */}
+              {selectedProject.youtubeLink && (
+                <div className="mb-12">
+                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Video</h4>
+                  <div className="aspect-video w-full bg-[#e0dbd0]">
+                    <iframe 
+                      className="w-full h-full"
+                      src={getYoutubeEmbedUrl(selectedProject.youtubeLink)}
+                      title="YouTube video"
+                      frameBorder="0"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Gallery images */}
+              {projectImages.length > 1 && (
+                <div className="mb-12">
+                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Thư viện ảnh</h4>
+                  
+                  {/* Main image viewer */}
+                  <div 
+                    className="relative aspect-[4/5] bg-[#e0dbd0] mb-4 cursor-pointer"
+                    onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={activeImageIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        src={urlFor(projectImages[activeImageIndex]).width(1000).quality(85).auto('format').url()}
+                        alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Thumbnails */}
+                  <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                    {projectImages.map((img, idx) => {
+                      const thumbProps = getResponsiveImageProps({
+                        source: img,
+                        aspectRatio: 1,
+                        baseWidth: 150,
+                        sizes: '80px',
+                        className: 'w-full h-full object-cover',
+                        alt: `Thumb ${idx}`
+                      });
+                      return (
+                        <div 
+                          key={idx}
+                          onClick={() => setActiveImageIndex(idx)}
+                          className={`shrink-0 w-20 h-20 snap-start cursor-pointer transition-all duration-300 ${
+                            activeImageIndex === idx 
+                              ? 'ring-2 ring-[#1a1a1a] ring-offset-2 ring-offset-[#f1efe7] opacity-100' 
+                              : 'opacity-40 hover:opacity-80'
+                          }`}
+                        >
+                          {thumbProps && <img {...thumbProps} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
