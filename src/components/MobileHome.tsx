@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
-import { useTranslation } from '../i18n';
 import { ContactModal } from './ui/ContactModal';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import type { Project } from '../types';
@@ -13,7 +12,6 @@ import type { Project } from '../types';
  */
 export const MobileHome = memo(function MobileHome() {
   const { projects, settings, isDataLoaded } = useStore();
-  const { t } = useTranslation();
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
