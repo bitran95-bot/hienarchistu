@@ -120,7 +120,7 @@ export const MobileHome = memo(function MobileHome() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="mb-12 flex-grow flex flex-col items-end"
+          className="mb-12 flex-grow flex flex-col items-start"
         >
           <div className="w-[85%] max-w-[320px]">
             <p 
@@ -129,8 +129,8 @@ export const MobileHome = memo(function MobileHome() {
             >
               '{settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên."}'
             </p>
-            <p className="text-[13px] font-bold mt-6 tracking-wide text-right">
-              Thái Bảo / Hiên Archi
+            <p className="text-[13px] font-bold mt-6 tracking-wide text-left">
+              ThS KTS. Trần Thái Bảo
             </p>
           </div>
         </motion.div>
