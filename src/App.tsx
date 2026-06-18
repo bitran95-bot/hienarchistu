@@ -1,24 +1,28 @@
 import { Suspense, useEffect, lazy } from 'react';
-import { Canvas } from '@react-three/fiber';
 import { Helmet } from 'react-helmet-async';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
+import { useIsMobile } from './hooks';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
-const Scene = lazy(() => import('./components/Scene').then(module => ({ default: module.Scene })));
+// Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
+const DesktopCanvas = lazy(() => import('./components/DesktopCanvas'));
 const Overlay = lazy(() => import('./components/Overlay').then(module => ({ default: module.Overlay })));
+// Mobile: Giao diện 2D nhẹ nhàng, tối ưu cho cảm ứng (chỉ load khi ở mobile)
+const MobileHome = lazy(() => import('./components/MobileHome').then(module => ({ default: module.MobileHome })));
 
 function App() {
   const { fetchData, isDataLoaded, settings, projects } = useStore();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Deep linking for projects
+  // Deep linking for projects (chỉ desktop vì mobile không có 3D bookshelf)
   useEffect(() => {
-    if (isDataLoaded && projects && projects.length > 0) {
+    if (!isMobile && isDataLoaded && projects && projects.length > 0) {
       const hash = window.location.hash.slice(1);
       if (hash) {
         const idx = projects.findIndex(p => 
@@ -31,7 +35,7 @@ function App() {
         }
       }
     }
-  }, [isDataLoaded, projects]);
+  }, [isDataLoaded, projects, isMobile]);
 
   const siteTitle = settings?.title || "Hiên Archi Studio";
   const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";
@@ -92,29 +96,36 @@ function App() {
         </script>
       </Helmet>
 
-      {/* Màn hình chờ */}
-      <LoadingScreen started={isDataLoaded} />
-      
-      {/* Không gian 3D nền (Ban ngày sáng sủa) */}
-      <ErrorBoundary>
-      <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
-         <Canvas shadows camera={{ position: [0, 1.5, 18], fov: 40 }} dpr={typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : [1, 1.5]} gl={{ antialias: true }} style={{ touchAction: 'none' }}>
-           <Suspense fallback={null}>
-             <Scene />
-           </Suspense>
-         </Canvas>
-      </div>
-      </ErrorBoundary>
+      {isMobile ? (
+        /* ━━━ MOBILE: Giao diện 2D thuần, không load Three.js ━━━ */
+        <Suspense fallback={<LoadingScreen started={false} />}>
+          <MobileHome />
+        </Suspense>
+      ) : (
+        /* ━━━ DESKTOP: Trải nghiệm 3D kệ sách immersive ━━━ */
+        <>
+          {/* Màn hình chờ */}
+          <LoadingScreen started={isDataLoaded} />
+          
+          {/* Không gian 3D nền (Ban ngày sáng sủa) */}
+          <ErrorBoundary>
+          <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
+            <Suspense fallback={null}>
+              <DesktopCanvas />
+            </Suspense>
+          </div>
+          </ErrorBoundary>
 
-      {/* Lớp nội dung (Chỉ còn Modal và Header siêu nhỏ) */}
-      <div className="relative z-30 w-full pointer-events-none">
-         <Suspense fallback={null}>
-            <Overlay />
-         </Suspense>
-      </div>
+          {/* Lớp nội dung (Chỉ còn Modal và Header siêu nhỏ) */}
+          <div className="relative z-30 w-full pointer-events-none">
+            <Suspense fallback={null}>
+                <Overlay />
+            </Suspense>
+          </div>
+        </>
+      )}
     </>
   );
 }
 
 export default App;
-
