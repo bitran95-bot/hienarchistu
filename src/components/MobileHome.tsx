@@ -120,14 +120,19 @@ export const MobileHome = memo(function MobileHome() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="mb-12 flex-grow"
+          className="mb-12 flex-grow flex flex-col items-end"
         >
-          <p className="text-[14px] font-medium leading-[1.7] max-w-[280px] text-[#1a1a1a]/90">
-            '{settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên."}'
-          </p>
-          <p className="text-[13px] font-bold mt-6 tracking-wide">
-            Thái Bảo / Hiên Archi
-          </p>
+          <div className="w-[85%] max-w-[320px]">
+            <p 
+              className="text-[14px] font-medium leading-[1.7] text-[#1a1a1a]/90 text-justify"
+              style={{ textWrap: 'pretty' }}
+            >
+              '{settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên."}'
+            </p>
+            <p className="text-[13px] font-bold mt-6 tracking-wide text-right">
+              Thái Bảo / Hiên Archi
+            </p>
+          </div>
         </motion.div>
 
         {/* Footer Meta */}
@@ -139,14 +144,22 @@ export const MobileHome = memo(function MobileHome() {
         >
           <div className="w-16 h-[1.5px] bg-[#1a1a1a]/30 mb-5" />
           <div className="flex justify-between items-end">
-            <div className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider">
+            <button 
+              onClick={() => scrollToSection('mobile-projects')}
+              className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-left hover:opacity-70 transition-opacity"
+            >
               portfolio by<br/>
-              <span className="text-[11px] font-bold text-[#1a1a1a]">Hiên Studio</span>
-            </div>
-            <div className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-right">
+              <span className="text-[11px] font-bold text-[#1a1a1a] underline decoration-[#1a1a1a]/30 underline-offset-2">Hiên Studio</span>
+            </button>
+            <a 
+              href="https://maps.app.goo.gl/tMetdduMktGKcSf76" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-right hover:opacity-70 transition-opacity"
+            >
               based in<br/>
-              <span className="text-[11px] font-bold text-[#1a1a1a]">Vietnam</span>
-            </div>
+              <span className="text-[11px] font-bold text-[#1a1a1a] underline decoration-[#1a1a1a]/30 underline-offset-2">Vietnam</span>
+            </a>
           </div>
         </motion.div>
 
@@ -172,65 +185,53 @@ export const MobileHome = memo(function MobileHome() {
         </div>
 
         {!isDataLoaded ? (
-          <div className="space-y-16">
+          <div className="grid grid-cols-3 gap-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[4/5] bg-[#e0dbd0] mb-4" />
-                <div className="h-5 bg-[#e0dbd0] w-2/3 mb-2" />
-                <div className="h-4 bg-[#e0dbd0] w-1/3" />
+                <div className="aspect-[4/5] bg-[#e0dbd0] mb-2" />
+                <div className="h-3 bg-[#e0dbd0] w-2/3 mb-1" />
+                <div className="h-3 bg-[#e0dbd0] w-1/3" />
               </div>
             ))}
           </div>
         ) : projects.length === 0 ? (
           <p className="text-[#1a1a1a]/50 text-sm font-medium">Chưa có dự án nào.</p>
         ) : (
-          <div className="space-y-20">
+          <div className="grid grid-cols-3 gap-3">
             {projects.map((project, idx) => {
               const imgProps = getResponsiveImageProps({
                 source: project.image,
                 aspectRatio: 4 / 5,
-                baseWidth: 600,
-                sizes: '100vw',
+                baseWidth: 300,
+                sizes: '(max-width: 768px) 33vw, 200px',
                 className: 'w-full h-full object-cover transition-transform duration-700 hover:scale-105',
                 alt: project.name,
-                loading: idx < 2 ? 'eager' : 'lazy'
+                loading: idx < 6 ? 'eager' : 'lazy'
               });
 
               return (
                 <motion.div
                   key={project._id}
-                  initial={{ opacity: 0, y: 40 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="group cursor-pointer"
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: (idx % 3) * 0.1 }}
+                  className="group cursor-pointer flex flex-col"
                   onClick={() => setSelectedProject(project)}
                 >
-                  <div className="relative aspect-[4/5] bg-[#e0dbd0] mb-6 overflow-hidden">
+                  <div className="relative aspect-[4/5] bg-[#e0dbd0] mb-2 overflow-hidden">
                     {imgProps ? (
                       <img {...imgProps} />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]/30 text-sm font-medium">
+                      <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]/30 text-[10px] font-medium">
                         Không có ảnh
                       </div>
                     )}
                   </div>
-                  <div className="flex justify-between items-start">
-                    <div className="pr-4">
-                      <h3 className="text-xl font-bold leading-tight tracking-tight mb-2">
-                        {project.name}
-                      </h3>
-                      {project.generalInfo && (
-                        <p className="text-[13px] font-medium text-[#1a1a1a]/60 line-clamp-2 leading-relaxed">
-                          {project.generalInfo}
-                        </p>
-                      )}
-                    </div>
-                    <div className="shrink-0 w-8 h-8 rounded-full border border-[#1a1a1a]/20 flex items-center justify-center rotate-45 group-hover:bg-[#1a1a1a] group-hover:text-[#f1efe7] transition-colors">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                      </svg>
-                    </div>
+                  <div className="flex flex-col">
+                    <h3 className="text-[11px] sm:text-[13px] font-bold leading-tight tracking-tight line-clamp-2">
+                      {project.name}
+                    </h3>
                   </div>
                 </motion.div>
               );
