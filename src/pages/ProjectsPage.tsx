@@ -24,7 +24,6 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [shareToast, setShareToast] = useState(false);
   const isMobile = useIsMobile();
 
   // Back to top visibility
@@ -34,18 +33,7 @@ export default function ProjectsPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Share project
-  const handleShare = useCallback((project: Project) => {
-    const url = `${window.location.origin}/projects#${project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-    if (navigator.share) {
-      navigator.share({ title: project.name, url });
-    } else {
-      navigator.clipboard.writeText(url).then(() => {
-        setShareToast(true);
-        setTimeout(() => setShareToast(false), 2500);
-      });
-    }
-  }, []);
+
 
   // Filter projects by search
   const filteredProjects = useMemo(() => {
@@ -244,17 +232,6 @@ export default function ProjectsPage() {
                   >
                     <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                       {imgProps ? <img {...imgProps} /> : <div className="w-full h-full flex items-center justify-center text-stone-300">Không có ảnh</div>}
-                      {/* Share button on card hover */}
-                      <button
-                        onClick={e => { e.stopPropagation(); handleShare(project); }}
-                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
-                        title="Chia sẻ"
-                      >
-                        <svg className="w-3.5 h-3.5 text-stone-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                          <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
-                        </svg>
-                      </button>
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
                       <h3 className="font-heading font-bold text-[#2a2a2a] text-xl mb-3 group-hover:text-amber-800 transition-colors">{project.name}</h3>
@@ -298,9 +275,6 @@ export default function ProjectsPage() {
                       {project.generalInfo && <p className="text-sm text-stone-500 line-clamp-2 mt-1">{project.generalInfo}</p>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <button onClick={e => { e.stopPropagation(); handleShare(project); }} className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Chia sẻ">
-                        <svg className="w-3.5 h-3.5 text-stone-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
-                      </button>
                       <span className="text-amber-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Xem →</span>
                     </div>
                   </motion.div>
@@ -328,19 +302,7 @@ export default function ProjectsPage() {
         )}
       </AnimatePresence>
 
-      {/* Share Toast */}
-      <AnimatePresence>
-        {shareToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#2a2a2a] text-white text-sm px-5 py-2.5 rounded-full shadow-lg z-[300]"
-          >
-            ✓ Đã sao chép đường dẫn!
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Project Detail Modal */}
       <AnimatePresence>

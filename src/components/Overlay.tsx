@@ -6,7 +6,6 @@ const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ defaul
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { MobileNav } from './ui/MobileNav';
-import { AmbientSound } from './ui/AmbientSound';
 import { useTranslation } from '../i18n';
 
 export const Overlay = memo(function Overlay() {
@@ -112,8 +111,6 @@ export const Overlay = memo(function Overlay() {
         }`}
       >
         <div className="w-1/3 hidden md:block">
-          {/* Ambient Sound — góc trái header */}
-          <AmbientSound />
         </div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
