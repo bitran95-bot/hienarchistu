@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useTranslation } from '../i18n';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -8,12 +8,20 @@ import { ContactModal } from './ui/ContactModal';
 export function SubpageNavigation() {
   const { t } = useTranslation();
   const [contactOpen, setContactOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (window.location.hash === '#contact') {
       setContactOpen(true);
     }
   }, []);
+
+  const navLinkClass = (path: string) =>
+    `hover:text-amber-700 transition-colors relative ${
+      location.pathname === path
+        ? 'text-amber-700 after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1.5px] after:bg-amber-700 after:rounded-full'
+        : ''
+    }`;
 
   return (
     <>
@@ -33,8 +41,8 @@ export function SubpageNavigation() {
           {/* Menu (Center - Desktop Only) */}
           <nav className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3" aria-label="Main navigation">
             <a href="/#about" className="hover:text-amber-700 transition-colors">{t.nav.story}</a>
-            <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
-            <Link to="/shop" className="hover:text-amber-700 transition-colors">{t.nav.library}</Link>
+            <Link to="/projects" className={navLinkClass('/projects')}>{t.nav.projects}</Link>
+            <Link to="/shop" className={navLinkClass('/shop')}>{t.nav.library}</Link>
             <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
           </nav>
 

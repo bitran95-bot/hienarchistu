@@ -6,12 +6,30 @@ const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ defaul
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { MobileNav } from './ui/MobileNav';
+import { AmbientSound } from './ui/AmbientSound';
 import { useTranslation } from '../i18n';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { t } = useTranslation();
+
+  // Track scroll để thêm glassmorphism header
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollEl = document.querySelector('[data-scroll-container]') as HTMLElement || document.documentElement;
+      setIsScrolled(scrollEl.scrollTop > 60 || window.scrollY > 60);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Lắng nghe cả scroll của R3F ScrollControls (dùng custom event)
+    const scrollEl = document.querySelector('.overflow-auto, [style*="overflow"]');
+    scrollEl?.addEventListener('scroll', handleScroll, { passive: true } as any);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      scrollEl?.removeEventListener('scroll', handleScroll as any);
+    };
+  }, []);
 
   // Escape key handler cho modals
   const handleClose = useCallback(() => {
@@ -86,12 +104,21 @@ export const Overlay = memo(function Overlay() {
         <div style={{ fontSize: 'clamp(50px, 18vw, 176px)', lineHeight: '0.8', paddingLeft: 'clamp(20px, 8vw, 80px)' }}>studio</div>
       </div>
 
-      <header className="fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex justify-between items-center z-50 pointer-events-auto">
-        <div className="w-1/3 hidden md:block"></div>
+      <header 
+        className={`fixed top-0 left-0 w-full px-6 md:px-12 py-5 md:py-6 flex justify-between items-center z-50 pointer-events-auto transition-all duration-500 ${
+          isScrolled 
+            ? 'bg-[#fdfbf7]/85 backdrop-blur-md border-b border-[#1a1a1a]/8 shadow-sm py-3 md:py-4' 
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="w-1/3 hidden md:block">
+          {/* Ambient Sound — góc trái header */}
+          <AmbientSound />
+        </div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
           <a href="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</a>
-          <a href="/shop" target="_blank" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">{t.nav.library}</a>
+          <a href="/shop" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">{t.nav.library}</a>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
