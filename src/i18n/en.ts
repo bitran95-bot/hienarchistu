@@ -76,6 +76,14 @@ const en: Translations = {
     siteTitle: 'Hiên Archi Studio',
     siteDesc: 'Architecture and interior design studio, creating simple and sincere living spaces.',
   },
+  projectsPage: {
+    title: 'Our Projects',
+    subtitle: 'Where peaceful homes and rustic, sincere living spaces are crafted.',
+    searchPlaceholder: 'Search projects...',
+    noProjects: 'No projects yet.',
+    noMatch: 'No matching projects found.',
+    clearSearch: 'Clear search',
+  },
 };
 
 export default en;

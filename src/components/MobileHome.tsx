@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
+import { getYoutubeEmbedUrl } from '../utils/youtube';
+import { useEscapeKey, useProjectImages } from '../hooks';
 import { ContactModal } from './ui/ContactModal';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import type { Project } from '../types';
@@ -17,18 +19,13 @@ export const MobileHome = memo(function MobileHome() {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (fullscreenImage) setFullscreenImage(null);
-        else if (selectedProject) setSelectedProject(null);
-        else if (contactOpen) setContactOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+  // Handle escape key — close modals in order of depth
+  const handleEscape = useCallback(() => {
+    if (fullscreenImage) setFullscreenImage(null);
+    else if (selectedProject) setSelectedProject(null);
+    else if (contactOpen) setContactOpen(false);
   }, [fullscreenImage, selectedProject, contactOpen]);
+  useEscapeKey(handleEscape);
 
   // Reset image index when project changes
   useEffect(() => {
@@ -40,32 +37,10 @@ export const MobileHome = memo(function MobileHome() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Project images for detail view
-  const projectImages = useMemo(() => {
-    if (!selectedProject) return [];
-    let images: any[] = [];
-    if (selectedProject.image?.asset) images.push(selectedProject.image);
-    const hasMagazinePages = selectedProject.magazinePages && selectedProject.magazinePages.length > 0;
-    const hasGallery = selectedProject.gallery && selectedProject.gallery.length > 0;
-    if (hasMagazinePages) {
-      selectedProject.magazinePages?.forEach(page => {
-        if (page.images) images = [...images, ...page.images];
-      });
-    } else if (hasGallery) {
-      images = [...images, ...(selectedProject.gallery || [])];
-    }
-    return images;
-  }, [selectedProject]);
+  // Project images for detail view (shared hook)
+  const projectImages = useProjectImages(selectedProject);
 
-  // Youtube embed helper
-  const getYoutubeEmbedUrl = (url: string) => {
-    let videoId = '';
-    if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-    else if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
-    else if (url.includes('shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
-    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-  };
+  // Youtube embed URL — shared utility
 
   const currentDate = new Date();
   const day = currentDate.getDate().toString().padStart(2, '0');

@@ -55,9 +55,9 @@ export function SubpageNavigation() {
 
       {/* Floating Bottom Nav for Mobile */}
       <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-5 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50" aria-label="Mobile navigation">
-        <a href="/#about" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</a>
-        <Link to="/projects" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.projects}</Link>
-        <Link to="/shop" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.library}</Link>
+        <Link to="/#about" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</Link>
+        <Link to="/projects" className={`whitespace-nowrap ${navLinkClass('/projects')}`}>{t.nav.projects}</Link>
+        <Link to="/shop" className={`whitespace-nowrap ${navLinkClass('/shop')}`}>{t.nav.library}</Link>
         <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>
         <LanguageSwitcher />
       </nav>

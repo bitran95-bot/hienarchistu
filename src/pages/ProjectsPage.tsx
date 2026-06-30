@@ -1,21 +1,24 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
+import { getYoutubeEmbedUrl } from '../utils/youtube';
+import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
+import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
-import { FullscreenImageOverlay } from '../components/ui/FullscreenImageOverlay';
+import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { useIsMobile } from '../hooks';
 
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function ProjectsPage() {
+  const { t } = useTranslation();
   const { projects, isDataLoaded, fetchData } = useStore();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -46,45 +49,15 @@ export default function ProjectsPage() {
     );
   }, [projects, searchQuery]);
 
-  const projectImages = useMemo(() => {
-    if (!selectedProject) return [];
-    
-    let images: any[] = [];
-    
-    if (selectedProject.image?.asset) {
-       images.push(selectedProject.image);
-    }
-
-    const hasMagazinePages = selectedProject.magazinePages && selectedProject.magazinePages.length > 0;
-    const hasGallery = selectedProject.gallery && selectedProject.gallery.length > 0;
-    
-    if (hasMagazinePages) {
-       selectedProject.magazinePages?.forEach(page => {
-         if (page.images) {
-           images = [...images, ...page.images];
-         }
-       });
-    } else if (hasGallery) {
-       images = [...images, ...(selectedProject.gallery || [])];
-    }
-    
-    return images;
-  }, [selectedProject]);
+  // Project images (shared hook)
+  const projectImages = useProjectImages(selectedProject);
 
   useEffect(() => {
      setActiveImageIndex(0);
      setNumPdfPages(null);
   }, [selectedProject]);
 
-  // Helper cho Youtube URL
-  const getYoutubeEmbedUrl = (url: string) => {
-    let videoId = '';
-    if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-    else if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
-    else if (url.includes('shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
-    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-  };
+  // Helper cho Youtube URL (shared utility)
 
   useEffect(() => {
     if (!isDataLoaded) {
@@ -93,16 +66,11 @@ export default function ProjectsPage() {
   }, [fetchData, isDataLoaded]);
 
   // Handle escape key to close modal or fullscreen image
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (fullscreenImage) setFullscreenImage(null);
-        else setSelectedProject(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+  const handleEscape = useCallback(() => {
+    if (fullscreenImage) setFullscreenImage(null);
+    else setSelectedProject(null);
   }, [fullscreenImage]);
+  useEscapeKey(handleEscape);
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] selection:bg-stone-300">
@@ -120,21 +88,12 @@ export default function ProjectsPage() {
       {/* Hero Section */}
       <section className="pt-20 pb-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-serif italic text-[#2a2a2a] mb-4"
-          >
-            Các Dự Án Của Chúng Tôi
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-stone-500 max-w-2xl mx-auto mb-8"
-          >
-            Nơi lưu giữ những nếp nhà yên lành, những không gian mộc mạc và chân thành.
-          </motion.p>
+          <h1 className="text-4xl md:text-5xl font-serif italic text-[#2a2a2a] mb-4">
+            {t.projectsPage.title}
+          </h1>
+          <p className="text-lg text-stone-500 max-w-2xl mx-auto mb-8">
+            {t.projectsPage.subtitle}
+          </p>
 
           {/* Search + View Toggle */}
           <motion.div
@@ -149,7 +108,7 @@ export default function ProjectsPage() {
               </svg>
               <input
                 type="text"
-                placeholder="Tìm dự án..."
+                placeholder={t.projectsPage.searchPlaceholder}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm text-stone-700 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-300 transition"
@@ -193,9 +152,8 @@ export default function ProjectsPage() {
           {!isDataLoaded ? (
             <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[4/3] bg-stone-200" />
-                  <div className="p-5 space-y-3"><div className="h-5 bg-stone-200 rounded w-3/4" /><div className="h-4 bg-stone-100 rounded w-1/2" /></div>
+                <div key={i} className="bg-white rounded-2xl overflow-hidden p-3">
+                  <ProjectCardSkeleton />
                 </div>
               ))}
             </div>
@@ -203,10 +161,10 @@ export default function ProjectsPage() {
             <div className="text-center py-24">
               <div className="text-5xl mb-4">🏡</div>
               <h3 className="text-xl font-heading font-bold text-stone-400 mb-2">
-                {projects.length === 0 ? 'Chưa có dự án nào.' : 'Không tìm thấy dự án phù hợp.'}
+                {projects.length === 0 ? t.projectsPage.noProjects : t.projectsPage.noMatch}
               </h3>
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="mt-4 text-sm text-amber-700 underline">Xóa tìm kiếm</button>
+                <button onClick={() => setSearchQuery('')} className="mt-4 text-sm text-amber-700 underline">{t.projectsPage.clearSearch}</button>
               )}
             </div>
           ) : viewMode === 'grid' ? (

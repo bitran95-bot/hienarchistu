@@ -1,12 +1,14 @@
 import type { Project } from '../types';
 import { AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback, memo, lazy, Suspense } from 'react';
+import { useEscapeKey } from '../hooks';
 import { useStore } from '../store/useStore';
 const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ default: m.MagazineViewer })));
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
+import { Link } from 'react-router-dom';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
@@ -36,13 +38,7 @@ export const Overlay = memo(function Overlay() {
     else if (modalOpen) setModalOpen(false);
   }, [contactOpen, modalOpen, setModalOpen]);
 
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handleClose();
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [handleClose]);
+  useEscapeKey(handleClose);
 
   const fallbackProjects: Partial<Project>[] = [
     { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật..." },
@@ -114,8 +110,8 @@ export const Overlay = memo(function Overlay() {
         </div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
-          <a href="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</a>
-          <a href="/shop" rel="noopener noreferrer" className="hover:text-amber-700 transition-colors">{t.nav.library}</a>
+          <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
+          <Link to="/shop" className="hover:text-amber-700 transition-colors">{t.nav.library}</Link>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">

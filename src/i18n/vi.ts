@@ -23,6 +23,7 @@ export interface Translations {
     backHomeFooter: string; footerCopy: (year: number) => string;
   };
   seo: { siteTitle: string; siteDesc: string };
+  projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
 }
 
 // Vietnamese translations (default)
@@ -109,6 +110,14 @@ const vi: Translations = {
   seo: {
     siteTitle: 'Hiên Archi Studio',
     siteDesc: 'Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.',
+  },
+  projectsPage: {
+    title: 'Các Dự Án Của Chúng Tôi',
+    subtitle: 'Nơi lưu giữ những nếp nhà yên lành, những không gian mộc mạc và chân thành.',
+    searchPlaceholder: 'Tìm dự án...',
+    noProjects: 'Chưa có dự án nào.',
+    noMatch: 'Không tìm thấy dự án phù hợp.',
+    clearSearch: 'Xóa tìm kiếm',
   },
 };
 

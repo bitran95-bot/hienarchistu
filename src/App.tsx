@@ -116,8 +116,8 @@ function App() {
           </div>
           </ErrorBoundary>
 
-          {/* Lớp nội dung (Chỉ còn Modal và Header siêu nhỏ) */}
-          <div className="relative z-30 w-full pointer-events-none">
+          {/* Lớp nội dung (Header + Modals — z-40 để nằm trên R3F scroll container) */}
+          <div className="relative z-40 w-full pointer-events-none isolate">
             <Suspense fallback={null}>
                 <Overlay />
             </Suspense>

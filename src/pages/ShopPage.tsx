@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,8 @@ import { getResponsiveImageProps } from '../utils/image';
 
 import type { Product, ProductCategory } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { ProjectCardSkeleton } from '../components/ui';
+import { useEscapeKey } from '../hooks';
 
 // ===== PRODUCT CARD =====
 function ProductCard({ product, onSelect }: { product: Product; onSelect: (p: Product) => void }) {
@@ -309,13 +311,8 @@ export default function ShopPage() {
   }, []);
 
   // Escape closes modal
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedProduct(null);
-    };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, []);
+  const handleEscape = useCallback(() => setSelectedProduct(null), []);
+  useEscapeKey(handleEscape, !!selectedProduct);
 
   const filtered = useMemo(() => {
     if (activeCategory === 'all') return products;
@@ -386,13 +383,8 @@ export default function ShopPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-                  <div className="aspect-[3/2] bg-stone-200" />
-                  <div className="p-5 space-y-3">
-                    <div className="h-5 bg-stone-200 rounded w-3/4" />
-                    <div className="h-4 bg-stone-100 rounded w-1/2" />
-                    <div className="h-8 bg-stone-200 rounded w-1/3" />
-                  </div>
+                <div key={i} className="bg-white rounded-2xl overflow-hidden p-3">
+                  <ProjectCardSkeleton />
                 </div>
               ))}
             </div>

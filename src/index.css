@@ -1,5 +1,5 @@
 /* Google Fonts loaded via <link> in index.html for non-blocking performance */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Playwrite+DE+Grund:wght@100..400&family=Playwrite+DE+Grund+Guides&display=swap');
+/* Font preloading handled in index.html — do NOT use @import here */
 
 @tailwind base;
 @tailwind components;
@@ -11,6 +11,14 @@
     overflow-x: hidden;
   }
 }
+
+/* Fix: R3F ScrollControls creates a fullscreen scroll container that blocks
+   pointer events on the fixed header navigation. We disable pointer-events
+   on the scroll overlay div and re-enable them on the canvas itself. */
+div[style*="position: fixed"] > div[style*="overflow"] {
+  pointer-events: auto;
+}
+
 
 
 /* Accessibility: Focus indicators for keyboard navigation */

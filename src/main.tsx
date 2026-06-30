@@ -16,7 +16,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center">
-    <div className="text-stone-400 font-heading text-xl animate-pulse">Đang tải...</div>
+    <div className="w-10 h-10 rounded-full border-4 border-amber-700/20 border-t-amber-700 animate-spin" />
   </div>
 )
 
