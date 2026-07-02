@@ -9,8 +9,9 @@ import 'react-pdf/dist/Page/TextLayer.css';
 // Tối ưu quản lý PDF Worker (Self-host thay vì gọi qua CDN để tránh lỗi network/Vercel)
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
-import type { Project } from '../types';
+import type { Project, SanityImage } from '../types';
 import { useIsMobile } from '../hooks';
+import { useTranslation } from '../i18n';
 import { groupGalleryImages, getGalleryImageUrl } from '../utils/gallery';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 
@@ -49,6 +50,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   const [numPages, setNumPages] = useState<number | null>(null);
   
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   // Layout Landscape: chiều ngang rộng hơn chiều cao
   const pageWidth = isMobile ? window.innerWidth * 0.9 : 1000;
   const pageHeight = isMobile ? window.innerHeight * 0.6 : 650;
@@ -87,7 +89,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
              <h1 className="text-4xl md:text-6xl font-heading font-bold leading-tight mb-2 tracking-tighter" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
                {project.name}
              </h1>
-             <p className="text-white/90 font-serif italic" style={{ textShadow: '0 1px 5px rgba(0,0,0,0.5)' }}>Ấn phẩm kiến trúc Hiên studio</p>
+             <p className="text-white/90 font-serif italic" style={{ textShadow: '0 1px 5px rgba(0,0,0,0.5)' }}>{t.magazine.subtitle}</p>
           </div>
        </div>
     </Page>,
@@ -100,14 +102,14 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
     </Page>,
 
     <Page key="info" number="3">
-       <h2 className="text-3xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Về dự án</h2>
+       <h2 className="text-3xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">{t.magazine.aboutProject}</h2>
        <div className="text-base md:text-lg text-[#333] leading-relaxed whitespace-pre-wrap mb-8 font-medium">
-           {project.generalInfo || "Thông tin chung dự án đang được cập nhật..."}
+           {project.generalInfo || t.magazine.infoFallback}
        </div>
        {project.content && (
           <>
             <h3 className="text-xs font-bold text-stone-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-              <span className="w-6 h-[1px] bg-stone-300 inline-block"></span> Chi tiết
+              <span className="w-6 h-[1px] bg-stone-300 inline-block"></span> {t.magazine.details}
             </h3>
             <p className="font-serif italic text-sm md:text-base text-[#555] leading-relaxed pl-4 border-l-2 border-amber-700 whitespace-pre-wrap pb-12">
               {project.content}
@@ -118,7 +120,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
 
     project.youtubeLink ? (
        <Page key="video" number="4">
-          <h2 className="text-2xl md:text-3xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">Video Thực Tế</h2>
+          <h2 className="text-2xl md:text-3xl font-heading font-bold text-[#2a2a2a] mb-6 tracking-tighter">{t.magazine.videoTitle}</h2>
           <div className="w-full aspect-video rounded-md overflow-hidden shadow-lg border border-stone-200 bg-black">
              <iframe 
                className="w-full h-full"
@@ -136,8 +138,8 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
     ) : (
        <Page key="video-alt" number="4">
           <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
-             <p className="text-xl">Thư viện ảnh</p>
-             <p className="mt-2 text-stone-300">Lật sang trang kế tiếp →</p>
+             <p className="text-xl">{t.magazine.galleryAlt}</p>
+             <p className="mt-2 text-stone-300">{t.magazine.galleryHint}</p>
           </div>
        </Page>
     )
@@ -166,7 +168,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                 layoutType === 'row' ? 'flex-row items-center justify-center' : 
                 'flex-col md:flex-row items-center justify-center flex-wrap'
              }`}>
-                {group.map((img: any, idx: number) => {
+                {group.map((img: SanityImage, idx: number) => {
                    const fullSrc = getGalleryImageUrl(img);
                    return (
                       <div 
@@ -197,7 +199,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
      pages.push(
         <Page key="end" number={String(5 + groupedGallery.length)}>
            <div className="h-full flex flex-col items-center justify-center text-stone-400 font-serif italic text-sm">
-              <p className="text-2xl font-heading text-stone-300">The End.</p>
+              <p className="text-2xl font-heading text-stone-300">{t.magazine.theEnd}</p>
            </div>
         </Page>
      );

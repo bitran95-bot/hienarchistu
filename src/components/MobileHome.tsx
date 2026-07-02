@@ -7,6 +7,7 @@ import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useEscapeKey, useProjectImages } from '../hooks';
 import { ContactModal } from './ui/ContactModal';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
+import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
 /**
@@ -18,6 +19,7 @@ export const MobileHome = memo(function MobileHome() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const { t } = useTranslation();
 
   // Handle escape key — close modals in order of depth
   const handleEscape = useCallback(() => {
@@ -258,7 +260,7 @@ export const MobileHome = memo(function MobileHome() {
           >
             {/* Header Sticky */}
             <div className="sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-6 py-4 bg-[#f1efe7]/90 backdrop-blur-md border-b border-[#1a1a1a]/10">
-              <span className="text-[11px] font-bold tracking-widest uppercase">Chi tiết dự án</span>
+              <span className="text-[11px] font-bold tracking-widest uppercase">{t.projectDetail.detailHeader}</span>
               <button 
                 onClick={() => setSelectedProject(null)}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1a1a1a] text-[#f1efe7]"
@@ -290,7 +292,7 @@ export const MobileHome = memo(function MobileHome() {
               <div className="grid grid-cols-1 gap-10 mb-12">
                 {selectedProject.generalInfo && (
                   <div>
-                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Thông tin chung</h4>
+                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">{t.projectDetail.generalInfo}</h4>
                     <p className="text-[14px] font-medium leading-relaxed text-[#1a1a1a] whitespace-pre-wrap">
                       {selectedProject.generalInfo}
                     </p>
@@ -299,7 +301,7 @@ export const MobileHome = memo(function MobileHome() {
 
                 {selectedProject.content && (
                   <div>
-                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Câu chuyện</h4>
+                    <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">{t.projectDetail.story}</h4>
                     <div className="pl-4 border-l-[1.5px] border-[#1a1a1a]">
                       <p className="text-[14px] font-medium leading-relaxed text-[#1a1a1a]/80 whitespace-pre-wrap">
                         {selectedProject.content}
@@ -312,7 +314,7 @@ export const MobileHome = memo(function MobileHome() {
               {/* YouTube Video */}
               {selectedProject.youtubeLink && (
                 <div className="mb-12">
-                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Video</h4>
+                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">{t.projectDetail.video}</h4>
                   <div className="aspect-video w-full bg-[#e0dbd0]">
                     <iframe 
                       className="w-full h-full"
@@ -328,7 +330,7 @@ export const MobileHome = memo(function MobileHome() {
               {/* Gallery images */}
               {projectImages.length > 1 && (
                 <div className="mb-12">
-                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">Thư viện ảnh</h4>
+                  <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">{t.projectDetail.gallery}</h4>
                   
                   {/* Main image viewer */}
                   <div 

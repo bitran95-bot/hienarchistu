@@ -24,6 +24,7 @@ export interface Translations {
   };
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
+  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string };
 }
 
 // Vietnamese translations (default)
@@ -118,6 +119,16 @@ const vi: Translations = {
     noProjects: 'Chưa có dự án nào.',
     noMatch: 'Không tìm thấy dự án phù hợp.',
     clearSearch: 'Xóa tìm kiếm',
+  },
+  projectDetail: {
+    generalInfo: 'Thông tin chung',
+    story: 'Câu chuyện dự án',
+    video: 'Video Dự Án',
+    noImage: 'Không có hình ảnh',
+    viewDetail: 'Xem chi tiết',
+    zoomIn: 'Phóng to',
+    gallery: 'Thư viện ảnh',
+    detailHeader: 'Chi tiết dự án',
   },
 };
 

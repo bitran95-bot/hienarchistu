@@ -14,7 +14,17 @@ export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAboutActive, setIsAboutActive] = useState(false);
   const { t } = useTranslation();
+
+  // Track about section visibility from R3F scroll position
+  useEffect(() => {
+    const handleAboutVisible = (e: Event) => {
+      setIsAboutActive((e as CustomEvent).detail?.visible ?? false);
+    };
+    window.addEventListener('about-section-visible', handleAboutVisible);
+    return () => window.removeEventListener('about-section-visible', handleAboutVisible);
+  }, []);
 
   // Track scroll để thêm glassmorphism header
   useEffect(() => {
@@ -109,7 +119,7 @@ export const Overlay = memo(function Overlay() {
         <div className="w-1/3 hidden md:block">
         </div>
         <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
-          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className="hover:text-amber-700 transition-colors">{t.nav.story}</button>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className={`hover:text-amber-700 transition-colors ${isAboutActive ? 'text-amber-700' : ''}`}>{t.nav.story}</button>
           <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
           <Link to="/shop" className="hover:text-amber-700 transition-colors">{t.nav.library}</Link>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>

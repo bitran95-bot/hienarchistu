@@ -189,13 +189,13 @@ export default function ProjectsPage() {
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
-                      {imgProps ? <img {...imgProps} /> : <div className="w-full h-full flex items-center justify-center text-stone-300">Không có ảnh</div>}
+                      {imgProps ? <img {...imgProps} /> : <div className="w-full h-full flex items-center justify-center text-stone-300">{t.projectDetail.noImage}</div>}
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
                       <h3 className="font-heading font-bold text-[#2a2a2a] text-xl mb-3 group-hover:text-amber-800 transition-colors">{project.name}</h3>
                       {project.generalInfo && <p className="text-sm text-stone-500 mb-4 line-clamp-3">{project.generalInfo}</p>}
                       <div className="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center text-sm font-medium text-amber-800 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span>Xem chi tiết</span><span>→</span>
+                        <span>{t.projectDetail.viewDetail}</span><span>→</span>
                       </div>
                     </div>
                   </motion.div>
@@ -233,7 +233,7 @@ export default function ProjectsPage() {
                       {project.generalInfo && <p className="text-sm text-stone-500 line-clamp-2 mt-1">{project.generalInfo}</p>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-amber-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Xem →</span>
+                      <span className="text-amber-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">{t.projectDetail.viewDetail} →</span>
                     </div>
                   </motion.div>
                 );
@@ -295,21 +295,21 @@ export default function ProjectsPage() {
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-3">Thông tin chung</h4>
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-3">{t.projectDetail.generalInfo}</h4>
                     <p className="text-lg text-stone-600 whitespace-pre-wrap leading-relaxed">{selectedProject.generalInfo}</p>
                   </div>
                 )}
 
                 {selectedProject.content && (
                   <div className="mb-12">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Câu chuyện dự án</h4>
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">{t.projectDetail.story}</h4>
                     <p className="text-stone-700 whitespace-pre-wrap leading-[2.5] font-handwriting text-lg">{selectedProject.content}</p>
                   </div>
                 )}
 
                 {selectedProject.youtubeLink && (
                   <div className="mt-10 pb-10">
-                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">Video Dự Án</h4>
+                    <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">{t.projectDetail.video}</h4>
                     <div className="aspect-video w-full rounded-xl overflow-hidden shadow-md">
                       <iframe 
                         className="w-full h-full"
@@ -389,7 +389,7 @@ export default function ProjectsPage() {
                          />
                        </AnimatePresence>
                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                         <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">Phóng to</span>
+                         <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">{t.projectDetail.zoomIn}</span>
                        </div>
                     </div>
                     
@@ -419,7 +419,7 @@ export default function ProjectsPage() {
                   </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-stone-400">
-                     Không có hình ảnh
+                     {t.projectDetail.noImage}
                   </div>
                 )}
               </div>

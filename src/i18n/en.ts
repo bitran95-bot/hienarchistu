@@ -84,6 +84,16 @@ const en: Translations = {
     noMatch: 'No matching projects found.',
     clearSearch: 'Clear search',
   },
+  projectDetail: {
+    generalInfo: 'General Information',
+    story: 'Project Story',
+    video: 'Project Video',
+    noImage: 'No images available',
+    viewDetail: 'View details',
+    zoomIn: 'Zoom in',
+    gallery: 'Photo Gallery',
+    detailHeader: 'Project Details',
+  },
 };
 
 export default en;

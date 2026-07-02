@@ -54,6 +54,7 @@ export function useHeroAnimations() {
     // --- Animate About Section ---
     if (!aboutSectionRef.current) aboutSectionRef.current = document.getElementById('about-section');
     const aboutSection = aboutSectionRef.current;
+    const isAboutVisible = s > 0.05 && s < 0.30;
     if (aboutSection) {
        if (s > 0.25) {
           const fade = 1 - THREE.MathUtils.clamp((s - 0.25) / 0.05, 0, 1);
@@ -62,6 +63,8 @@ export function useHeroAnimations() {
           aboutSection.style.opacity = '1';
        }
     }
+    // Dispatch event for header nav highlight (Bug #2 fix)
+    window.dispatchEvent(new CustomEvent('about-section-visible', { detail: { visible: isAboutVisible } }));
 
     const progress1 = THREE.MathUtils.clamp((s - 0.05) / 0.1, 0, 1);
     const progress2 = THREE.MathUtils.clamp((s - 0.1) / 0.1, 0, 1); 

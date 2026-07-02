@@ -1,4 +1,5 @@
 import { urlFor } from '../sanityClient';
+import type { Project, SanityImage } from '../types';
 
 /**
  * Hash function for pseudo-random grouping
@@ -10,25 +11,25 @@ export const hashString = (str: string) => {
 };
 
 export interface GalleryGroup {
-  images: any[];
-  layout: string;
+  images: SanityImage[];
+  layout: 'col' | 'row' | 'mixed' | 'full';
 }
 
 /**
  * Groups gallery images into pages based on configuration or pseudo-random distribution
  */
-export const groupGalleryImages = (project: any): GalleryGroup[] => {
+export const groupGalleryImages = (project: Partial<Project>): GalleryGroup[] => {
   const groups: GalleryGroup[] = [];
 
   if (project.magazinePages && project.magazinePages.length > 0) {
-    project.magazinePages.forEach((page: any) => {
+    project.magazinePages.forEach((page) => {
       groups.push({
-        images: page.images || [],
-        layout: page.layout || 'col'
+        images: (page.images || []) as SanityImage[],
+        layout: (page.layout as GalleryGroup['layout']) || 'col'
       });
     });
   } else {
-    const gallery = project.gallery || [];
+    const gallery = (project.gallery || []) as SanityImage[];
     if (gallery && gallery.length > 0) {
        let i = 0;
        const seed = hashString(project._id || project.name || "default");
@@ -40,7 +41,7 @@ export const groupGalleryImages = (project: any): GalleryGroup[] => {
           
           const images = gallery.slice(i, i + chunkSize);
           const configVal = (seed + i * 23) % 3;
-          const layout = configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed');
+          const layout: GalleryGroup['layout'] = configVal === 0 ? 'col' : (configVal === 1 ? 'row' : 'mixed');
           
           groups.push({ images, layout });
           i += chunkSize;
@@ -54,7 +55,7 @@ export const groupGalleryImages = (project: any): GalleryGroup[] => {
 /**
  * Helper to safely get the full image URL from Sanity
  */
-export const getGalleryImageUrl = (img: any): string => {
+export const getGalleryImageUrl = (img: SanityImage): string => {
   try {
     return urlFor(img).quality(85).auto('format').url();
   } catch (error) {
