@@ -12,8 +12,8 @@ export function useIsMobile(breakpoint = 768): boolean {
 
   useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    // Sync initial state
-    setIsMobile(mql.matches);
+    // Sync initial state safely without cascading render warnings
+    queueMicrotask(() => setIsMobile(mql.matches));
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);

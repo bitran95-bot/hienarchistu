@@ -3,6 +3,7 @@ import type { Translations } from './vi';
 const en: Translations = {
   nav: {
     story: 'Our Story',
+    services: 'Services',
     projects: 'Projects',
     library: 'Library',
     contact: 'Contact',
@@ -93,6 +94,78 @@ const en: Translations = {
     zoomIn: 'Zoom in',
     gallery: 'Photo Gallery',
     detailHeader: 'Project Details',
+  },
+  servicesPage: {
+    title: 'Architectural & Interior Design Process',
+    subtitle: 'A professional step-by-step roadmap to bring your living space to life.',
+    step: 'Phase',
+    duration: 'Duration',
+    deliverable: 'Key Deliverables',
+    ctaTitle: 'Ready to bring your dream home to life?',
+    ctaDesc: 'Let us start writing your unique architectural story together.',
+    ctaButton: 'Contact Us Now',
+    exploreProjects: 'Explore Realized Projects',
+    steps: [
+      {
+        id: '01',
+        title: 'Reception & Site Survey',
+        duration: '1 - 3 days',
+        details: [
+          { label: 'Discussion', text: 'Meet in person or online to listen to your needs, preferences, and analyze the investment budget.' },
+          { label: 'Site Survey', text: 'Measure current conditions, check elevation, sun & wind direction, and document site/building photos.' }
+        ],
+        deliverable: 'Requirements brief and site condition assessment document.'
+      },
+      {
+        id: '02',
+        title: 'Concept Design',
+        duration: '5 - 7 days',
+        details: [
+          { label: 'Layout 2D', text: 'Design space division, circulation, and furniture arrangement options.' },
+          { label: 'Moodboard', text: 'Suggest design style, materials, and main color palette through visual references.' }
+        ],
+        deliverable: 'Functional layout drawings + Style Moodboard.'
+      },
+      {
+        id: '03',
+        title: 'Design Contract Signing',
+        duration: '3 - 5 days',
+        details: [
+          { label: 'Agreement', text: 'Both parties finalize the preliminary layout and sign the official design contract.' },
+          { label: 'Advance Payment', text: 'Client makes the 1st design fee payment according to contract terms.' }
+        ],
+        deliverable: 'Signed official architectural/interior design contract & detailed timeline.'
+      },
+      {
+        id: '04',
+        title: 'Detailed 3D Rendering',
+        duration: '10 - 15 days',
+        details: [
+          { label: 'Visualization', text: 'Create realistic 3D perspectives with accurate lighting, colors, and materials.' },
+          { label: 'Refinement', text: 'Discuss and adjust details based on client feedback (within contract limits).' }
+        ],
+        deliverable: 'High-quality 3D render set covering all angles of the project.'
+      },
+      {
+        id: '05',
+        title: 'Technical Construction Drawings',
+        duration: '10 - 12 days',
+        details: [
+          { label: 'Detailing', text: 'Develop detailed construction drawings (Architecture, Structure, MEP, Interior details, Ceiling - Wall - Floor).' }
+        ],
+        deliverable: 'Comprehensive construction technical drawings (hard copy and PDF) for precise building.'
+      },
+      {
+        id: '06',
+        title: 'Handover & Author Supervision',
+        duration: 'Throughout construction',
+        details: [
+          { label: 'Handover', text: 'Finalize design contract, hand over full stamped drawings and digital files.' },
+          { label: 'Supervision', text: 'Architect inspects key construction milestones (concrete pouring, rough-in acceptance, material selection) to ensure adherence to design.' }
+        ],
+        deliverable: 'Final handover package & on-site author supervision during key milestones.'
+      }
+    ]
   },
 };
 

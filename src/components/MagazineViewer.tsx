@@ -13,6 +13,7 @@ import type { Project, SanityImage } from '../types';
 import { useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import { groupGalleryImages, getGalleryImageUrl } from '../utils/gallery';
+import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 
 interface PageProps {
@@ -72,7 +73,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
   
   // Front Cover image
   const coverImageUrl = project.image?.asset 
-    ? urlFor(project.image as any).width(1600).quality(100).auto('format').url() 
+    ? urlFor(project.image as SanityImage).width(1600).quality(100).auto('format').url() 
     : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&auto=format&fit=crop";
 
   const pages = [
@@ -124,10 +125,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
           <div className="w-full aspect-video rounded-md overflow-hidden shadow-lg border border-stone-200 bg-black">
              <iframe 
                className="w-full h-full"
-               src={project.youtubeLink
-                .replace("watch?v=", "embed/")
-                .replace("youtu.be/", "www.youtube-nocookie.com/embed/")
-                .replace("youtube.com", "youtube-nocookie.com")} 
+               src={getYoutubeEmbedUrl(project.youtubeLink)}
                title="YouTube video player" 
                frameBorder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -254,7 +252,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                  loading={null}
              >
                  {numPages && (
-                     /* @ts-ignore */
+                     /* @ts-expect-error react-pageflip types mismatch */
                      <HTMLFlipBook
                        width={pageWidth}
                        height={pageHeight}
@@ -294,7 +292,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
              className="pointer-events-auto w-full h-full max-w-[95vw] max-h-[90vh] flex items-center justify-center"
              style={{ aspectRatio: isMobile ? 'auto' : `${pageWidth * 2} / ${pageHeight}` }}
           >
-            {/* @ts-ignore */}
+            {/* @ts-expect-error react-pageflip types mismatch */}
             <HTMLFlipBook
               width={pageWidth}
               height={pageHeight}

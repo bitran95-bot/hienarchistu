@@ -57,9 +57,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.warn('⚠️ Webhook signature verification skipped (dev mode)');
       event = req.body as Stripe.Event;
     }
-  } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).json({ error: `Webhook Error: ${err.message}` });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Webhook signature verification failed:', message);
+    return res.status(400).json({ error: `Webhook Error: ${message}` });
   }
 
   // Xử lý event thanh toán thành công

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
@@ -13,6 +14,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
+const ServicesPage = lazy(() => import('./pages/ServicesPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 const LoadingFallback = () => (
@@ -61,6 +63,13 @@ function AnimatedRoutes() {
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
                 <ProjectsPage />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/services" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingFallback />}>
+                <ServicesPage />
               </Suspense>
             </ErrorBoundary>
           } />

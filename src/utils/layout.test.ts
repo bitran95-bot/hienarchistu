@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateProjectLayout } from './layout';
+import type { Project } from '../types';
 
 describe('calculateProjectLayout', () => {
   it('should return an empty array if projects is empty', () => {
@@ -12,7 +13,7 @@ describe('calculateProjectLayout', () => {
       { _id: '1', name: 'A' },
       { _id: '2', name: 'B' },
       { _id: '3', name: 'C' }
-    ] as any[];
+    ] as Project[];
 
     const result = calculateProjectLayout(mockProjects);
     

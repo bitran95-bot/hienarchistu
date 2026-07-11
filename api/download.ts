@@ -108,8 +108,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Redirect tới file thực tế
       return res.redirect(302, product.downloadUrl);
 
-    } catch (err: any) {
-      if (err.name === 'TokenExpiredError') {
+    } catch (err: unknown) {
+      if ((err as { name?: string })?.name === 'TokenExpiredError') {
         return res.status(410).json({
           error: 'expired',
           message: 'Link tải đã hết hạn (30 phút). Vui lòng liên hệ hỗ trợ.',
@@ -153,7 +153,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         expiresIn: '30 minutes',
       });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Session verification error:', err);
       return res.status(500).json({ error: 'Failed to verify payment session' });
     }

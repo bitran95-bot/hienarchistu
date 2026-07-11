@@ -1,6 +1,6 @@
 // ===== Translation type =====
 export interface Translations {
-  nav: { story: string; projects: string; library: string; contact: string };
+  nav: { story: string; services: string; projects: string; library: string; contact: string };
   loading: { text: string };
   contact: { close: string; phone: string; quote: string };
   contactForm: {
@@ -25,6 +25,24 @@ export interface Translations {
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
   projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string };
+  servicesPage: {
+    title: string;
+    subtitle: string;
+    step: string;
+    duration: string;
+    deliverable: string;
+    ctaTitle: string;
+    ctaDesc: string;
+    ctaButton: string;
+    exploreProjects: string;
+    steps: Array<{
+      id: string;
+      title: string;
+      duration: string;
+      details: Array<{ label: string; text: string }>;
+      deliverable: string;
+    }>;
+  };
 }
 
 // Vietnamese translations (default)
@@ -32,6 +50,7 @@ const vi: Translations = {
   // Navigation
   nav: {
     story: 'Câu chuyện',
+    services: 'Dịch Vụ',
     projects: 'Dự Án',
     library: 'Thư viện',
     contact: 'Liên Hệ',
@@ -129,6 +148,78 @@ const vi: Translations = {
     zoomIn: 'Phóng to',
     gallery: 'Thư viện ảnh',
     detailHeader: 'Chi tiết dự án',
+  },
+  servicesPage: {
+    title: 'QUY TRÌNH THIẾT KẾ KIẾN TRÚC & NỘI THẤT',
+    subtitle: 'Lộ trình chuyên nghiệp từng bước hiện thực hóa không gian sống của bạn.',
+    step: 'Giai đoạn',
+    duration: 'Thời gian',
+    deliverable: 'Sản phẩm bàn giao',
+    ctaTitle: 'Bạn đã sẵn sàng hiện thực hóa ngôi nhà trong mơ?',
+    ctaDesc: 'Hãy cùng chúng tôi bắt đầu câu chuyện kiến trúc cho riêng bạn.',
+    ctaButton: 'Liên hệ tư vấn ngay',
+    exploreProjects: 'Khám phá dự án thực tế',
+    steps: [
+      {
+        id: '01',
+        title: 'Tiếp Nhận & Khảo Sát hiện trạng',
+        duration: '1 - 3 ngày',
+        details: [
+          { label: 'Trao đổi', text: 'Gặp gỡ trực tiếp hoặc online để lắng nghe nhu cầu, sở thích, phân tích ngân sách đầu tư.' },
+          { label: 'Khảo sát', text: 'Đo đạc hiện trạng, kiểm tra cao độ, hướng nắng, hướng gió và chụp ảnh tư liệu khu đất/công trình.' }
+        ],
+        deliverable: 'Biên bản thu thập yêu cầu (Brief) và hồ sơ hiện trạng.'
+      },
+      {
+        id: '02',
+        title: 'Ý Tưởng Sơ Bộ (Concept Design)',
+        duration: '5 - 7 ngày',
+        details: [
+          { label: 'Mặt bằng', text: 'Thiết kế phương án phân chia không gian, giao thông và bố trí vật dụng (Layout 2D).' },
+          { label: 'Định hướng', text: 'Gợi ý phong cách thiết kế, chất liệu và tông màu chủ đạo thông qua ảnh minh họa (Moodboard).' }
+        ],
+        deliverable: 'Bản vẽ mặt bằng định vị công năng + Moodboard phong cách.'
+      },
+      {
+        id: '03',
+        title: 'Ký Kết Hợp Đồng Thiết Kế',
+        duration: '3 - 5 ngày',
+        details: [
+          { label: 'Thống nhất', text: 'Đôi bên chốt phương án mặt bằng sơ bộ và ký hợp đồng thiết kế chính thức.' },
+          { label: 'Tạm ứng', text: 'Khách hàng thanh toán chi phí thiết kế đợt 1 theo điều khoản hợp đồng.' }
+        ],
+        deliverable: 'Hợp đồng thiết kế kiến trúc/nội thất chính thức.'
+      },
+      {
+        id: '04',
+        title: 'Phối Cảnh 3D Chi Tiết',
+        duration: '10 - 15 ngày',
+        details: [
+          { label: 'Trực quan hóa', text: 'Dựng phối cảnh 3D giả lập không gian thực tế với đầy đủ ánh sáng, màu sắc và vật liệu chính xác.' },
+          { label: 'Hiệu chỉnh', text: 'Trao đổi và điều chỉnh chi tiết dựa trên phản hồi của khách hàng (giới hạn số lần sửa đổi theo hợp đồng).' }
+        ],
+        deliverable: 'Bộ ảnh render 3D chất lượng cao mọi góc nhìn của công trình.'
+      },
+      {
+        id: '05',
+        title: 'Triển Khai Hồ Sơ Kỹ Thuật (Bản Vẽ Kỹ Thuật)',
+        duration: '10 - 12 ngày',
+        details: [
+          { label: 'Chi tiết hóa', text: 'Khai triển bản vẽ thi công chi tiết (Kiến trúc, Kết cấu, Điện nước ME, Chi tiết nội thất, Trần - Tường - Sàn).' }
+        ],
+        deliverable: 'Bộ hồ sơ kỹ thuật thi công (bản cứng và bản mềm PDF) để thợ có thể đọc và xây dựng chính xác.'
+      },
+      {
+        id: '06',
+        title: 'Bàn Giao & Giám Sát Tác Giả',
+        duration: 'Dọc theo tiến độ thi công',
+        details: [
+          { label: 'Bàn giao', text: 'Quyết toán hợp đồng thiết kế, bàn giao đầy đủ file và bản vẽ có dấu mộc.' },
+          { label: 'Giám sát', text: 'Kiến trúc sư tham gia các buổi kiểm tra cốt lõi tại công trường (đổ bê tông, nghiệm thu thô, chọn mẫu vật liệu thực tế) để đảm bảo thi công đúng ý tưởng thiết kế.' }
+        ],
+        deliverable: 'Bộ hồ sơ bàn giao hoàn chỉnh & sự đồng hành kiểm tra tại công trường.'
+      }
+    ]
   },
 };
 

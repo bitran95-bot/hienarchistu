@@ -7,7 +7,7 @@ import type { Project } from '../../types';
 
 export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: { project: Partial<Project>; index?: number; isDarkMode?: boolean }) {
   // Load mô hình tạp chí từ thư mục public (thêm ?v=2 để tránh cache trình duyệt)
-  const { scene: originalScene } = useGLTF('/magazine.glb?v=3') as any;
+  const { scene: originalScene } = useGLTF('/magazine.glb?v=3') as { scene: THREE.Group };
   const scene = useMemo(() => clone(originalScene), [originalScene]);
   
   const image = project?.image;
@@ -97,17 +97,18 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
   }, [mappedTexture]);
 
   useMemo(() => {
-     scene.traverse((child: any) => {
-        if (child.isMesh) {
-           child.castShadow = true;
-           child.receiveShadow = true;
+     scene.traverse((child: THREE.Object3D) => {
+        if ((child as THREE.Mesh).isMesh) {
+           const mesh = child as THREE.Mesh;
+           mesh.castShadow = true;
+           mesh.receiveShadow = true;
            
-           if (child.material) {
-              const materials = Array.isArray(child.material) ? child.material : [child.material];
+           if (mesh.material) {
+              const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
               
-              const newMaterials = materials.map((mat: any) => {
+              const newMaterials = materials.map((mat: THREE.Material) => {
                  // Chỉ clone material lần đầu tiên để mỗi quyển sách có material độc lập
-                 const m = mat.userData.isCloned ? mat : mat.clone();
+                 const m = (mat.userData.isCloned ? mat : mat.clone()) as THREE.MeshStandardMaterial;
                  m.userData.isCloned = true;
 
                  // Gán ảnh bìa dự án vào vật liệu tên Coverfrontpage
@@ -131,7 +132,7 @@ export function FallbackPhotoFrame({ project, index = 0, isDarkMode = false }: {
                  return m;
               });
 
-              child.material = Array.isArray(child.material) ? newMaterials : newMaterials[0];
+              mesh.material = Array.isArray(mesh.material) ? newMaterials : newMaterials[0];
            }
         }
      });

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], scale = 1 }: { url: string, position?: [number, number, number], rotation?: [number, number, number], scale?: number }) => {
-  const { scene: originalScene } = useGLTF(url) as any;
+  const { scene: originalScene } = useGLTF(url) as { scene: THREE.Group };
   const scene = useMemo(() => clone(originalScene), [originalScene]);
 
   // Dùng useMemo tính toán các thông số offset dựa trên scene
@@ -19,13 +19,14 @@ export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], s
     scene.updateMatrixWorld(true);
 
     // Bật bóng đổ và thêm viền (edges)
-    scene.traverse((child: any) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+    scene.traverse((child: THREE.Object3D) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         
-        if (!child.userData.hasEdges) {
-          const edgesGeometry = new THREE.EdgesGeometry(child.geometry, 40); 
+        if (!mesh.userData.hasEdges) {
+          const edgesGeometry = new THREE.EdgesGeometry(mesh.geometry, 40); 
           const edgesMaterial = new THREE.LineBasicMaterial({ 
             color: 0x5c4a3d,
             linewidth: 1, 
@@ -33,8 +34,8 @@ export const SplineModel = ({ url, position = [0, 0, 0], rotation = [0, 0, 0], s
             opacity: 0.15
           });
           const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-          child.add(edges);
-          child.userData.hasEdges = true;
+          mesh.add(edges);
+          mesh.userData.hasEdges = true;
         }
       }
     });

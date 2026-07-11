@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
@@ -77,13 +77,13 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            setActiveProject(index);
            setModalOpen(true);
         }}
-        onPointerDown={(e: any) => {
+        onPointerDown={(e: ThreeEvent<PointerEvent>) => {
            // Trên mobile, không chặn sự kiện để người dùng lướt web bình thường
            if (isMobile) return;
            
            e.stopPropagation();
-           if (e.target.setPointerCapture) {
-             e.target.setPointerCapture(e.pointerId);
+           if (e.target && 'setPointerCapture' in e.target && typeof (e.target as Element).setPointerCapture === 'function') {
+             (e.target as Element).setPointerCapture(e.pointerId);
            }
            dragState.current.isDragging = true;
            dragState.current.startX = e.clientX;
@@ -91,7 +91,7 @@ export function InteractiveProject({ children, position, index }: InteractivePro
            dragState.current.hasDragged = false;
            document.body.style.cursor = 'grabbing';
         }}
-        onPointerMove={(e: any) => {
+        onPointerMove={(e: ThreeEvent<PointerEvent>) => {
            if (isMobile) return;
            if (dragState.current.isDragging) {
               e.stopPropagation();
@@ -124,11 +124,11 @@ export function InteractiveProject({ children, position, index }: InteractivePro
               }
            }
         }}
-        onPointerUp={(e: any) => {
+        onPointerUp={(e: ThreeEvent<PointerEvent>) => {
            if (isMobile) return;
            e.stopPropagation();
-           if (e.target.releasePointerCapture) {
-             e.target.releasePointerCapture(e.pointerId);
+           if (e.target && 'releasePointerCapture' in e.target && typeof (e.target as Element).releasePointerCapture === 'function') {
+             (e.target as Element).releasePointerCapture(e.pointerId);
            }
            dragState.current.isDragging = false;
            setDragRotY(0);

@@ -1,8 +1,9 @@
-import { urlFor } from '../sanityClient';
+import { urlFor, type SanityImageSource } from '../sanityClient';
 // Removed broken import
 
+export type { SanityImageSource };
 interface ResponsiveImageProps {
-  source: any | undefined | null;
+  source: SanityImageSource | undefined | null;
   /** Aspect ratio string like '3/2' or just a number like 1.5. If not provided, height is automatic based on original. */
   aspectRatio?: number;
   /** Comma separated sizes attribute for the img tag. e.g., "(max-width: 768px) 100vw, 50vw" */
@@ -57,7 +58,7 @@ export function getResponsiveImageProps({
       className,
       alt,
       loading,
-      style: source.lqip ? { backgroundImage: `url(${source.lqip})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined
+      style: typeof source === 'object' && source && 'lqip' in source && source.lqip ? { backgroundImage: `url(${String(source.lqip)})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined
     };
   } catch (error) {
     console.error('Failed to generate responsive image:', error);

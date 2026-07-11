@@ -53,8 +53,10 @@ export default function ProjectsPage() {
   const projectImages = useProjectImages(selectedProject);
 
   useEffect(() => {
-     setActiveImageIndex(0);
-     setNumPdfPages(null);
+    queueMicrotask(() => {
+      setActiveImageIndex(0);
+      setNumPdfPages(null);
+    });
   }, [selectedProject]);
 
   // Helper cho Youtube URL (shared utility)
@@ -225,7 +227,7 @@ export default function ProjectsPage() {
                     className="group flex items-center gap-5 py-5 cursor-pointer hover:bg-amber-50/50 px-2 rounded-xl transition-colors"
                     onClick={() => setSelectedProject(project)}
                   >
-                    <div className="shrink-0 w-24 h-18 aspect-[4/3] bg-stone-100 rounded-xl overflow-hidden">
+                    <div className="shrink-0 w-24 h-[72px] aspect-[4/3] bg-stone-100 rounded-xl overflow-hidden">
                       {imgProps ? <img {...imgProps} /> : <div className="w-full h-full bg-stone-200" />}
                     </div>
                     <div className="flex-1 min-w-0">

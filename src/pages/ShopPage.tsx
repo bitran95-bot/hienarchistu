@@ -280,7 +280,7 @@ export default function ShopPage() {
     { value: 'revit-template', label: t.shop.filterTemplate, icon: '📐' },
   ];
 
-  const fetchProducts = () => {
+  const fetchProducts = useCallback(() => {
     setLoading(true);
     setError(null);
     client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { 
@@ -304,11 +304,11 @@ export default function ShopPage() {
         setError(err instanceof Error ? err.message : 'Không thể tải sản phẩm');
         setLoading(false);
       });
-  };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   // Escape closes modal
   const handleEscape = useCallback(() => setSelectedProduct(null), []);

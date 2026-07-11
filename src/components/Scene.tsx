@@ -172,7 +172,7 @@ function SceneContents() {
          {gridLayout.length === 0 ? (
                 <InteractiveProject index={0} position={[0, 0, 0]}>
                    <Suspense fallback={<LoadingSpinner />}>
-                      <FallbackPhotoFrame project={{} as any} index={0} isDarkMode={isDarkMode} />
+                      <FallbackPhotoFrame project={{}} index={0} isDarkMode={isDarkMode} />
                    </Suspense>
                 </InteractiveProject>
          ) : (

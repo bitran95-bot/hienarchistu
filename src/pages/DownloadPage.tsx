@@ -18,29 +18,31 @@ export default function DownloadPage() {
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   useEffect(() => {
-    if (!sessionId) {
-      setState('error');
-      setErrorMsg(lang === 'vi' ? 'Không tìm thấy thông tin thanh toán.' : 'Payment information not found.');
-      return;
-    }
-
-    // Verify payment và lấy download link
-    fetch(`/api/download?session_id=${sessionId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.downloadUrl) {
-          setDownloadUrl(data.downloadUrl);
-          setProductName(data.productName || '');
-          setState('ready');
-        } else {
-          setState('error');
-          setErrorMsg(data.message || data.error || 'Unknown error');
-        }
-      })
-      .catch(() => {
+    queueMicrotask(() => {
+      if (!sessionId) {
         setState('error');
-        setErrorMsg(lang === 'vi' ? 'Không thể kết nối server.' : 'Could not connect to server.');
-      });
+        setErrorMsg(lang === 'vi' ? 'Không tìm thấy thông tin thanh toán.' : 'Payment information not found.');
+        return;
+      }
+
+      // Verify payment và lấy download link
+      fetch(`/api/download?session_id=${sessionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.downloadUrl) {
+            setDownloadUrl(data.downloadUrl);
+            setProductName(data.productName || '');
+            setState('ready');
+          } else {
+            setState('error');
+            setErrorMsg(data.message || data.error || 'Unknown error');
+          }
+        })
+        .catch(() => {
+          setState('error');
+          setErrorMsg(lang === 'vi' ? 'Không thể kết nối server.' : 'Could not connect to server.');
+        });
+    });
   }, [sessionId, lang]);
 
   const handleDownload = () => {

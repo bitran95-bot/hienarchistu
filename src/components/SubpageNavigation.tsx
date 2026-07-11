@@ -12,7 +12,7 @@ export function SubpageNavigation() {
 
   useEffect(() => {
     if (window.location.hash === '#contact') {
-      setContactOpen(true);
+      queueMicrotask(() => setContactOpen(true));
     }
   }, []);
 
@@ -39,8 +39,9 @@ export function SubpageNavigation() {
           </div>
           
           {/* Menu (Center - Desktop Only) */}
-          <nav className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3" aria-label="Main navigation">
-            <a href="/#about" className="hover:text-amber-700 transition-colors">{t.nav.story}</a>
+          <nav className="hidden md:flex items-center justify-center space-x-8 lg:space-x-10 text-sm font-medium text-[#444444] w-1/3" aria-label="Main navigation">
+            <Link to="/#about" className="hover:text-amber-700 transition-colors">{t.nav.story}</Link>
+            <Link to="/services" className={navLinkClass('/services')}>{t.nav.services}</Link>
             <Link to="/projects" className={navLinkClass('/projects')}>{t.nav.projects}</Link>
             <Link to="/shop" className={navLinkClass('/shop')}>{t.nav.library}</Link>
             <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
@@ -54,8 +55,9 @@ export function SubpageNavigation() {
       </header>
 
       {/* Floating Bottom Nav for Mobile */}
-      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-5 text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50" aria-label="Mobile navigation">
+      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md px-4 py-3 sm:px-6 sm:py-3.5 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.1)] flex items-center justify-center space-x-3 sm:space-x-4 text-[11px] sm:text-xs font-medium text-[#444444] z-50 pointer-events-auto border border-stone-200/50 max-w-[95vw] overflow-x-auto scrollbar-hide" aria-label="Mobile navigation">
         <Link to="/#about" className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.story}</Link>
+        <Link to="/services" className={`whitespace-nowrap ${navLinkClass('/services')}`}>{t.nav.services}</Link>
         <Link to="/projects" className={`whitespace-nowrap ${navLinkClass('/projects')}`}>{t.nav.projects}</Link>
         <Link to="/shop" className={`whitespace-nowrap ${navLinkClass('/shop')}`}>{t.nav.library}</Link>
         <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors whitespace-nowrap">{t.nav.contact}</button>

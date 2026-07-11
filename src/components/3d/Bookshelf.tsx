@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
@@ -13,8 +13,32 @@ export function Bookshelf() {
   });
   const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
 
+  // Configure wall & shelf textures without mutating useTexture cache
+  const configuredWallTextures = useMemo(() => {
+    const map = wallTextures.map.clone();
+    const roughnessMap = wallTextures.roughnessMap.clone();
+    const displacementMap = wallTextures.displacementMap.clone();
+    
+    [map, roughnessMap, displacementMap].forEach((texture) => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(8, 4);
+      texture.needsUpdate = true;
+    });
+    map.colorSpace = THREE.SRGBColorSpace;
+    return { map, roughnessMap, displacementMap };
+  }, [wallTextures]);
+
+  const configuredShelfTexture = useMemo(() => {
+    const tex = shelfTexture.clone();
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(8, 0.5);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.needsUpdate = true;
+    return tex;
+  }, [shelfTexture]);
+
   const shelfGeometry = useMemo(() => new THREE.BoxGeometry(80, 0.2, 2.5), []);
-  const shelfMaterial = useMemo(() => new THREE.MeshStandardMaterial({ map: shelfTexture, roughness: 0.8, color: 0xffffff }), [shelfTexture]);
+  const shelfMaterial = useMemo(() => new THREE.MeshStandardMaterial({ map: configuredShelfTexture, roughness: 0.8, color: 0xffffff }), [configuredShelfTexture]);
 
   // Tính số hàng kệ dựa trên grid layout (memoized để tránh tính lại mỗi render)
   const shelfRows = useMemo(() => {
@@ -23,27 +47,15 @@ export function Bookshelf() {
     return Math.max(1, totalRows);
   }, [projects]);
 
-  useEffect(() => {
-    Object.values(wallTextures).forEach((texture) => {
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(8, 4);
-    });
-    wallTextures.map.colorSpace = THREE.SRGBColorSpace;
-    
-    shelfTexture.wrapS = shelfTexture.wrapT = THREE.RepeatWrapping;
-    shelfTexture.repeat.set(8, 0.5);
-    shelfTexture.colorSpace = THREE.SRGBColorSpace;
-  }, [wallTextures, shelfTexture]);
-
   return (
     <group position={[10, 0, -2]}>
       {/* Bức tường trắng có texture thạch cao */}
       <mesh position={[0, 0, -3]} receiveShadow>
         <planeGeometry args={[100, 50]} />
         <meshStandardMaterial 
-          map={wallTextures.map}
-          roughnessMap={wallTextures.roughnessMap}
-          bumpMap={wallTextures.displacementMap}
+          map={configuredWallTextures.map}
+          roughnessMap={configuredWallTextures.roughnessMap}
+          bumpMap={configuredWallTextures.displacementMap}
           bumpScale={0.15}
           color="#ffffff"
         />

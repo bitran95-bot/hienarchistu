@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, memo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
@@ -237,10 +238,14 @@ export const MobileHome = memo(function MobileHome() {
             <span>Email</span>
             <span className="text-white/60 font-medium lowercase tracking-normal">{settings?.email || 'thaibao95arc@gmail.com'}</span>
           </a>
-          <a href="/shop" className="flex items-center justify-between py-2 border-b border-white/5">
+          <Link to="/services" className="flex items-center justify-between py-2 border-b border-white/5">
+            <span>Dịch vụ</span>
+            <span className="text-white/60 font-medium">Xem quy trình →</span>
+          </Link>
+          <Link to="/shop" className="flex items-center justify-between py-2 border-b border-white/5">
             <span>Thư viện</span>
             <span className="text-white/60 font-medium">Xem sản phẩm →</span>
-          </a>
+          </Link>
         </div>
         
         <div className="mt-16 text-[10px] font-semibold text-white/40 tracking-widest uppercase text-center">

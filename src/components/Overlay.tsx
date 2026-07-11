@@ -28,17 +28,17 @@ export const Overlay = memo(function Overlay() {
 
   // Track scroll để thêm glassmorphism header
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll: EventListener = () => {
       const scrollEl = document.querySelector('[data-scroll-container]') as HTMLElement || document.documentElement;
       setIsScrolled(scrollEl.scrollTop > 60 || window.scrollY > 60);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     // Lắng nghe cả scroll của R3F ScrollControls (dùng custom event)
     const scrollEl = document.querySelector('.overflow-auto, [style*="overflow"]');
-    scrollEl?.addEventListener('scroll', handleScroll, { passive: true } as any);
+    scrollEl?.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      scrollEl?.removeEventListener('scroll', handleScroll as any);
+      scrollEl?.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -118,8 +118,9 @@ export const Overlay = memo(function Overlay() {
       >
         <div className="w-1/3 hidden md:block">
         </div>
-        <div className="hidden md:flex items-center justify-center space-x-12 text-sm font-medium text-[#444444] w-1/3">
+        <div className="hidden md:flex items-center justify-center space-x-8 lg:space-x-10 text-sm font-medium text-[#444444] w-1/3">
           <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className={`hover:text-amber-700 transition-colors ${isAboutActive ? 'text-amber-700' : ''}`}>{t.nav.story}</button>
+          <Link to="/services" className="hover:text-amber-700 transition-colors">{t.nav.services}</Link>
           <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
           <Link to="/shop" className="hover:text-amber-700 transition-colors">{t.nav.library}</Link>
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>

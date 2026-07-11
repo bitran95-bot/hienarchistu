@@ -48,8 +48,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     return res.status(200).json({ url: session.url, sessionId: session.id });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Stripe checkout error:', err);
-    return res.status(500).json({ error: err.message || 'Failed to create checkout session' });
+    return res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to create checkout session' });
   }
 }
