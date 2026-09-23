@@ -98,6 +98,10 @@ export default function ProjectsPage() {
         <meta property="og:image" content={OG_IMAGE_URL} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={pageUrl('/projects')} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
+        <meta name="twitter:description" content={t.projectsPage.subtitle} />
+        <meta name="twitter:image" content={OG_IMAGE_URL} />
       </Helmet>
 
       <SubpageNavigation />

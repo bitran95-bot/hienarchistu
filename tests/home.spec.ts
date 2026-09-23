@@ -146,6 +146,20 @@ test('shop failure can be retried', async ({ page }) => {
   await expect(page.getByText('0 products', { exact: true })).toBeVisible();
 });
 
+test('share metadata stays unique across navigation', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Use the visible desktop navigation for this route check.');
+  await page.goto('/projects');
+  await expect(page.getByRole('heading', { name: 'Our Projects' })).toBeVisible();
+  await expect(page.locator('head link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute('href', 'https://hienarchistu.vercel.app/projects');
+  await expect(page.locator('head meta[property="og:url"]')).toHaveCount(1);
+  await page.getByRole('link', { name: 'Services', exact: true }).click();
+  await expect(page).toHaveURL(/\/services$/);
+  await expect(page.locator('head link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute('href', 'https://hienarchistu.vercel.app/services');
+  await expect(page.locator('head meta[property="og:url"]')).toHaveCount(1);
+});
+
 test('contact preserves failures and clears only a confirmed send', async ({ page }) => {
   let attempts = 0;
   await page.route('**/api/contact', route => {

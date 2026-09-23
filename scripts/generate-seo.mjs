@@ -20,7 +20,7 @@ const setMeta = (document, attribute, key, value) => {
     document.head.append(meta);
   }
   meta.setAttribute('content', value);
-  meta.setAttribute('data-rh', 'true');
+  meta.setAttribute('data-static-seo', '');
 };
 
 for (const [name, page] of Object.entries(site.pages)) {
@@ -30,7 +30,7 @@ for (const [name, page] of Object.entries(site.pages)) {
   const { document } = dom.window;
   document.documentElement.lang = 'vi';
   document.title = page.title;
-  document.head.querySelector('title')?.setAttribute('data-rh', 'true');
+  document.head.querySelector('title')?.setAttribute('data-static-seo', '');
 
   setMeta(document, 'name', 'description', page.description);
   setMeta(document, 'property', 'og:title', page.title);
@@ -53,7 +53,7 @@ for (const [name, page] of Object.entries(site.pages)) {
     const link = canonical || document.createElement('link');
     link.rel = 'canonical';
     link.href = url;
-    link.setAttribute('data-rh', 'true');
+    link.setAttribute('data-static-seo', '');
     if (!canonical) document.head.append(link);
   }
 

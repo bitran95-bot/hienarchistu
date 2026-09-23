@@ -84,6 +84,10 @@ function AnimatedRoutes() {
   )
 }
 
+// Keep generated metadata for crawlers and no-JS visitors, then hand ownership
+// to React Helmet for client-side navigation without duplicate canonical/OG tags.
+document.head.querySelectorAll('[data-static-seo]').forEach(element => element.remove());
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
