@@ -233,7 +233,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
          <div className="flex items-center gap-3 pointer-events-auto">
            {project._id && project.name && (
              <Link to={projectPath({ name: project.name, slug: project.slug })} className="rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-[#2a2a2a] hover:text-amber-800">
-               {t.caseStudy.fullPage}
+               {t.projectDetail.viewInProjects}
              </Link>
            )}
            <button onClick={onClose} aria-label="Close viewer" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl bg-white/50">

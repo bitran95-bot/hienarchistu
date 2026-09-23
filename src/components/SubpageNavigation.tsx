@@ -18,7 +18,7 @@ export function SubpageNavigation() {
 
   const navLinkClass = (path: string) =>
     `hover:text-amber-700 transition-colors relative ${
-      location.pathname === path
+      (location.pathname === path || (path === '/projects' && location.pathname.startsWith('/projects/')))
         ? 'text-amber-700 after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1.5px] after:bg-amber-700 after:rounded-full'
         : ''
     }`;

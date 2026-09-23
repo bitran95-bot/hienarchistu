@@ -1,18 +1,19 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { OG_IMAGE_URL, pageUrl } from '../config/site';
 
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
-import { projectPath } from '../utils/projectSlug';
+import { projectPath, projectSlug } from '../utils/projectSlug';
 import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { ProjectShareLink } from '../components/ProjectShareLink';
 import { RecoveryMessage } from '../components/ui/RecoveryMessage';
 import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
@@ -23,8 +24,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const { projects, isDataLoaded, fetchData, error } = useStore();
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const selectedProject = slug ? projects.find(project => projectSlug(project) === slug) || null : null;
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [numPdfPages, setNumPdfPages] = useState<number | null>(null);
@@ -37,12 +40,12 @@ export default function ProjectsPage() {
   const openProject = (project: Project, opener: HTMLElement) => {
     opener.focus();
     projectOpenerRef.current = opener;
-    setSelectedProject(project);
+    navigate(projectPath(project));
   };
   const closeProject = useCallback(() => {
-    setSelectedProject(null);
+    navigate('/projects', { replace: true });
     requestAnimationFrame(() => projectOpenerRef.current?.focus());
-  }, []);
+  }, [navigate]);
 
   // Back to top visibility
   useEffect(() => {
@@ -66,6 +69,12 @@ export default function ProjectsPage() {
 
   // Project images (shared hook)
   const projectImages = useProjectImages(selectedProject);
+  const metaTitle = `${selectedProject?.name || t.projectsPage.title} | Hiên Archi Studio`;
+  const metaDescription = selectedProject?.generalInfo?.replace(/\s+/g, ' ').trim().slice(0, 160) || t.projectsPage.subtitle;
+  const metaUrl = pageUrl(selectedProject ? projectPath(selectedProject) : '/projects');
+  const metaImage = projectImages[0]
+    ? getResponsiveImageProps({ source: projectImages[0], aspectRatio: 1200 / 630, baseWidth: 1200 })?.src || OG_IMAGE_URL
+    : OG_IMAGE_URL;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -85,25 +94,25 @@ export default function ProjectsPage() {
   // Handle escape key to close modal or fullscreen image
   const handleEscape = useCallback(() => {
     if (fullscreenImage) setFullscreenImage(null);
-    else closeProject();
-  }, [fullscreenImage, closeProject]);
+    else if (slug) closeProject();
+  }, [fullscreenImage, slug, closeProject]);
   useEscapeKey(handleEscape);
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] selection:bg-stone-300">
       <Helmet>
-        <title>{`${t.projectsPage.title} | Hiên Archi Studio`}</title>
-        <meta name="description" content={t.projectsPage.subtitle} />
-        <link rel="canonical" href={pageUrl('/projects')} />
-        <meta property="og:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
-        <meta property="og:description" content={t.projectsPage.subtitle} />
-        <meta property="og:image" content={OG_IMAGE_URL} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={pageUrl('/projects')} />
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={metaUrl} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={metaImage} />
+        <meta property="og:type" content={selectedProject ? 'article' : 'website'} />
+        <meta property="og:url" content={metaUrl} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
-        <meta name="twitter:description" content={t.projectsPage.subtitle} />
-        <meta name="twitter:image" content={OG_IMAGE_URL} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={metaImage} />
       </Helmet>
 
       <SubpageNavigation />
@@ -352,9 +361,7 @@ export default function ProjectsPage() {
                 <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                   {selectedProject.name}
                 </h2>
-                <Link to={projectPath(selectedProject)} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4">
-                  {t.caseStudy.fullPage}
-                </Link>
+                <ProjectShareLink key={projectPath(selectedProject)} project={selectedProject} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4" />
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">

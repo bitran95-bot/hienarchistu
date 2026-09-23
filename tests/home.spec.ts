@@ -37,16 +37,24 @@ test('projects load, search and open details', async ({ page }) => {
   await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
 });
 
-test('a project page can be opened, shared and reloaded directly', async ({ page }) => {
+test('a project link opens the shared project viewer and survives a reload', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/projects');
   await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
-  await page.getByRole('link', { name: 'View project page' }).click();
   await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
-  await expect(page.getByRole('heading', { name: 'Courtyard House', level: 1 })).toBeVisible();
-  await expect(page.getByText('A quiet courtyard for family life.')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Courtyard House' })).toBeVisible();
+  await page.getByRole('button', { name: 'Copy project link' }).click();
+  await expect(page.getByRole('button', { name: 'Link copied' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('https://hienarchistu.vercel.app/projects/courtyard-house');
   await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute('href', 'https://hienarchistu.vercel.app/projects/courtyard-house');
+  await page.goBack();
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(page.getByRole('dialog', { name: 'Courtyard House' })).toHaveCount(0);
+  await page.goto('/projects/courtyard-house');
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Courtyard House', level: 1 })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Courtyard House' })).toBeVisible();
+  await page.getByRole('dialog', { name: 'Courtyard House' }).getByRole('button', { name: 'Close' }).click();
+  await expect(page).toHaveURL(/\/projects$/);
 });
 
 test('mobile home offers clear portfolio and contact actions', async ({ page, isMobile }) => {
