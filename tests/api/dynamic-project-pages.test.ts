@@ -19,7 +19,11 @@ vi.mock('@sanity/image-url', () => ({
     },
   }),
 }));
-vi.mock('node:fs/promises', () => ({ readFile: vi.fn().mockResolvedValue('<!doctype html><html><head><title data-static-seo>Home</title><meta name="description" content="Home" data-static-seo><link rel="canonical" href="https://hienarchistu.vercel.app/" data-static-seo></head><body><noscript>Home</noscript><div id="root"></div><script src="/assets/index.js"></script></body></html>') }));
+vi.mock('node:fs/promises', () => ({
+  readFile: vi.fn().mockImplementation(async (path: string) => path.endsWith('site.config.json')
+    ? JSON.stringify({ url: 'https://hienarchistu.vercel.app', pages: { home: { path: '/' }, projects: { path: '/projects' }, services: { path: '/services' }, shop: { path: '/shop' }, download: { path: '/download', index: false } } })
+    : '<!doctype html><html><head><title data-static-seo>Home</title><meta name="description" content="Home" data-static-seo><link rel="canonical" href="https://hienarchistu.vercel.app/" data-static-seo></head><body><noscript>Home</noscript><div id="root"></div><script src="/assets/index.js"></script></body></html>'),
+}));
 
 const initial = { _id: 'one', name: 'Nhà Trên Đồi', generalInfo: 'Đà Lạt' };
 const future = { _id: 'two', name: 'New <Home>', slug: { current: 'new-home' }, generalInfo: 'New & published' };

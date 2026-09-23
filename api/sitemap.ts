@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { createClient } from '@sanity/client';
-import site from '../site.config.json';
 import { projectPagesQuery } from '../lib/contentQueries.js';
 import { projectPath, renderSitemap, type ProjectForPage } from '../lib/projectPages.js';
 
@@ -19,7 +20,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).send('Method not allowed');
   }
   try {
-    const projects = await client.fetch<ProjectForPage[]>(projectPagesQuery);
+    const [projects, siteText] = await Promise.all([
+      client.fetch<ProjectForPage[]>(projectPagesQuery),
+      readFile(join(process.cwd(), 'site.config.json'), 'utf8'),
+    ]);
+    const site = JSON.parse(siteText) as { url: string; pages: Record<string, { path: string; index?: boolean }> };
     const paths = Object.values(site.pages)
       .filter(page => !('index' in page) || page.index !== false)
       .map(page => page.path);

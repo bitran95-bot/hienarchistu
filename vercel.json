@@ -27,10 +27,11 @@
     },
     "api/project-page.ts": {
       "maxDuration": 10,
-      "includeFiles": "dist/index.html"
+      "includeFiles": "{dist/index.html,site.config.json}"
     },
     "api/sitemap.ts": {
-      "maxDuration": 10
+      "maxDuration": 10,
+      "includeFiles": "site.config.json"
     }
   }
 }

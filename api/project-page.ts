@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
-import site from '../site.config.json';
 import { projectPagesQuery } from '../lib/contentQueries.js';
 import { projectSlug, renderProjectHtml, type ProjectForPage } from '../lib/projectPages.js';
 
@@ -28,10 +27,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(404).send('Project not found');
   }
   try {
-    const [projects, template] = await Promise.all([
+    const [projects, template, siteText] = await Promise.all([
       client.fetch<ProjectForPage[]>(projectPagesQuery),
       readFile(templatePath, 'utf8'),
+      readFile(join(process.cwd(), 'site.config.json'), 'utf8'),
     ]);
+    const site = JSON.parse(siteText) as { url: string };
     const project = projects.find(item => projectSlug(item) === slug);
     if (!project) return res.status(404).send('Project not found');
     const source = project.image?.asset ? project.image
