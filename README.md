@@ -16,7 +16,7 @@ npm.cmd run dev
 
 Trên macOS/Linux dùng `npm` và `cp .env.example .env.local`. Nếu đã có `.env.local`, giữ nguyên và bổ sung các biến còn thiếu thay vì chép đè.
 
-Vite mặc định chạy tại http://localhost:5173. Frontend chỉ cần biến Sanity public; `.env.example` trỏ vào dataset hiện dùng của studio. Đổi project/dataset nếu cần môi trường riêng. Vite không tự chạy các route `/api/*`.
+Vite mặc định chạy tại http://localhost:5173. Frontend chỉ cần biến Sanity public; `.env.example` trỏ vào dataset hiện dùng của studio. Đổi project/dataset nếu cần môi trường riêng. Vite không tự chạy các route `/api/*`. Khi chạy local, trình duyệt đọc Sanity trực tiếp và origin local cần được cho phép trong Sanity. Trên Vercel, trang gọi `/api/public-content` cùng domain; Function đọc dataset public để Preview không cần thêm từng domain vào Sanity CORS.
 
 Nếu local báo không tải được dữ liệu, kiểm tra mạng và CORS origins trong Sanity project: origin phải khớp cả hostname lẫn cổng (ví dụ `http://localhost:5173` khác `http://127.0.0.1:4174`). Chỉ thêm origin dev/preview thực sự sử dụng; không cần bật allow credentials cho client public này. Không thêm Sanity API token vào frontend để xử lý CORS.
 

@@ -20,6 +20,9 @@
     },
     "api/create-checkout.ts": {
       "maxDuration": 10
+    },
+    "api/public-content.ts": {
+      "maxDuration": 10
     }
   }
 }

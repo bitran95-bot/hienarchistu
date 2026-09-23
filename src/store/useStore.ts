@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { client } from '../sanityClient';
+import { siteContentQuery } from '../../lib/contentQueries';
 import type { Project, SiteSettings } from '../types';
 import { withTimeout } from '../utils/request';
+import { fetchPublicContent } from '../utils/publicContent';
 
 interface AppState {
   projects: Project[];
@@ -36,29 +37,7 @@ export const useStore = create<AppState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const data = await withTimeout((signal) => client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
-        "projects": *[_type == "project"] | order(order asc) {
-          ...,
-          image {
-            ...,
-            "lqip": asset->metadata.lqip
-          },
-          gallery[] {
-            ...,
-            "lqip": asset->metadata.lqip
-          },
-          magazinePages[] {
-            ...,
-            images[] {
-               ...,
-               "lqip": asset->metadata.lqip
-            }
-          },
-          "modelFileUrl": modelFile.asset->url,
-          "pdfFileUrl": pdfFile.asset->url
-        },
-        "settings": *[_type == "siteSettings"][0]
-      }`, {}, { signal }));
+      const data = await withTimeout(signal => fetchPublicContent<{ projects: Project[]; settings: SiteSettings | null }>('site', siteContentQuery, signal));
       
       set({ 
         projects: data.projects || [], 
