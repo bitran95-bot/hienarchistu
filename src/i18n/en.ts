@@ -28,6 +28,7 @@ const en: Translations = {
     sending: 'Sending...',
     success: 'Message sent successfully! We will respond as soon as possible.',
     error: 'Something went wrong. Please try again or contact us by phone.',
+    rateLimited: 'Too many attempts. Please wait a few minutes or contact us by phone.',
   },
   scene: {
     loadingData: 'Loading data...',

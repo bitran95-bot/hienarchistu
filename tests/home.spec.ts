@@ -1,28 +1,97 @@
 import { test, expect } from '@playwright/test';
+import { installFixtures, siteData, sanityQuery } from './support/fixtures';
 
-test('has title and primary elements', async ({ page }) => {
+test.beforeEach(async ({ page }) => { await installFixtures(page); });
+
+test('home renders the appropriate experience for the device', async ({ page, isMobile }) => {
   await page.goto('/');
-
-  // Expect the title to contain HIÊN
   await expect(page).toHaveTitle(/Hiên/);
-
-  // Expect the 3D canvas to be rendered (it mounts into a div with id root)
-  const canvas = page.locator('canvas');
-  await expect(canvas).toBeVisible();
-
-  // Scroll to Projects to see if navigation events fire
-  await page.evaluate(() => {
-    window.dispatchEvent(new CustomEvent('scroll-to-projects'));
-  });
-
-  // Verify that the navigation buttons are rendered in the DOM
-  const nav = page.locator('nav').first();
-  await expect(nav).toBeAttached();
+  if (isMobile) {
+    await expect(page.getByRole('heading', { name: 'Hiên studio', level: 1 })).toBeVisible();
+    await expect(page.locator('canvas')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+  } else {
+    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.getByRole('status')).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await page.getByRole('link', { name: 'Projects', exact: true }).click();
+    await expect(page).toHaveURL(/\/projects$/);
+  }
 });
 
-test('projects page loads successfully', async ({ page }) => {
+test('projects load, search and open details', async ({ page }) => {
   await page.goto('/projects');
-  
-  // Projects page should have the grid
-  await expect(page.locator('h1')).toContainText('Dự Án');
+  await expect(page.getByRole('heading', { name: 'Our Projects' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+  await page.getByPlaceholder('Search projects...').fill('nonexistent');
+  await expect(page.getByRole('heading', { name: 'Courtyard House' })).toHaveCount(0);
+  await page.getByPlaceholder('Search projects...').fill('Courtyard');
+  await page.getByRole('heading', { name: 'Courtyard House' }).click();
+  await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
+});
+
+for (const path of ['/', '/projects']) {
+  test(`CMS failure can be retried on ${path}`, async ({ page, isMobile }) => {
+    let fail = true;
+    await page.route(sanityQuery, async route => {
+      await route.fulfill(fail
+        ? { status: 400, json: { error: { description: 'Test CMS unavailable' } } }
+        : { json: { result: siteData } });
+    });
+    await page.goto(path);
+    await expect(page.getByRole('alert')).toContainText('Content could not load');
+    fail = false;
+    await page.getByRole('button', { name: 'Try again' }).click();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    if (path === '/projects' || isMobile) {
+      await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+    } else {
+      await expect(page.locator('canvas')).toBeVisible();
+    }
+  });
+}
+
+test('a broken 3D asset offers a working 2D portfolio', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Mobile already uses the 2D layout.');
+  await page.route('**/LampModel/bankers_lamp.glb', route => route.abort());
+  await page.goto('/');
+  await expect(page.getByRole('alert')).toContainText('3D space could not load');
+  await page.getByRole('link', { name: 'View project list' }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+});
+
+test('shop failure can be retried', async ({ page }) => {
+  let fail = true;
+  await page.route(sanityQuery, route => route.fulfill(fail
+    ? { status: 400, json: { error: { description: 'Test CMS unavailable' } } }
+    : { json: { result: [] } }));
+  await page.goto('/shop');
+  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toBeVisible();
+  fail = false;
+  await page.getByRole('button', { name: /Thử lại/ }).click();
+  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toHaveCount(0);
+  await expect(page.getByText('0 products', { exact: true })).toBeVisible();
+});
+
+test('contact preserves failures and clears only a confirmed send', async ({ page }) => {
+  let attempts = 0;
+  await page.route('**/api/contact', route => {
+    attempts++;
+    return route.fulfill(attempts === 1
+      ? { status: 503, json: { success: false, error: 'contact_unavailable' } }
+      : { json: { success: true } });
+  });
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'Contact', exact: true }).filter({ visible: true }).click();
+  await page.getByLabel('Full name', { exact: true }).fill('Preview Test');
+  await page.getByLabel('Email', { exact: true }).fill('test@example.com');
+  await page.getByLabel('Message', { exact: true }).fill('Preview test only.');
+  await page.getByRole('button', { name: 'Send message', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Something went wrong');
+  await expect(page.getByLabel('Message', { exact: true })).toHaveValue('Preview test only.');
+  await page.getByRole('button', { name: 'Send message', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Message sent successfully');
+  await expect(page.getByLabel('Message', { exact: true })).toHaveValue('');
+  expect(attempts).toBe(2);
 });

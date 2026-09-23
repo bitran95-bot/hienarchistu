@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useCallback } from 'react';
 import { useTranslation } from '../../i18n';
 import { useStore } from '../../store/useStore';
+import { withTimeout } from '../../utils/request';
 
 interface ContactModalProps {
   /** 'centered' = homepage single-column | 'split' = subpage two-column with form */
@@ -20,35 +21,44 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
 
   // Form state (only used in 'split' variant)
   const [formState, setFormState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [rateLimited, setRateLimited] = useState(false);
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (formState === 'sending') return;
     setFormState('sending');
+    setRateLimited(false);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
 
     try {
-      const resp = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          message: formData.get('message'),
-        }),
+      const { resp, data } = await withTimeout(async (signal) => {
+        const resp = await fetch('/api/contact', {
+          method: 'POST',
+          signal,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.get('name'),
+            email: formData.get('email'),
+            message: formData.get('message'),
+          }),
+        });
+        const data: unknown = await resp.json();
+        return { resp, data };
       });
 
-      if (resp.ok) {
+      if (resp.ok && data && typeof data === 'object' && 'success' in data && data.success === true && !('mode' in data)) {
         setFormState('success');
         form.reset();
       } else {
+        setRateLimited(resp.status === 429);
         setFormState('error');
       }
     } catch {
       setFormState('error');
     }
-  }, []);
+  }, [formState]);
 
   const phone = settings?.phone || '033 877 7017';
   const phoneTel = phone.replace(/ /g, '');
@@ -150,17 +160,17 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
 
               <div>
                 <label htmlFor="contact-name" className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm.name}</label>
-                <input id="contact-name" name="name" required type="text" placeholder={t.contactForm.namePlaceholder} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
+                <input id="contact-name" name="name" required maxLength={100} disabled={formState === 'sending'} type="text" placeholder={t.contactForm.namePlaceholder} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
               </div>
 
               <div>
                 <label htmlFor="contact-email" className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm.email}</label>
-                <input id="contact-email" name="email" required type="email" placeholder={t.contactForm.emailPlaceholder} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
+                <input id="contact-email" name="email" required maxLength={254} disabled={formState === 'sending'} type="email" placeholder={t.contactForm.emailPlaceholder} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a]" />
               </div>
 
               <div>
                 <label htmlFor="contact-message" className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">{t.contactForm.message}</label>
-                <textarea id="contact-message" name="message" required placeholder={t.contactForm.messagePlaceholder} rows={4} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a] resize-none" />
+                <textarea id="contact-message" name="message" required maxLength={5000} disabled={formState === 'sending'} placeholder={t.contactForm.messagePlaceholder} rows={4} className="w-full bg-transparent border-b-2 border-stone-300 py-2 focus:border-amber-700 outline-none transition-colors text-[#2a2a2a] resize-none" />
               </div>
 
               {formState === 'success' && (
@@ -170,7 +180,7 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
               )}
               {formState === 'error' && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-                  ❌ {t.contactForm.error}
+                  ❌ {rateLimited ? t.contactForm.rateLimited : t.contactForm.error}
                 </div>
               )}
 

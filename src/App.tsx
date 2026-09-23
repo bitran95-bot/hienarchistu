@@ -4,6 +4,7 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
 import { useIsMobile } from './hooks';
+import { RecoveryMessage } from './components/ui/RecoveryMessage';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 // Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
@@ -13,7 +14,7 @@ const Overlay = lazy(() => import('./components/Overlay').then(module => ({ defa
 const MobileHome = lazy(() => import('./components/MobileHome').then(module => ({ default: module.MobileHome })));
 
 function App() {
-  const { fetchData, isDataLoaded, settings, projects } = useStore();
+  const { fetchData, isDataLoaded, settings, projects, error } = useStore();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -101,16 +102,17 @@ function App() {
         <Suspense fallback={<LoadingScreen started={false} />}>
           <MobileHome />
         </Suspense>
+      ) : error ? (
+        <RecoveryMessage fullScreen onRetry={() => void fetchData()} />
+      ) : !isDataLoaded ? (
+        <LoadingScreen started={false} />
       ) : (
         /* ━━━ DESKTOP: Trải nghiệm 3D kệ sách immersive ━━━ */
         <>
-          {/* Màn hình chờ */}
-          <LoadingScreen started={isDataLoaded} />
-          
           {/* Không gian 3D nền (Ban ngày sáng sủa) */}
-          <ErrorBoundary>
+          <ErrorBoundary fallback={<RecoveryMessage scene fullScreen />}>
           <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
-            <Suspense fallback={null}>
+            <Suspense fallback={<LoadingScreen started={false} />}>
               <DesktopCanvas />
             </Suspense>
           </div>

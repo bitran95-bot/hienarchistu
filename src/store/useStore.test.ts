@@ -1,14 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useStore } from './useStore';
+import { client } from '../sanityClient';
+const { fetchMock } = vi.hoisted(() => ({ fetchMock: vi.fn<(...args: unknown[]) => Promise<unknown>>() }));
 
 // Mock sanity client
 vi.mock('../sanityClient', () => {
   return {
     client: {
-      fetch: vi.fn().mockResolvedValue({
-        projects: [{ _id: '1', name: 'Project 1' }],
-        settings: { title: 'Test Settings' }
-      })
+      fetch: fetchMock,
     }
   };
 });
@@ -22,10 +21,49 @@ describe('useStore', () => {
       modalOpen: false,
       activeProject: 0,
       isDataLoaded: false,
+      isLoading: false,
       error: null,
       isDarkMode: false,
     });
     vi.clearAllMocks();
+    fetchMock.mockReset().mockResolvedValue({
+      projects: [{ _id: '1', name: 'Project 1' }], settings: { title: 'Test Settings' },
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+
+  it('exposes failure and recovers on explicit retry', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('Offline'));
+    await useStore.getState().fetchData();
+    expect(useStore.getState()).toMatchObject({ error: 'Offline', isLoading: false, isDataLoaded: false });
+    await useStore.getState().fetchData();
+    expect(useStore.getState()).toMatchObject({ error: null, isLoading: false, isDataLoaded: true });
+  });
+
+  it('deduplicates concurrent requests while loading', async () => {
+    const first = useStore.getState().fetchData();
+    const second = useStore.getState().fetchData();
+    await Promise.all([first, second]);
+    expect(client.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('times out a stalled request, aborts it, and ignores its late result after retry', async () => {
+    vi.useFakeTimers();
+    let resolveStalled!: (data: unknown) => void;
+    fetchMock.mockImplementationOnce(() => new Promise(resolve => { resolveStalled = resolve; }));
+    const stalled = useStore.getState().fetchData();
+    await vi.advanceTimersByTimeAsync(12_000);
+    await stalled;
+    expect(useStore.getState()).toMatchObject({ error: 'Request timed out', isLoading: false });
+    const options = fetchMock.mock.calls[0][2] as { signal: AbortSignal };
+    expect(options.signal.aborted).toBe(true);
+    await useStore.getState().fetchData();
+    resolveStalled({ projects: [], settings: null });
+    await Promise.resolve();
+    expect(useStore.getState().projects).toHaveLength(1);
+    expect(useStore.getState().error).toBeNull();
   });
 
   it('toggles dark mode correctly', () => {

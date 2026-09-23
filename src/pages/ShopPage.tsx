@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { withTimeout } from '../utils/request';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -271,6 +272,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [requestVersion, setRequestVersion] = useState(0);
   const [activeCategory, setActiveCategory] = useState<ProductCategory | 'all'>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -283,7 +285,12 @@ export default function ShopPage() {
   const fetchProducts = useCallback(() => {
     setLoading(true);
     setError(null);
-    client.fetch<Product[]>(`*[_type == "product"] | order(order asc) { 
+    setRequestVersion((version) => version + 1);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    withTimeout((signal) => client.fetch<Product[]>(`*[_type == "product"] | order(order asc) {
       ..., 
       "slug": slug,
       image {
@@ -294,21 +301,20 @@ export default function ShopPage() {
         ...,
         "lqip": asset->metadata.lqip
       }
-    }`)
+    }`, {}, { signal }))
       .then((data) => {
+        if (cancelled) return;
         setProducts(data || []);
         setLoading(false);
       })
       .catch((err) => {
+        if (cancelled) return;
         console.error('Failed to fetch products:', err);
         setError(err instanceof Error ? err.message : 'Không thể tải sản phẩm');
         setLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    return () => { cancelled = true; };
+  }, [requestVersion]);
 
   // Escape closes modal
   const handleEscape = useCallback(() => setSelectedProduct(null), []);
