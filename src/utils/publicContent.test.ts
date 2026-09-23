@@ -18,7 +18,7 @@ describe('public content transport', () => {
 
   it('uses the public Sanity client on localhost', async () => {
     vi.stubGlobal('location', { hostname: 'localhost' });
-    vi.mocked(client.fetch).mockResolvedValueOnce([]);
+    vi.mocked(client.fetch).mockResolvedValueOnce([] as never);
     await fetchPublicContent('products', 'product query', new AbortController().signal);
     expect(client.fetch).toHaveBeenCalledWith('product query', {}, expect.objectContaining({ signal: expect.any(AbortSignal) }));
   });
