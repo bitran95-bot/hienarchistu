@@ -8,7 +8,6 @@ export function Bookshelf() {
   const { projects } = useStore();
   const wallTextures = useTexture({
     map: '/textures/beige_wall_001_diff_2k.jpg',
-    displacementMap: '/textures/beige_wall_001_disp_2k.png',
     roughnessMap: '/textures/beige_wall_001_rough_2k.jpg',
   });
   const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
@@ -17,15 +16,14 @@ export function Bookshelf() {
   const configuredWallTextures = useMemo(() => {
     const map = wallTextures.map.clone();
     const roughnessMap = wallTextures.roughnessMap.clone();
-    const displacementMap = wallTextures.displacementMap.clone();
     
-    [map, roughnessMap, displacementMap].forEach((texture) => {
+    [map, roughnessMap].forEach((texture) => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(8, 4);
       texture.needsUpdate = true;
     });
     map.colorSpace = THREE.SRGBColorSpace;
-    return { map, roughnessMap, displacementMap };
+    return { map, roughnessMap };
   }, [wallTextures]);
 
   const configuredShelfTexture = useMemo(() => {
@@ -55,7 +53,7 @@ export function Bookshelf() {
         <meshStandardMaterial 
           map={configuredWallTextures.map}
           roughnessMap={configuredWallTextures.roughnessMap}
-          bumpMap={configuredWallTextures.displacementMap}
+          bumpMap={configuredWallTextures.roughnessMap}
           bumpScale={0.15}
           color="#ffffff"
         />

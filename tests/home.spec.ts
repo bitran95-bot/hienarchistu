@@ -4,6 +4,12 @@ import { installFixtures, siteData, sanityQuery } from './support/fixtures';
 test.beforeEach(async ({ page }) => { await installFixtures(page); });
 
 test('home renders the appropriate experience for the device', async ({ page, isMobile }) => {
+  const displacementRequests: string[] = [];
+  page.on('request', request => {
+    if (request.url().includes('/textures/beige_wall_001_disp_2k.png')) {
+      displacementRequests.push(request.url());
+    }
+  });
   await page.goto('/');
   await expect(page).toHaveTitle(/Hiên/);
   if (isMobile) {
@@ -17,6 +23,7 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
   }
+  expect(displacementRequests).toEqual([]);
 });
 
 test('projects load, search and open details', async ({ page }) => {
