@@ -24,7 +24,7 @@ Nếu local báo không tải được dữ liệu, kiểm tra mạng và CORS o
 
 ```powershell
 npm.cmd run check
-# lint → unit/API tests → frontend + API typecheck → production build → bundle check
+# lint → unit/API tests → frontend + API typecheck → production build → bundle + SEO checks
 
 npx.cmd playwright install chromium
 npm.cmd run test:e2e
@@ -37,6 +37,10 @@ Playwright tự khởi động Vite trên http://127.0.0.1:4173, không dùng l�
 `npm run typecheck:api` dùng `tsconfig.api.json` strict và đã được đưa vào `npm run build`. Build xanh vì vậy bao phủ cả kiểu API. Unit tests cho API nằm trong `tests/api/`, dùng Node và mock dịch vụ ngoài. File React/helper/store tests nằm trong `src/`.
 
 Workflow `.github/workflows/ci.yml` chạy các kiểm tra này khi mở PR hoặc push `master`. Bước bundle check kiểm tra entry trang chủ và bảo đảm 3D/PDF không bị preload hoặc tải trước qua PWA. Không yêu cầu secret cho CI.
+
+## Domain và metadata tìm kiếm
+
+`site.config.json` khai báo domain production và các trang được đưa vào sitemap. Build tạo HTML metadata riêng cho `/`, `/projects`, `/services`, `/shop`; trang `/download` có `noindex` và không nằm trong sitemap. `robots.txt` và `sitemap.xml` cũng được tạo từ cùng cấu hình. Khi đổi domain chính thức, cập nhật `site.config.json`, build và kiểm tra lại Preview trước khi đưa lên production. Các trang dự án riêng và render nội dung CMS sẵn vẫn thuộc bước tiếp theo của giai đoạn SEO.
 
 ## Chạy API local hoặc trên Vercel Preview
 

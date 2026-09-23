@@ -1,6 +1,10 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/projects", "destination": "/projects.html" },
+    { "source": "/services", "destination": "/services.html" },
+    { "source": "/shop", "destination": "/shop.html" },
+    { "source": "/download", "destination": "/download.html" },
     { "source": "/((?!assets|favicon|magazine|sitemap|robots|api).*)", "destination": "/index.html" }
   ],
   "functions": {

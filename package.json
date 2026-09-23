@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && vite build",
+    "build": "npm run typecheck && vite build && node scripts/generate-seo.mjs",
     "typecheck": "tsc -b && npm run typecheck:api",
     "typecheck:api": "tsc -p tsconfig.api.json",
     "lint": "eslint .",
@@ -14,7 +14,8 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "check": "npm run lint && npm run test && npm run build && npm run check:bundle"
+    "check:seo": "node scripts/check-seo.mjs",
+    "check": "npm run lint && npm run test && npm run build && npm run check:bundle && npm run check:seo"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

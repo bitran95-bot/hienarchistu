@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { OG_IMAGE_URL, pageUrl } from '../config/site';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n';
 import { SubpageNavigation } from '../components/SubpageNavigation';
@@ -108,9 +109,12 @@ export default function ServicesPage() {
       <Helmet>
         <title>{`${t.servicesPage.title} | Hiên Archi Studio`}</title>
         <meta name="description" content={t.servicesPage.subtitle} />
+        <link rel="canonical" href={pageUrl('/services')} />
         <meta property="og:title" content={`${t.servicesPage.title} | Hiên Archi Studio`} />
         <meta property="og:description" content={t.servicesPage.subtitle} />
+        <meta property="og:image" content={OG_IMAGE_URL} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={pageUrl('/services')} />
       </Helmet>
 
       <SubpageNavigation />
