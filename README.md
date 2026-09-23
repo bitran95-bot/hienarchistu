@@ -24,7 +24,7 @@ Nếu local báo không tải được dữ liệu, kiểm tra mạng và CORS o
 
 ```powershell
 npm.cmd run check
-# lint → unit/API tests → frontend + API typecheck → production build
+# lint → unit/API tests → frontend + API typecheck → production build → bundle check
 
 npx.cmd playwright install chromium
 npm.cmd run test:e2e
@@ -36,7 +36,7 @@ Playwright tự khởi động Vite trên http://127.0.0.1:4173, không dùng l�
 
 `npm run typecheck:api` dùng `tsconfig.api.json` strict và đã được đưa vào `npm run build`. Build xanh vì vậy bao phủ cả kiểu API. Unit tests cho API nằm trong `tests/api/`, dùng Node và mock dịch vụ ngoài. File React/helper/store tests nằm trong `src/`.
 
-Workflow `.github/workflows/ci.yml` chạy các kiểm tra này khi mở PR hoặc push `master`. Workflow chưa chạy trên GitHub cho đến khi nhánh được push. Không yêu cầu secret cho CI.
+Workflow `.github/workflows/ci.yml` chạy các kiểm tra này khi mở PR hoặc push `master`. Bước bundle check kiểm tra entry trang chủ và bảo đảm 3D/PDF không bị preload hoặc tải trước qua PWA. Không yêu cầu secret cho CI.
 
 ## Chạy API local hoặc trên Vercel Preview
 
@@ -77,11 +77,11 @@ Giữ scope Development, Preview và Production tách biệt. Muốn kiểm th�
 
 Sanity có giới hạn chờ 12 giây; request trùng đang chạy được gộp bằng trạng thái loading. Khi lỗi, trang chủ và trang dự án hiện nút thử lại. Kết quả trễ của request timeout không ghi đè kết quả mới.
 
-Loader dùng React thuần; tiến độ Three.js chỉ nằm trong component desktop. Tải 3D quá 20 giây hoặc model/WebGL lỗi sẽ có đường dẫn sang danh sách dự án 2D. Tối ưu toàn bộ vendor chunks, texture và PWA thuộc giai đoạn 2.
+Loader dùng React thuần; tiến độ Three.js chỉ nằm trong component desktop. Tải 3D quá 20 giây hoặc model/WebGL lỗi sẽ có đường dẫn sang danh sách dự án 2D. Giai đoạn 2 đã tách 3D/PDF khỏi entry và PWA precache; texture 3D vẫn cần tối ưu và đo trên thiết bị thật.
 
 ## Stripe và phạm vi giai đoạn 1
 
-API đã được đồng bộ sang `2026-05-27.dahlia`, khớp kiểu của Stripe SDK đang khóa trong lockfile. Đây là thay đổi API version từ `2025-04-30.basil`: cần kiểm thử checkout/download/webhook trong Stripe test mode và đối chiếu version của webhook endpoint trước khi đưa production. Không có giao dịch thật được chạy trong bộ test hiện tại.
+API đã được đồng bộ sang `2026-05-27.dahlia`, khớp kiểu của Stripe SDK đang khóa trong lockfile. Đây là thay đổi API version từ `2025-04-30.basil`. Vercel project hiện chưa có khóa Stripe; cần kiểm thử checkout/download/webhook trong Stripe test mode và đối chiếu version webhook endpoint trước khi cấu hình thanh toán production hoặc mở bán. Không có giao dịch thật được chạy trong bộ test hiện tại.
 
 Giai đoạn 1 chưa làm lại thương mại điện tử. Các vấn đề đã ghi trong `WEBSITE_REVIEW.md` về giá do client gửi, dữ liệu URL tải, token dùng một lần và raw webhook vẫn cần xử lý trước khi bán sản phẩm trả phí. Typecheck đạt không phải xác nhận luồng thanh toán sẵn sàng production.
 
@@ -91,11 +91,11 @@ Tham khảo: [Stripe API versioning](https://docs.stripe.com/api/versioning), [R
 
 `hienarch/` có package riêng. Chạy `npm install` và `npm run dev` trong thư mục đó khi cần làm nội dung/schema. Root `npm ci` và CI frontend không cài/build Studio. Dùng đúng project/dataset và tài khoản có quyền trong Sanity; test frontend không sửa dữ liệu CMS.
 
-## Nghiệm thu trước khi cập nhật production
+## Nghiệm thu cho các bản cập nhật tiếp theo
 
 1. Chạy `npm run check` và `npm run test:e2e`.
 2. Xem Preview trên desktop/mobile: tải dự án, thử lại khi offline, fallback 3D, form báo lỗi có giữ dữ liệu.
-3. Đối chiếu biến môi trường đúng scope; cấu hình sender Resend và Upstash cho deployment.
+3. Đối chiếu biến môi trường đúng scope; cấu hình sender Resend và Upstash trước khi kỳ vọng form gửi email thật.
 4. Khi được phép gửi test, gửi tới hộp thư test đã chọn và xác minh cả trạng thái gửi lẫn email nhận.
 5. Kiểm thử Stripe test mode cho API version đã đổi; các lỗ hổng thương mại còn lại phải được xử lý trước khi mở bán.
 6. Chỉ promote/deploy production sau khi bản Preview được nghiệm thu.

@@ -7,6 +7,7 @@ const en: Translations = {
     projects: 'Projects',
     library: 'Library',
     contact: 'Contact',
+    backToTop: 'Back to top',
   },
   loading: {
     text: 'Loading space...',
@@ -15,6 +16,21 @@ const en: Translations = {
     close: 'Close',
     phone: 'Phone',
     quote: '"Every project is a story. Let\'s write your architectural story together."',
+    headlineTop: "Let's",
+    headlineBottom: 'Talk.',
+  },
+  mobile: {
+    introFallback: 'Hiên is a small architecture studio. We work with people and the local climate to create calm, honest places to live.',
+    architect: 'M.Arch. Tran Thai Bao',
+    viewProjects: 'View projects',
+    scroll: 'Scroll',
+    portfolioBy: 'Portfolio by',
+    basedIn: 'Based in',
+    noProjects: 'No projects yet.',
+    noImage: 'No image',
+    viewProcess: 'View our process',
+    viewProducts: 'View products',
+    rights: 'All rights reserved.',
   },
   contactForm: {
     title: 'Send a message',
@@ -71,6 +87,9 @@ const en: Translations = {
     previewImages: 'Preview images',
     fileFormat: 'Format',
     compatibility: 'Compatibility',
+    loadError: 'Could not load products',
+    loadErrorText: 'Please try again in a few minutes.',
+    retry: 'Try again',
     backHomeFooter: '← Back to home',
     footerCopy: (year: number) => `© ${year} Hiên Archi Studio. Crafted with ❤️`,
   },
@@ -110,6 +129,7 @@ const en: Translations = {
       {
         id: '01',
         title: 'Reception & Site Survey',
+        summary: 'We begin by listening to your needs, surveying the site and reviewing the project budget.',
         duration: '1 - 3 days',
         details: [
           { label: 'Discussion', text: 'Meet in person or online to listen to your needs, preferences, and analyze the investment budget.' },
@@ -120,6 +140,7 @@ const en: Translations = {
       {
         id: '02',
         title: 'Concept Design',
+        summary: 'We turn early ideas into a 2D layout and a moodboard for the architectural direction.',
         duration: '5 - 7 days',
         details: [
           { label: 'Layout 2D', text: 'Design space division, circulation, and furniture arrangement options.' },
@@ -130,6 +151,7 @@ const en: Translations = {
       {
         id: '03',
         title: 'Design Contract Signing',
+        summary: 'We agree on the initial design, scope and fee, then sign the design contract.',
         duration: '3 - 5 days',
         details: [
           { label: 'Agreement', text: 'Both parties finalize the preliminary layout and sign the official design contract.' },
@@ -140,6 +162,7 @@ const en: Translations = {
       {
         id: '04',
         title: 'Detailed 3D Rendering',
+        summary: 'We visualize the spaces in 3D with realistic light, colors and materials.',
         duration: '10 - 15 days',
         details: [
           { label: 'Visualization', text: 'Create realistic 3D perspectives with accurate lighting, colors, and materials.' },
@@ -150,6 +173,7 @@ const en: Translations = {
       {
         id: '05',
         title: 'Technical Construction Drawings',
+        summary: 'We develop the technical details, material choices and construction drawing package.',
         duration: '10 - 12 days',
         details: [
           { label: 'Detailing', text: 'Develop detailed construction drawings (Architecture, Structure, MEP, Interior details, Ceiling - Wall - Floor).' }
@@ -159,6 +183,7 @@ const en: Translations = {
       {
         id: '06',
         title: 'Handover & Author Supervision',
+        summary: 'We hand over the drawings and check key construction stages against the design.',
         duration: 'Throughout construction',
         details: [
           { label: 'Handover', text: 'Finalize design contract, hand over full stamped drawings and digital files.' },

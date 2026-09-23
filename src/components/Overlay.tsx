@@ -8,7 +8,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Overlay = memo(function Overlay() {
   const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
@@ -16,6 +16,7 @@ export const Overlay = memo(function Overlay() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAboutActive, setIsAboutActive] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // Track about section visibility from R3F scroll position
   useEffect(() => {
@@ -71,7 +72,7 @@ export const Overlay = memo(function Overlay() {
     if (modalOpen && actualProjects[activeProject]) {
       const slug = actualProjects[activeProject].name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
       window.history.replaceState(null, '', `#${slug}`);
-    } else if (!modalOpen && window.location.hash) {
+    } else if (!modalOpen && window.location.hash && !['#about', '#contact'].includes(window.location.hash)) {
       window.history.replaceState(null, '', window.location.pathname);
     }
   }, [modalOpen, activeProject, actualProjects]);
@@ -119,7 +120,7 @@ export const Overlay = memo(function Overlay() {
         <div className="w-1/3 hidden md:block">
         </div>
         <div className="hidden md:flex items-center justify-center space-x-8 lg:space-x-10 text-sm font-medium text-[#444444] w-1/3">
-          <button onClick={() => window.dispatchEvent(new CustomEvent('scroll-to-about'))} className={`hover:text-amber-700 transition-colors ${isAboutActive ? 'text-amber-700' : ''}`}>{t.nav.story}</button>
+          <button onClick={() => { navigate('/#about'); window.dispatchEvent(new CustomEvent('scroll-to-about')); }} className={`hover:text-amber-700 transition-colors ${isAboutActive ? 'text-amber-700' : ''}`}>{t.nav.story}</button>
           <Link to="/services" className="hover:text-amber-700 transition-colors">{t.nav.services}</Link>
           <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
           <Link to="/shop" className="hover:text-amber-700 transition-colors">{t.nav.library}</Link>

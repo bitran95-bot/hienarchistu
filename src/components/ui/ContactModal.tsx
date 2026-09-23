@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n';
 import { useStore } from '../../store/useStore';
 import { withTimeout } from '../../utils/request';
@@ -18,6 +18,47 @@ interface ContactModalProps {
 export function ContactModal({ variant = 'centered', onClose }: ContactModalProps) {
   const { t } = useTranslation();
   const { settings } = useStore();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialog) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true);
+      previousFocus?.focus();
+    };
+  }, []);
 
   // Form state (only used in 'split' variant)
   const [formState, setFormState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -73,6 +114,8 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
 
   return (
     <motion.div
+      ref={dialogRef}
+      tabIndex={-1}
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
@@ -87,6 +130,7 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
       <div className="flex justify-between items-center p-6 md:p-12 w-full">
         <div className="text-2xl md:text-3xl font-heading font-bold tracking-tighter text-[#2a2a2a]">HIÊN studio</div>
         <button
+          ref={closeButtonRef}
           onClick={onClose}
           className="text-2xl font-medium hover:text-amber-700 transition-colors flex items-center gap-2 md:gap-3 group"
           aria-label={t.contact.close}
@@ -109,7 +153,7 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-6xl md:text-8xl font-heading font-bold leading-[0.9] text-[#2a2a2a] uppercase tracking-tighter"
           >
-            Let's<br />Talk.
+            {t.contact.headlineTop}<br />{t.contact.headlineBottom}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}

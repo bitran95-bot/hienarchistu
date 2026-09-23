@@ -11,15 +11,10 @@ export function MobileNav({ onContactClick }: MobileNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleStoryClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleStoryClick = () => {
+    navigate('/#about');
     if (location.pathname === '/') {
       window.dispatchEvent(new CustomEvent('scroll-to-about'));
-    } else {
-      navigate('/#about');
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('scroll-to-about'));
-      }, 100);
     }
   };
 

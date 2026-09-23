@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, memo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
@@ -8,6 +8,7 @@ import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useEscapeKey, useProjectImages } from '../hooks';
 import { ContactModal } from './ui/ContactModal';
 import { RecoveryMessage } from './ui/RecoveryMessage';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
@@ -21,14 +22,26 @@ export const MobileHome = memo(function MobileHome() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const { hash } = useLocation();
+  const projectOpenerRef = useRef<HTMLElement | null>(null);
+
+  const openProject = (project: Project, opener: HTMLElement) => {
+    opener.focus();
+    projectOpenerRef.current = opener;
+    setSelectedProject(project);
+  };
+  const closeProject = useCallback(() => {
+    setSelectedProject(null);
+    requestAnimationFrame(() => projectOpenerRef.current?.focus());
+  }, []);
 
   // Handle escape key — close modals in order of depth
   const handleEscape = useCallback(() => {
     if (fullscreenImage) setFullscreenImage(null);
-    else if (selectedProject) setSelectedProject(null);
+    else if (selectedProject) closeProject();
     else if (contactOpen) setContactOpen(false);
-  }, [fullscreenImage, selectedProject, contactOpen]);
+  }, [fullscreenImage, selectedProject, contactOpen, closeProject]);
   useEscapeKey(handleEscape);
 
   // Reset image index when project changes
@@ -36,9 +49,15 @@ export const MobileHome = memo(function MobileHome() {
     setActiveImageIndex(0);
   }, [selectedProject]);
 
+  useEffect(() => {
+    if (hash !== '#about') return;
+    const frame = requestAnimationFrame(() => document.getElementById('about')?.scrollIntoView());
+    return () => cancelAnimationFrame(frame);
+  }, [hash]);
+
   const scrollToSection = useCallback((id: string) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, []);
 
   // Project images for detail view (shared hook)
@@ -48,8 +67,9 @@ export const MobileHome = memo(function MobileHome() {
 
   const currentDate = new Date();
   const day = currentDate.getDate().toString().padStart(2, '0');
-  const month = currentDate.toLocaleString('en-US', { month: 'long' });
+  const month = currentDate.toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US', { month: 'long' });
   const year = currentDate.getFullYear();
+  const intro = lang === 'vi' ? settings?.heroDescription || t.mobile.introFallback : t.mobile.introFallback;
 
   return (
     <div className="min-h-screen bg-[#f1efe7] text-[#1a1a1a] overflow-x-hidden selection:bg-[#d8d3c5] font-sans">
@@ -71,11 +91,12 @@ export const MobileHome = memo(function MobileHome() {
               {year}
             </span>
           </div>
-          <button onClick={() => setContactOpen(true)} className="p-2 -mr-2 outline-none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-[#1a1a1a]">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <button onClick={() => setContactOpen(true)} className="text-xs font-bold uppercase tracking-wider border-b border-[#1a1a1a] pb-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700">
+              {t.nav.contact} <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </motion.div>
 
         {/* Main Title */}
@@ -101,16 +122,24 @@ export const MobileHome = memo(function MobileHome() {
           transition={{ duration: 1, delay: 0.5 }}
           className="mb-12 flex-grow flex flex-col items-start"
         >
-          <div className="w-[85%] max-w-[320px]">
+          <div id="about" className="w-[85%] max-w-[320px] scroll-mt-12">
             <p 
               className="text-[14px] font-medium leading-[1.7] text-[#1a1a1a]/90 text-justify"
               style={{ textWrap: 'pretty' }}
             >
-              '{settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên."}'
+              '{intro}'
             </p>
             <p className="text-[13px] font-bold mt-6 tracking-wide text-left">
-              ThS KTS. Trần Thái Bảo
+              {t.mobile.architect}
             </p>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button onClick={() => scrollToSection('mobile-projects')} className="rounded-full bg-[#1a1a1a] px-5 py-3 text-xs font-bold text-[#f1efe7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700">
+              {t.mobile.viewProjects} <span aria-hidden="true">↗</span>
+            </button>
+            <button onClick={() => setContactOpen(true)} className="rounded-full border border-[#1a1a1a] px-5 py-3 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700">
+              {t.nav.contact}
+            </button>
           </div>
         </motion.div>
 
@@ -127,7 +156,7 @@ export const MobileHome = memo(function MobileHome() {
               onClick={() => scrollToSection('mobile-projects')}
               className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-left hover:opacity-70 transition-opacity"
             >
-              portfolio by<br/>
+              {t.mobile.portfolioBy}<br/>
               <span className="text-[11px] font-bold text-[#1a1a1a] underline decoration-[#1a1a1a]/30 underline-offset-2">Hiên Studio</span>
             </button>
             <a 
@@ -136,7 +165,7 @@ export const MobileHome = memo(function MobileHome() {
               rel="noopener noreferrer"
               className="text-[10px] font-semibold text-[#1a1a1a]/60 leading-tight uppercase tracking-wider text-right hover:opacity-70 transition-opacity"
             >
-              based in<br/>
+              {t.mobile.basedIn}<br/>
               <span className="text-[11px] font-bold text-[#1a1a1a] underline decoration-[#1a1a1a]/30 underline-offset-2">Vietnam</span>
             </a>
           </div>
@@ -150,7 +179,7 @@ export const MobileHome = memo(function MobileHome() {
            className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
            <button onClick={() => scrollToSection('mobile-projects')} className="flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity">
-              <span className="text-[9px] uppercase tracking-[0.2em] font-bold mb-2">Cuộn</span>
+              <span className="text-[9px] uppercase tracking-[0.2em] font-bold mb-2">{t.mobile.scroll}</span>
               <div className="w-[1px] h-8 bg-[#1a1a1a] origin-top animate-pulse" />
            </button>
         </motion.div>
@@ -159,7 +188,7 @@ export const MobileHome = memo(function MobileHome() {
       {/* ━━━ PROJECTS SECTION ━━━ */}
       <section id="mobile-projects" className="px-8 py-20 bg-[#ebe6db]">
         <div className="mb-16 flex items-center">
-          <h2 className="text-[32px] font-black tracking-tight uppercase">Dự án</h2>
+          <h2 className="text-[32px] font-black tracking-tight uppercase">{t.nav.projects}</h2>
           <div className="w-full h-[1.5px] bg-[#1a1a1a] ml-6 opacity-20" />
         </div>
 
@@ -174,7 +203,7 @@ export const MobileHome = memo(function MobileHome() {
             ))}
           </div>
         ) : projects.length === 0 ? (
-          <p className="text-[#1a1a1a]/50 text-sm font-medium">Chưa có dự án nào.</p>
+          <p className="text-[#1a1a1a]/50 text-sm font-medium">{t.mobile.noProjects}</p>
         ) : (
           <div className="grid grid-cols-3 gap-3">
             {projects.map((project, idx) => {
@@ -195,15 +224,24 @@ export const MobileHome = memo(function MobileHome() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.5, ease: "easeOut", delay: (idx % 3) * 0.1 }}
-                  className="group cursor-pointer flex flex-col"
-                  onClick={() => setSelectedProject(project)}
+                  className="group cursor-pointer flex flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t.projectDetail.viewDetail}: ${project.name}`}
+                  onClick={(event) => openProject(project, event.currentTarget)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      openProject(project, event.currentTarget);
+                    }
+                  }}
                 >
                   <div className="relative aspect-[4/5] bg-[#e0dbd0] mb-2 overflow-hidden">
                     {imgProps ? (
                       <img {...imgProps} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]/30 text-[10px] font-medium">
-                        Không có ảnh
+                        {t.mobile.noImage}
                       </div>
                     )}
                   </div>
@@ -224,7 +262,7 @@ export const MobileHome = memo(function MobileHome() {
         <div className="mb-12">
           <h2 className="text-[32px] font-black tracking-tight mb-6">HIÊN<br/>studio</h2>
           <p className="text-[13px] font-medium text-white/60 max-w-[250px] leading-relaxed">
-            {settings?.heroDescription ? settings.heroDescription.slice(0, 100) + '...' : 'Kiến tạo không gian sống mộc mạc và chân thành.'}
+            {intro.length > 100 ? `${intro.slice(0, 100)}...` : intro}
           </p>
         </div>
         
@@ -232,7 +270,7 @@ export const MobileHome = memo(function MobileHome() {
         
         <div className="flex flex-col gap-4 text-[13px] font-bold tracking-wide uppercase">
           <a href={`tel:${(settings?.phone || '033 877 7017').replace(/ /g, '')}`} className="flex items-center justify-between py-2 border-b border-white/5">
-            <span>Điện thoại</span>
+            <span>{t.contact.phone}</span>
             <span className="text-white/60 font-medium">{settings?.phone || '033 877 7017'}</span>
           </a>
           <a href={`mailto:${settings?.email || 'thaibao95arc@gmail.com'}`} className="flex items-center justify-between py-2 border-b border-white/5">
@@ -240,17 +278,17 @@ export const MobileHome = memo(function MobileHome() {
             <span className="text-white/60 font-medium lowercase tracking-normal">{settings?.email || 'thaibao95arc@gmail.com'}</span>
           </a>
           <Link to="/services" className="flex items-center justify-between py-2 border-b border-white/5">
-            <span>Dịch vụ</span>
-            <span className="text-white/60 font-medium">Xem quy trình →</span>
+            <span>{t.nav.services}</span>
+            <span className="text-white/60 font-medium">{t.mobile.viewProcess} →</span>
           </Link>
           <Link to="/shop" className="flex items-center justify-between py-2 border-b border-white/5">
-            <span>Thư viện</span>
-            <span className="text-white/60 font-medium">Xem sản phẩm →</span>
+            <span>{t.nav.library}</span>
+            <span className="text-white/60 font-medium">{t.mobile.viewProducts} →</span>
           </Link>
         </div>
         
         <div className="mt-16 text-[10px] font-semibold text-white/40 tracking-widest uppercase text-center">
-          © {new Date().getFullYear()} HIÊN STUDIO. ALL RIGHTS RESERVED.
+          © {new Date().getFullYear()} HIÊN STUDIO. {t.mobile.rights}
         </div>
       </footer>
 
@@ -262,13 +300,31 @@ export const MobileHome = memo(function MobileHome() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={selectedProject.name}
+            onKeyDown={(event) => {
+              if (event.key !== 'Tab') return;
+              const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+              const first = focusable[0];
+              const last = focusable[focusable.length - 1];
+              if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+              } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+              }
+            }}
             className="fixed inset-0 z-[100] bg-[#f1efe7] overflow-y-auto overscroll-contain"
           >
             {/* Header Sticky */}
             <div className="sticky top-0 left-0 right-0 z-20 flex justify-between items-center px-6 py-4 bg-[#f1efe7]/90 backdrop-blur-md border-b border-[#1a1a1a]/10">
               <span className="text-[11px] font-bold tracking-widest uppercase">{t.projectDetail.detailHeader}</span>
               <button 
-                onClick={() => setSelectedProject(null)}
+                autoFocus
+                onClick={closeProject}
+                aria-label={t.contact.close}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1a1a1a] text-[#f1efe7]"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">

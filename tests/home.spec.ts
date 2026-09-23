@@ -4,6 +4,12 @@ import { installFixtures, siteData, sanityQuery } from './support/fixtures';
 test.beforeEach(async ({ page }) => { await installFixtures(page); });
 
 test('home renders the appropriate experience for the device', async ({ page, isMobile }) => {
+  const displacementRequests: string[] = [];
+  page.on('request', request => {
+    if (request.url().includes('/textures/beige_wall_001_disp_2k.png')) {
+      displacementRequests.push(request.url());
+    }
+  });
   await page.goto('/');
   await expect(page).toHaveTitle(/Hiên/);
   if (isMobile) {
@@ -17,6 +23,7 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
   }
+  expect(displacementRequests).toEqual([]);
 });
 
 test('projects load, search and open details', async ({ page }) => {
@@ -28,6 +35,71 @@ test('projects load, search and open details', async ({ page }) => {
   await page.getByPlaceholder('Search projects...').fill('Courtyard');
   await page.getByRole('heading', { name: 'Courtyard House' }).click();
   await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
+});
+
+test('mobile home offers clear portfolio and contact actions', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The desktop homepage uses its own navigation.');
+  await page.goto('/');
+  const viewProjects = page.getByRole('button', { name: 'View projects' });
+  await expect(viewProjects).toBeVisible();
+  await viewProjects.click();
+  await expect(page.getByRole('heading', { name: 'Projects', level: 2 })).toBeInViewport();
+  await page.getByRole('button', { name: 'Contact', exact: true }).first().click();
+  await expect(page.getByRole('dialog', { name: 'Contact' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Contact' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Chuyển sang Tiếng Việt' }).click();
+  await expect(page.getByRole('button', { name: 'Xem dự án' })).toBeVisible();
+});
+
+test('mobile home leaves 3D assets unloaded on a cold visit', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The desktop homepage needs the 3D scene.');
+  const sceneRequests: string[] = [];
+  page.on('request', request => {
+    if (/\/textures\/|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
+      sceneRequests.push(request.url());
+    }
+  });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  expect(sceneRequests).toEqual([]);
+});
+
+test('tablet-width home keeps the desktop portfolio reachable', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Check the tablet breakpoint from a desktop browser context.');
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
+  await expect(page.getByRole('status')).toHaveCount(0, { timeout: 20_000 });
+  await page.getByRole('link', { name: 'Projects', exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(page.getByRole('heading', { name: 'Our Projects' })).toBeVisible();
+});
+
+test('Our Story link from a subpage reaches the homepage section', async ({ page, isMobile }) => {
+  await page.goto('/projects');
+  await page.getByRole('link', { name: 'Our Story' }).filter({ visible: true }).click();
+  await expect(page).toHaveURL(/\/#about$/);
+  if (isMobile) {
+    await expect(page.locator('#about')).toBeInViewport();
+  } else {
+    await expect(page.locator('canvas')).toBeVisible();
+  }
+});
+
+test('project cards open with a keyboard', async ({ page }) => {
+  await page.goto('/projects');
+  const card = page.getByRole('button', { name: 'View details: Courtyard House' });
+  await card.focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(card).toBeFocused();
 });
 
 for (const path of ['/', '/projects']) {
@@ -67,10 +139,10 @@ test('shop failure can be retried', async ({ page }) => {
     ? { status: 400, json: { error: { description: 'Test CMS unavailable' } } }
     : { json: { result: [] } }));
   await page.goto('/shop');
-  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Could not load products' })).toBeVisible();
   fail = false;
-  await page.getByRole('button', { name: /Thử lại/ }).click();
-  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toHaveCount(0);
+  await page.getByRole('button', { name: /Try again/ }).click();
+  await expect(page.getByRole('heading', { name: 'Could not load products' })).toHaveCount(0);
   await expect(page.getByText('0 products', { exact: true })).toBeVisible();
 });
 

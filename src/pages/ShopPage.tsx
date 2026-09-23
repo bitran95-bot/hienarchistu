@@ -310,7 +310,7 @@ export default function ShopPage() {
       .catch((err) => {
         if (cancelled) return;
         console.error('Failed to fetch products:', err);
-        setError(err instanceof Error ? err.message : 'Không thể tải sản phẩm');
+        setError('load_failed');
         setLoading(false);
       });
     return () => { cancelled = true; };
@@ -397,13 +397,13 @@ export default function ShopPage() {
           ) : error ? (
             <div className="text-center py-20">
               <div className="text-6xl mb-4">⚠️</div>
-              <h3 className="text-xl font-heading font-bold text-stone-500 mb-2">Không thể tải sản phẩm</h3>
-              <p className="text-stone-400 mb-6 max-w-md mx-auto">{error}</p>
+              <h3 className="text-xl font-heading font-bold text-stone-500 mb-2">{t.shop.loadError}</h3>
+              <p className="text-stone-400 mb-6 max-w-md mx-auto">{t.shop.loadErrorText}</p>
               <button 
                 onClick={fetchProducts}
                 className="inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
               >
-                🔄 Thử lại
+                🔄 {t.shop.retry}
               </button>
             </div>
           ) : filtered.length === 0 ? (

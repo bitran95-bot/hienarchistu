@@ -19,12 +19,14 @@ import { useIsMobile } from '../hooks';
 
 import { useCameraController } from './3d/hooks/useCameraController';
 import { useHeroAnimations } from './3d/hooks/useHeroAnimations';
+import { useLocation } from 'react-router-dom';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
   const { gl } = useThree();
   const { modalOpen, activeProject, projects, settings, isDarkMode, toggleDarkMode } = useStore();
   const scroll = useScroll();
+  const { hash } = useLocation();
   const [perfQuality, setPerfQuality] = useState<'high' | 'low'>('high');
 
   // Tính toán Grid Layout
@@ -66,6 +68,14 @@ function SceneContents() {
       window.removeEventListener('scroll-to-projects', handleScrollProjects);
     };
   }, [scroll]);
+
+  useEffect(() => {
+    if (hash !== '#about') return;
+    const frame = requestAnimationFrame(() => {
+      scroll.el.scrollTo({ top: window.innerHeight * 0.4, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [hash, scroll]);
 
   // Cờ kiểm tra mobile (dùng hook tái sử dụng)
   const isMobileScreen = useIsMobile();
