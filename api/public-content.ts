@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@sanity/client';
-import { productsQuery, siteContentQuery } from '../lib/contentQueries';
+import { productsQuery, siteContentQuery } from '../lib/contentQueries.js';
 
 const client = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID || '29vr82eu',
