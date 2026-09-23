@@ -40,7 +40,7 @@ Workflow `.github/workflows/ci.yml` chạy các kiểm tra này khi mở PR ho�
 
 ## Domain và metadata tìm kiếm
 
-`site.config.json` khai báo domain production và các trang được đưa vào sitemap. Build tạo HTML metadata riêng cho `/`, `/projects`, `/services`, `/shop` và từng dự án public trong Sanity; trang `/download` có `noindex` và không nằm trong sitemap. `robots.txt` và `sitemap.xml` cũng được tạo từ cùng cấu hình. Build cần truy cập dataset Sanity public và sẽ dừng nếu không lấy được danh sách dự án, để tránh phát hành sitemap thiếu nội dung. Khi đổi domain chính thức, cập nhật `site.config.json`, build và kiểm tra lại Preview trước khi đưa lên production. Đường dẫn dự án lấy từ trường `slug` (nếu có), hoặc tự tạo từ tên; nên nhập slug ổn định trong Sanity trước khi đổi tên dự án. Mỗi lần thêm/sửa nội dung cần triển khai lại website để cập nhật HTML cho trình thu thập dữ liệu.
+`site.config.json` khai báo domain production. Build tạo HTML metadata riêng cho `/`, `/projects`, `/services`, `/shop`; trang `/download` có `noindex`. Trên Vercel, `/projects/:slug` và `/sitemap.xml` được tạo khi có request từ các dự án đã publish trong Sanity. Dự án mới và thay đổi nội dung xuất hiện sau khi Sanity trả dữ liệu mới, không cần deploy lại website. `robots.txt` dẫn đến sitemap động. Khi đổi domain chính thức, cập nhật `site.config.json`, build và kiểm tra lại Preview trước khi đưa lên production. Đường dẫn dự án lấy từ trường `slug` (nếu có), hoặc tự tạo từ tên; nên nhập slug duy nhất, ổn định trong Sanity trước khi chia sẻ URL. Nếu hai dự án có cùng slug, một URL không thể phân biệt được chúng.
 
 ## Chạy API local hoặc trên Vercel Preview
 

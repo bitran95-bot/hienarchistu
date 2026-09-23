@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/projects", "destination": "/projects.html" },
-    { "source": "/projects/:slug", "destination": "/projects/:slug.html" },
+    { "source": "/projects/:slug", "destination": "/api/project-page?slug=:slug" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/services", "destination": "/services.html" },
     { "source": "/shop", "destination": "/shop.html" },
     { "source": "/download", "destination": "/download.html" },
@@ -22,6 +23,13 @@
       "maxDuration": 10
     },
     "api/public-content.ts": {
+      "maxDuration": 10
+    },
+    "api/project-page.ts": {
+      "maxDuration": 10,
+      "includeFiles": "dist/index.html"
+    },
+    "api/sitemap.ts": {
       "maxDuration": 10
     }
   }

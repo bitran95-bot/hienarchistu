@@ -6,7 +6,7 @@ const client = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID || '29vr82eu',
   dataset: process.env.VITE_SANITY_DATASET || 'production',
   apiVersion: '2025-06-03',
-  useCdn: true,
+  useCdn: false,
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const query = kind === 'site' ? siteContentQuery : productsQuery;
     const data: unknown = await client.fetch(query);
-    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json(data);
   } catch (error) {
     console.error('Public content fetch failed:', error);

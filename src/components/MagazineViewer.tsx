@@ -232,7 +232,7 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
          </div>
          <div className="flex items-center gap-3 pointer-events-auto">
            {project._id && project.name && (
-             <Link to={projectPath({ ...project, _id: project._id, name: project.name })} className="rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-[#2a2a2a] hover:text-amber-800">
+             <Link to={projectPath({ name: project.name, slug: project.slug })} className="rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-[#2a2a2a] hover:text-amber-800">
                {t.caseStudy.fullPage}
              </Link>
            )}

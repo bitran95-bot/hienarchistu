@@ -16,3 +16,9 @@ export const productsQuery = `*[_type == "product"] | order(order asc) {
   image { ..., "lqip": asset->metadata.lqip },
   gallery[] { ..., "lqip": asset->metadata.lqip }
 }`;
+
+export const projectPagesQuery = `*[_type == "project" && defined(name)] {
+  _id, name, slug, generalInfo, content, image,
+  "firstMagazineImage": magazinePages[0].images[0],
+  "firstGalleryImage": gallery[0]
+}`;
