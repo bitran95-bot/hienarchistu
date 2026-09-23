@@ -7,7 +7,7 @@ export interface Translations {
     title: string; name: string; namePlaceholder: string;
     email: string; emailPlaceholder: string;
     message: string; messagePlaceholder: string;
-    send: string; sending: string; success: string; error: string;
+    send: string; sending: string; success: string; error: string; rateLimited: string;
   };
   scene: { loadingData: string };
   about: { title: string; text: string };
@@ -77,6 +77,7 @@ const vi: Translations = {
     sending: 'Đang gửi...',
     success: 'Tin nhắn đã được gửi thành công! Chúng tôi sẽ phản hồi sớm nhất.',
     error: 'Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ qua điện thoại.',
+    rateLimited: 'Bạn đã gửi quá nhiều lần. Vui lòng chờ vài phút hoặc liên hệ qua điện thoại.',
   },
   // 3D Scene
   scene: {

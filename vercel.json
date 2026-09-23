@@ -4,6 +4,9 @@
     { "source": "/((?!assets|favicon|magazine|sitemap|robots|api).*)", "destination": "/index.html" }
   ],
   "functions": {
+    "api/contact.ts": {
+      "maxDuration": 10
+    },
     "api/webhook.ts": {
       "maxDuration": 10
     },

@@ -1,35 +1,9 @@
 import Stripe from 'stripe';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2026-05-27.dahlia',
 });
-
-const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('DOWNLOAD_JWT_SECRET environment variable is required. Set it in Vercel dashboard.');
-}
-
-// Webhook endpoint does not need to store used tokens.
-
-/**
- * Tạo download token (JWT) chứa thông tin sản phẩm + hết hạn
- */
-function createDownloadToken(productId: string, sessionId: string): string {
-  const tokenId = crypto.randomUUID();
-  return jwt.sign(
-    {
-      productId,
-      sessionId,
-      tokenId,
-      type: 'download',
-    },
-    JWT_SECRET,
-    { expiresIn: '30m' } // Token hết hạn sau 30 phút
-  );
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -80,6 +54,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   return res.status(200).json({ received: true });
 }
-
-// Export helper function cho download route dùng
-export { createDownloadToken, JWT_SECRET };

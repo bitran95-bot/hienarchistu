@@ -4,15 +4,13 @@ import crypto from 'crypto';
 import { createClient } from '@sanity/client';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Redis } from '@upstash/redis';
+import { requireEnv } from '../lib/server/env.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2026-05-27.dahlia',
 });
 
-const JWT_SECRET = process.env.DOWNLOAD_JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('DOWNLOAD_JWT_SECRET environment variable is required. Set it in Vercel dashboard.');
-}
+const JWT_SECRET = requireEnv('DOWNLOAD_JWT_SECRET');
 
 // ⚠️ LIMITATION: In-memory store resets on each cold start in serverless.
 // We use Upstash Redis if configured, falling back to memory if not.

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { client } from '../sanityClient';
 import type { Project, SiteSettings } from '../types';
+import { withTimeout } from '../utils/request';
 
 interface AppState {
   projects: Project[];
@@ -8,6 +9,7 @@ interface AppState {
   modalOpen: boolean;
   activeProject: number;
   isDataLoaded: boolean;
+  isLoading: boolean;
   error: string | null;
   isDarkMode: boolean;
   
@@ -24,15 +26,17 @@ export const useStore = create<AppState>((set, get) => ({
   modalOpen: false,
   activeProject: 0,
   isDataLoaded: false,
+  isLoading: false,
   error: null,
   isDarkMode: false,
 
   fetchData: async () => {
     // Tránh fetch lại nếu dữ liệu đã được nạp
-    if (get().isDataLoaded) return;
+    if (get().isDataLoaded || get().isLoading) return;
+    set({ isLoading: true, error: null });
 
     try {
-      const data = await client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
+      const data = await withTimeout((signal) => client.fetch<{ projects: Project[]; settings: SiteSettings | null }>(`{
         "projects": *[_type == "project"] | order(order asc) {
           ...,
           image {
@@ -54,7 +58,7 @@ export const useStore = create<AppState>((set, get) => ({
           "pdfFileUrl": pdfFile.asset->url
         },
         "settings": *[_type == "siteSettings"][0]
-      }`);
+      }`, {}, { signal }));
       
       set({ 
         projects: data.projects || [], 
@@ -66,6 +70,8 @@ export const useStore = create<AppState>((set, get) => ({
       const message = error instanceof Error ? error.message : 'Không thể tải dữ liệu';
       console.error("Error fetching data:", error);
       set({ error: message });
+    } finally {
+      set({ isLoading: false });
     }
   },
 

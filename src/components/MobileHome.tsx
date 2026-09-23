@@ -7,6 +7,7 @@ import { getResponsiveImageProps } from '../utils/image';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useEscapeKey, useProjectImages } from '../hooks';
 import { ContactModal } from './ui/ContactModal';
+import { RecoveryMessage } from './ui/RecoveryMessage';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
@@ -15,7 +16,7 @@ import type { Project } from '../types';
  * MobileHome — Trang chủ 2D tối giản, phong cách editorial
  */
 export const MobileHome = memo(function MobileHome() {
-  const { projects, settings, isDataLoaded } = useStore();
+  const { projects, settings, isDataLoaded, error, fetchData } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
@@ -162,7 +163,7 @@ export const MobileHome = memo(function MobileHome() {
           <div className="w-full h-[1.5px] bg-[#1a1a1a] ml-6 opacity-20" />
         </div>
 
-        {!isDataLoaded ? (
+        {error ? <RecoveryMessage onRetry={() => void fetchData()} /> : !isDataLoaded ? (
           <div className="grid grid-cols-3 gap-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="animate-pulse">

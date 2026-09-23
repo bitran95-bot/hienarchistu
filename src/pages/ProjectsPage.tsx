@@ -10,6 +10,7 @@ import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { RecoveryMessage } from '../components/ui/RecoveryMessage';
 import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
 import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -19,7 +20,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
-  const { projects, isDataLoaded, fetchData } = useStore();
+  const { projects, isDataLoaded, fetchData, error } = useStore();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
@@ -151,7 +152,7 @@ export default function ProjectsPage() {
       {/* Projects Grid / List */}
       <section className="pb-24 px-4 min-h-[50vh]">
         <div className="max-w-7xl mx-auto">
-          {!isDataLoaded ? (
+          {error ? <RecoveryMessage onRetry={() => void fetchData()} /> : !isDataLoaded ? (
             <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} className="bg-white rounded-2xl overflow-hidden p-3">
