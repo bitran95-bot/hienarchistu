@@ -2,7 +2,7 @@
 
 Ngày cập nhật: 23/09/2026. Nhánh: `codex/phase-1-foundation`.
 
-Phần mã nguồn và kiểm thử local đã hoàn thành. Chưa nghiệm thu tích hợp dịch vụ thật trên Vercel Preview hoặc deploy production.
+Phần mã nguồn và kiểm thử local đã hoàn thành. Vercel Preview đã xác nhận đọc được dữ liệu Sanity thật; email và Stripe chưa thể nghiệm thu vì project chưa có biến môi trường tương ứng. Chưa deploy production.
 
 ## Thay đổi chính
 
@@ -40,7 +40,7 @@ $env:PLAYWRIGHT_PREVIEW='1'
 npm.cmd run test:e2e -- --reporter=line
 ```
 
-Đã cài Chromium cho Playwright trên máy local. CI Linux được cấu hình; kết quả chạy trên GitHub cần đối chiếu trực tiếp ở PR.
+Đã cài Chromium cho Playwright trên máy local. CI Linux của [PR #1](https://github.com/bitran95-bot/hienarchistu/pull/1) đã chạy thành công, bao gồm `npm ci`, `npm run check` và Playwright trên production artifact. Vercel báo bản Preview ở trạng thái Ready.
 
 ## Quan sát bản build bằng trình duyệt
 
@@ -48,12 +48,18 @@ npm.cmd run test:e2e -- --reporter=line
 
 Kiểm tra hành vi thành công của artifact được thực hiện qua Playwright với dữ liệu CMS giả lập. Không coi kết quả này là xác nhận kết nối Sanity thật trên Preview.
 
+## Kiểm tra Vercel Preview ngày 23/09/2026
+
+- [Preview của PR #1](https://hienarchistu-git-codex-phase-55492b-bi-trans-projects-2bf6a203.vercel.app) mở được trong phiên Vercel của chủ project. Trang Projects hiển thị 9 dự án thật và Library hiển thị 1 sản phẩm; đây là bằng chứng luồng đọc Sanity hoạt động trên Preview. Chưa kiểm tra thao tác ghi CMS.
+- Vercel Project Settings cho thấy **không có Project Environment Variables** và **không có Shared Variables** liên kết. Danh sách Integrations chỉ hiển thị Sanity. Frontend đang đọc Sanity nhờ `projectId` và dataset mặc định trong mã nguồn.
+- Do thiếu `RESEND_API_KEY`, `CONTACT_FROM` và `CONTACT_TO_EMAIL`, API contact sẽ trả `503 contact_unavailable` theo điều kiện trong mã; chưa gửi email thử. Các API Stripe cũng chưa có `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` và chưa được thử ở test mode.
+- Preview đã deploy từ commit của PR; production vẫn ở commit `c593297` trên `master` tại thời điểm kiểm tra.
+
 ## Các bước nghiệm thu còn cần môi trường dịch vụ
 
-1. Liên kết đúng Vercel project và tạo bản Preview của nhánh; đối chiếu scope biến môi trường.
-2. Kiểm tra Sanity network/CORS cho origin Preview.
-3. Cấu hình `RESEND_API_KEY`, `CONTACT_FROM`, `CONTACT_TO_EMAIL`, Upstash; chọn địa chỉ nhận test và được phép gửi thử rồi kiểm tra email nhận thật.
-4. Kiểm thử Stripe test mode và version webhook endpoint trước khi áp dụng API version mới lên production. Chưa thực hiện giao dịch trong đợt này.
+1. Cấu hình `RESEND_API_KEY`, `CONTACT_FROM`, `CONTACT_TO_EMAIL` cho Preview; cấu hình cặp Upstash nếu cần rate limit. Chọn địa chỉ nhận test, gửi thử khi được phép và kiểm tra email nhận thật.
+2. Cấu hình Stripe test mode, `DOWNLOAD_JWT_SECRET` và webhook secret cho Preview; kiểm thử webhook/version trước khi áp dụng API version mới lên production. Chưa thực hiện giao dịch trong đợt này.
+3. Xem xét khai báo `VITE_SANITY_PROJECT_ID` và `VITE_SANITY_DATASET` cho từng môi trường để project/dataset được ghi rõ trong Vercel, dù fallback hiện tại đã đọc đúng dữ liệu.
 
 Không cần chia sẻ secret qua chat; cấu hình trực tiếp trong dashboard/môi trường phù hợp.
 
