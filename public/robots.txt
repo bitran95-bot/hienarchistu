@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://hienarchi.studio/sitemap.xml
+Sitemap: https://hienarchistu.vercel.app/sitemap.xml

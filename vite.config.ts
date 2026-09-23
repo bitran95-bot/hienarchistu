@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import site from './site.config.json'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    {
+      name: 'site-url-in-html',
+      transformIndexHtml: (html) => html.replaceAll('__SITE_URL__', site.url),
+    },
     react(),
     VitePWA({
       registerType: 'autoUpdate',

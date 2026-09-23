@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { OG_IMAGE_URL, pageUrl } from '../config/site';
 
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
@@ -91,10 +92,16 @@ export default function ProjectsPage() {
       <Helmet>
         <title>{`${t.projectsPage.title} | Hiên Archi Studio`}</title>
         <meta name="description" content={t.projectsPage.subtitle} />
+        <link rel="canonical" href={pageUrl('/projects')} />
         <meta property="og:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
         <meta property="og:description" content={t.projectsPage.subtitle} />
-        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:image" content={OG_IMAGE_URL} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={pageUrl('/projects')} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
+        <meta name="twitter:description" content={t.projectsPage.subtitle} />
+        <meta name="twitter:image" content={OG_IMAGE_URL} />
       </Helmet>
 
       <SubpageNavigation />

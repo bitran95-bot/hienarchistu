@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { withTimeout } from '../utils/request';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { OG_IMAGE_URL, pageUrl } from '../config/site';
 import { Link } from 'react-router-dom';
 import { client } from '../sanityClient';
 import { useTranslation } from '../i18n';
@@ -330,10 +331,16 @@ export default function ShopPage() {
       <Helmet>
         <title>{t.shop.pageTitle}</title>
         <meta name="description" content={t.shop.pageDesc} />
+        <link rel="canonical" href={pageUrl('/shop')} />
         <meta property="og:title" content={t.shop.pageTitle} />
         <meta property="og:description" content={t.shop.pageDesc} />
-        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:image" content={OG_IMAGE_URL} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={pageUrl('/shop')} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={t.shop.pageTitle} />
+        <meta name="twitter:description" content={t.shop.pageDesc} />
+        <meta name="twitter:image" content={OG_IMAGE_URL} />
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7]">

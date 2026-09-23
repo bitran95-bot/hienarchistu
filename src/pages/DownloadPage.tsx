@@ -57,6 +57,7 @@ export default function DownloadPage() {
     <>
       <Helmet>
         <title>{isVi ? 'Tải sản phẩm — Hiên Archi Studio' : 'Download — Hiên Archi Studio'}</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <div className="min-h-screen bg-[#fdfbf7] flex flex-col">

@@ -1,0 +1,31 @@
+{
+  "url": "https://hienarchistu.vercel.app",
+  "pages": {
+    "home": {
+      "path": "/",
+      "title": "Hiên Archi Studio",
+      "description": "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành."
+    },
+    "projects": {
+      "path": "/projects",
+      "title": "Các Dự Án Của Chúng Tôi | Hiên Archi Studio",
+      "description": "Nơi lưu giữ những nếp nhà yên lành, những không gian mộc mạc và chân thành."
+    },
+    "services": {
+      "path": "/services",
+      "title": "Quy Trình Thiết Kế Kiến Trúc & Nội Thất | Hiên Archi Studio",
+      "description": "Lộ trình chuyên nghiệp từng bước hiện thực hóa không gian sống của bạn."
+    },
+    "shop": {
+      "path": "/shop",
+      "title": "Thư viện Revit — Hiên Archi Studio",
+      "description": "Mua và tải Revit Family, Revit Template chất lượng cao từ Hiên Archi Studio."
+    },
+    "download": {
+      "path": "/download",
+      "title": "Tải sản phẩm — Hiên Archi Studio",
+      "description": "Trang tải sản phẩm đã mua từ Hiên Archi Studio.",
+      "index": false
+    }
+  }
+}

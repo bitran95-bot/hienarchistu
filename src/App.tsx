@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
 import { useIsMobile } from './hooks';
 import { RecoveryMessage } from './components/ui/RecoveryMessage';
+import { SITE_URL, OG_IMAGE_URL } from './config/site';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 // Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
@@ -40,8 +41,8 @@ function App() {
 
   const siteTitle = settings?.title || "Hiên Archi Studio";
   const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";
-  const siteUrl = "https://hienarchi.studio";
-  const ogImage = `${siteUrl}/favicon.svg`;
+  const siteUrl = SITE_URL;
+  const ogImage = OG_IMAGE_URL;
 
   // JSON-LD Structured Data cho SEO
   const jsonLd = {
