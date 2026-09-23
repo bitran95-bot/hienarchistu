@@ -45,6 +45,32 @@ test('mobile home offers clear portfolio and contact actions', async ({ page, is
   await expect(page.getByRole('button', { name: 'Xem dự án' })).toBeVisible();
 });
 
+test('mobile home leaves 3D assets unloaded on a cold visit', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The desktop homepage needs the 3D scene.');
+  const sceneRequests: string[] = [];
+  page.on('request', request => {
+    if (/\/textures\/|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
+      sceneRequests.push(request.url());
+    }
+  });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Courtyard House' })).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  expect(sceneRequests).toEqual([]);
+});
+
+test('tablet-width home keeps the desktop portfolio reachable', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Check the tablet breakpoint from a desktop browser context.');
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
+  await expect(page.getByRole('status')).toHaveCount(0, { timeout: 20_000 });
+  await page.getByRole('link', { name: 'Projects', exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(page.getByRole('heading', { name: 'Our Projects' })).toBeVisible();
+});
+
 test('Our Story link from a subpage reaches the homepage section', async ({ page, isMobile }) => {
   await page.goto('/projects');
   await page.getByRole('link', { name: 'Our Story' }).filter({ visible: true }).click();
