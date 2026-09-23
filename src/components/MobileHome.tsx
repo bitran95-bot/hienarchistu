@@ -8,6 +8,7 @@ import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useEscapeKey, useProjectImages } from '../hooks';
 import { ContactModal } from './ui/ContactModal';
 import { RecoveryMessage } from './ui/RecoveryMessage';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
@@ -90,9 +91,12 @@ export const MobileHome = memo(function MobileHome() {
               {year}
             </span>
           </div>
-          <button onClick={() => setContactOpen(true)} className="text-xs font-bold uppercase tracking-wider border-b border-[#1a1a1a] pb-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700">
-            {t.nav.contact} <span aria-hidden="true">↗</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <button onClick={() => setContactOpen(true)} className="text-xs font-bold uppercase tracking-wider border-b border-[#1a1a1a] pb-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700">
+              {t.nav.contact} <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </motion.div>
 
         {/* Main Title */}

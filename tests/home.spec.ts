@@ -41,6 +41,8 @@ test('mobile home offers clear portfolio and contact actions', async ({ page, is
   await expect(page.getByRole('dialog', { name: 'Contact' })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Contact' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Chuyển sang Tiếng Việt' }).click();
+  await expect(page.getByRole('button', { name: 'Xem dự án' })).toBeVisible();
 });
 
 test('Our Story link from a subpage reaches the homepage section', async ({ page, isMobile }) => {
