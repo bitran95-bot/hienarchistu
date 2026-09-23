@@ -14,7 +14,6 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
-const ProjectPage = lazy(() => import('./pages/ProjectPage'))
 const ServicesPage = lazy(() => import('./pages/ServicesPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -33,10 +32,11 @@ const pageVariants = {
 
 function AnimatedRoutes() {
   const location = useLocation()
+  const routeKey = /^\/projects(?:\/[^/]+)?$/.test(location.pathname) ? '/projects' : location.pathname
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={location.pathname}
+        key={routeKey}
         variants={pageVariants}
         initial="initial"
         animate="animate"
@@ -60,17 +60,10 @@ function AnimatedRoutes() {
               </Suspense>
             </ErrorBoundary>
           } />
-          <Route path="/projects" element={
+          <Route path="/projects/:slug?" element={
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
                 <ProjectsPage />
-              </Suspense>
-            </ErrorBoundary>
-          } />
-          <Route path="/projects/:slug" element={
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingFallback />}>
-                <ProjectPage />
               </Suspense>
             </ErrorBoundary>
           } />

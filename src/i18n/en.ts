@@ -114,13 +114,9 @@ const en: Translations = {
     zoomIn: 'Zoom in',
     gallery: 'Photo Gallery',
     detailHeader: 'Project Details',
-  },
-  caseStudy: {
-    back: '← All projects',
-    fullPage: 'View project page ↗',
-    missing: 'This project could not be found.',
-    viewPdf: 'View PDF portfolio',
-    contactPrompt: 'Discuss your project',
+    viewInProjects: 'View in project list ↗',
+    copyLink: 'Copy project link',
+    linkCopied: 'Link copied',
   },
   servicesPage: {
     title: 'Architectural & Interior Design Process',
