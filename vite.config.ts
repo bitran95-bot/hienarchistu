@@ -8,11 +8,26 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'magazine.glb', 'pdf.worker.min.mjs'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,svg,mjs}'],
-        globIgnores: ['**/textures/**', '**/Models/**', '**/LampModel/**'],
+        globPatterns: ['**/*.{js,css,html,ico,svg}'],
+        globIgnores: [
+          '**/textures/**',
+          '**/Models/**',
+          '**/LampModel/**',
+          '**/assets/DesktopCanvas-*.js',
+          '**/assets/TextLayer-*',
+          '**/assets/MagazineViewer-*.js',
+        ],
         runtimeCaching: [
+          {
+            urlPattern: /\/(?:assets\/(?:DesktopCanvas|TextLayer|MagazineViewer)-[^/]+\.(?:js|css)|magazine\.glb|pdf\.worker\.min\.mjs)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'optional-assets-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/cdn\.sanity\.io\/.*/i,
             handler: 'CacheFirst',
@@ -68,21 +83,6 @@ export default defineConfig({
     })
   ],
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('three')) return 'vendor-three';
-            if (id.includes('@react-three')) return 'vendor-r3f';
-            if (id.includes('postprocessing')) return 'vendor-postprocessing';
-            if (id.includes('framer-motion')) return 'vendor-framer-motion';
-            if (id.includes('sanity') || id.includes('@sanity')) return 'vendor-sanity';
-            if (id.includes('react')) return 'vendor-react';
-            return 'vendor'; // all other node_modules
-          }
-        }
-      }
-    },
-    chunkSizeWarningLimit: 1000 // Tăng giới hạn cảnh báo lên 1MB để bớt cảnh báo không cần thiết
+    chunkSizeWarningLimit: 1000
   }
 })

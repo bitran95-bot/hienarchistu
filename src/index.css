@@ -28,6 +28,15 @@ div[style*="position: fixed"] > div[style*="overflow"] {
   border-radius: 2px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .neo-brutalism {
   @apply border-4 border-ink shadow-[8px_8px_0px_#1A1A1A] bg-white transition-all hover:-translate-y-1 hover:translate-x-1 hover:shadow-[12px_12px_0px_#1A1A1A];
 }

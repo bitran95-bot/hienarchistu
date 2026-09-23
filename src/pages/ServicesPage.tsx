@@ -78,26 +78,6 @@ export default function ServicesPage() {
     }
   };
 
-  // Short summary descriptions for the monograph columns
-  const getStepSummary = (id: string) => {
-    switch (id) {
-      case '01':
-        return 'Khởi đầu bằng việc lắng nghe sâu sắc nhu cầu, khảo sát hiện trạng và phân tích ngân sách đầu tư.';
-      case '02':
-        return 'Chuyển hóa ý tưởng thành mặt bằng sơ phác 2D và định hướng phong cách kiến trúc qua Moodboard.';
-      case '03':
-        return 'Thống nhất phương án thiết kế sơ bộ, chi phí thực hiện và ký kết hợp đồng chính thức.';
-      case '04':
-        return 'Dựng phối cảnh 3D trực quan hóa không gian thực tế với đầy đủ ánh sáng, màu sắc và vật liệu.';
-      case '05':
-        return 'Chi tiết hóa kỹ thuật, lựa chọn vật liệu cao cấp và khai triển bộ hồ sơ thi công chuẩn xác.';
-      case '06':
-        return 'Giám sát tác giả nghiêm ngặt, đảm bảo từng chi tiết thi công đều tuân thủ thiết kế và tiêu chuẩn.';
-      default:
-        return '';
-    }
-  };
-
   // Framer motion variants for staggered animations
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -204,7 +184,7 @@ export default function ServicesPage() {
 
                 {/* Summary Text (Neat sans-serif font) */}
                 <p className="text-xs sm:text-sm text-stone-600 font-sans font-normal leading-relaxed line-clamp-3">
-                  {getStepSummary(step.id)}
+                  {step.summary}
                 </p>
               </button>
             );
@@ -352,9 +332,10 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
             className="fixed bottom-24 md:bottom-8 right-6 w-11 h-11 bg-[#1a1a1a] text-white rounded-full shadow-lg flex items-center justify-center z-50 hover:bg-stone-800 transition-colors border border-white/10"
-            title="Lên đầu trang"
+            title={t.nav.backToTop}
+            aria-label={t.nav.backToTop}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />

@@ -30,6 +30,43 @@ test('projects load, search and open details', async ({ page }) => {
   await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
 });
 
+test('mobile home offers clear portfolio and contact actions', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The desktop homepage uses its own navigation.');
+  await page.goto('/');
+  const viewProjects = page.getByRole('button', { name: 'View projects' });
+  await expect(viewProjects).toBeVisible();
+  await viewProjects.click();
+  await expect(page.getByRole('heading', { name: 'Projects', level: 2 })).toBeInViewport();
+  await page.getByRole('button', { name: 'Contact', exact: true }).first().click();
+  await expect(page.getByRole('dialog', { name: 'Contact' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Contact' })).toHaveCount(0);
+});
+
+test('Our Story link from a subpage reaches the homepage section', async ({ page, isMobile }) => {
+  await page.goto('/projects');
+  await page.getByRole('link', { name: 'Our Story' }).filter({ visible: true }).click();
+  await expect(page).toHaveURL(/\/#about$/);
+  if (isMobile) {
+    await expect(page.locator('#about')).toBeInViewport();
+  } else {
+    await expect(page.locator('canvas')).toBeVisible();
+  }
+});
+
+test('project cards open with a keyboard', async ({ page }) => {
+  await page.goto('/projects');
+  const card = page.getByRole('button', { name: 'View details: Courtyard House' });
+  await card.focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(card).toBeFocused();
+});
+
 for (const path of ['/', '/projects']) {
   test(`CMS failure can be retried on ${path}`, async ({ page, isMobile }) => {
     let fail = true;
@@ -67,10 +104,10 @@ test('shop failure can be retried', async ({ page }) => {
     ? { status: 400, json: { error: { description: 'Test CMS unavailable' } } }
     : { json: { result: [] } }));
   await page.goto('/shop');
-  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Could not load products' })).toBeVisible();
   fail = false;
-  await page.getByRole('button', { name: /Thử lại/ }).click();
-  await expect(page.getByRole('heading', { name: 'Không thể tải sản phẩm' })).toHaveCount(0);
+  await page.getByRole('button', { name: /Try again/ }).click();
+  await expect(page.getByRole('heading', { name: 'Could not load products' })).toHaveCount(0);
   await expect(page.getByText('0 products', { exact: true })).toBeVisible();
 });
 

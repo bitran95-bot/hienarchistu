@@ -13,6 +13,24 @@ function submit() {
 }
 
 describe('contact feedback', () => {
+  it('focuses the dialog, traps Tab, handles Escape and restores focus', () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const onClose = vi.fn();
+    const { unmount } = render(<ContactModal variant="split" onClose={onClose} />);
+    expect(screen.getByRole('button', { name: 'Đóng' })).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(screen.getByRole('button', { name: 'Gửi tin nhắn' })).toHaveFocus();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledOnce();
+
+    unmount();
+    expect(trigger).toHaveFocus();
+    trigger.remove();
+  });
+
   it.each([
     { status: 503, body: { success: false } },
     { status: 200, body: { success: false } },

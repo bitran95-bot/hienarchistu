@@ -1,8 +1,13 @@
 // ===== Translation type =====
 export interface Translations {
-  nav: { story: string; services: string; projects: string; library: string; contact: string };
+  nav: { story: string; services: string; projects: string; library: string; contact: string; backToTop: string };
   loading: { text: string };
-  contact: { close: string; phone: string; quote: string };
+  contact: { close: string; phone: string; quote: string; headlineTop: string; headlineBottom: string };
+  mobile: {
+    introFallback: string; architect: string; viewProjects: string; scroll: string;
+    portfolioBy: string; basedIn: string; noProjects: string; noImage: string;
+    viewProcess: string; viewProducts: string; rights: string;
+  };
   contactForm: {
     title: string; name: string; namePlaceholder: string;
     email: string; emailPlaceholder: string;
@@ -20,6 +25,7 @@ export interface Translations {
     free: string; buy: string; download: string; downloadFree: string; buyNow: string;
     comingSoon: string; featured: string; emptyTitle: string; emptyText: string;
     previewImages: string; fileFormat: string; compatibility: string;
+    loadError: string; loadErrorText: string; retry: string;
     backHomeFooter: string; footerCopy: (year: number) => string;
   };
   seo: { siteTitle: string; siteDesc: string };
@@ -38,6 +44,7 @@ export interface Translations {
     steps: Array<{
       id: string;
       title: string;
+      summary: string;
       duration: string;
       details: Array<{ label: string; text: string }>;
       deliverable: string;
@@ -54,6 +61,7 @@ const vi: Translations = {
     projects: 'Dự Án',
     library: 'Thư viện',
     contact: 'Liên Hệ',
+    backToTop: 'Lên đầu trang',
   },
   // Loading screen
   loading: {
@@ -64,6 +72,21 @@ const vi: Translations = {
     close: 'Đóng',
     phone: 'Điện thoại',
     quote: '"Mỗi dự án là một câu chuyện. Hãy cùng nhau viết nên câu chuyện kiến trúc của bạn."',
+    headlineTop: 'Cùng',
+    headlineBottom: 'trao đổi.',
+  },
+  mobile: {
+    introFallback: 'Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên.',
+    architect: 'ThS KTS. Trần Thái Bảo',
+    viewProjects: 'Xem dự án',
+    scroll: 'Cuộn',
+    portfolioBy: 'Portfolio bởi',
+    basedIn: 'Tại',
+    noProjects: 'Chưa có dự án nào.',
+    noImage: 'Không có ảnh',
+    viewProcess: 'Xem quy trình',
+    viewProducts: 'Xem sản phẩm',
+    rights: 'Đã đăng ký bản quyền.',
   },
   contactForm: {
     title: 'Gửi tin nhắn',
@@ -124,6 +147,9 @@ const vi: Translations = {
     previewImages: 'Hình ảnh xem trước',
     fileFormat: 'Định dạng',
     compatibility: 'Tương thích',
+    loadError: 'Không thể tải sản phẩm',
+    loadErrorText: 'Vui lòng thử lại sau ít phút.',
+    retry: 'Thử lại',
     backHomeFooter: '← Về trang chủ',
     footerCopy: (year: number) => `© ${year} Hiên Archi Studio. Thiết kế với ❤️`,
   },
@@ -164,6 +190,7 @@ const vi: Translations = {
       {
         id: '01',
         title: 'Tiếp Nhận & Khảo Sát hiện trạng',
+        summary: 'Khởi đầu bằng việc lắng nghe nhu cầu, khảo sát hiện trạng và phân tích ngân sách đầu tư.',
         duration: '1 - 3 ngày',
         details: [
           { label: 'Trao đổi', text: 'Gặp gỡ trực tiếp hoặc online để lắng nghe nhu cầu, sở thích, phân tích ngân sách đầu tư.' },
@@ -174,6 +201,7 @@ const vi: Translations = {
       {
         id: '02',
         title: 'Ý Tưởng Sơ Bộ (Concept Design)',
+        summary: 'Chuyển hóa ý tưởng thành mặt bằng sơ phác 2D và định hướng phong cách kiến trúc qua Moodboard.',
         duration: '5 - 7 ngày',
         details: [
           { label: 'Mặt bằng', text: 'Thiết kế phương án phân chia không gian, giao thông và bố trí vật dụng (Layout 2D).' },
@@ -184,6 +212,7 @@ const vi: Translations = {
       {
         id: '03',
         title: 'Ký Kết Hợp Đồng Thiết Kế',
+        summary: 'Thống nhất phương án thiết kế sơ bộ, chi phí thực hiện và ký kết hợp đồng chính thức.',
         duration: '3 - 5 ngày',
         details: [
           { label: 'Thống nhất', text: 'Đôi bên chốt phương án mặt bằng sơ bộ và ký hợp đồng thiết kế chính thức.' },
@@ -194,6 +223,7 @@ const vi: Translations = {
       {
         id: '04',
         title: 'Phối Cảnh 3D Chi Tiết',
+        summary: 'Dựng phối cảnh 3D trực quan hóa không gian với ánh sáng, màu sắc và vật liệu.',
         duration: '10 - 15 ngày',
         details: [
           { label: 'Trực quan hóa', text: 'Dựng phối cảnh 3D giả lập không gian thực tế với đầy đủ ánh sáng, màu sắc và vật liệu chính xác.' },
@@ -204,6 +234,7 @@ const vi: Translations = {
       {
         id: '05',
         title: 'Triển Khai Hồ Sơ Kỹ Thuật (Bản Vẽ Kỹ Thuật)',
+        summary: 'Chi tiết hóa kỹ thuật, lựa chọn vật liệu và khai triển bộ hồ sơ thi công.',
         duration: '10 - 12 ngày',
         details: [
           { label: 'Chi tiết hóa', text: 'Khai triển bản vẽ thi công chi tiết (Kiến trúc, Kết cấu, Điện nước ME, Chi tiết nội thất, Trần - Tường - Sàn).' }
@@ -213,6 +244,7 @@ const vi: Translations = {
       {
         id: '06',
         title: 'Bàn Giao & Giám Sát Tác Giả',
+        summary: 'Giám sát tác giả để các chi tiết thi công tuân thủ thiết kế và tiêu chuẩn.',
         duration: 'Dọc theo tiến độ thi công',
         details: [
           { label: 'Bàn giao', text: 'Quyết toán hợp đồng thiết kế, bàn giao đầy đủ file và bản vẽ có dấu mộc.' },

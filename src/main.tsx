@@ -3,7 +3,7 @@ import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import { I18nProvider } from './i18n'
 import './index.css'
 import 'virtual:pwa-register'
@@ -88,9 +88,11 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
       <I18nProvider>
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
+        <MotionConfig reducedMotion="user">
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </MotionConfig>
       </I18nProvider>
     </HelmetProvider>
   </StrictMode>,

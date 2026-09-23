@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 
@@ -29,6 +29,17 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showBackToTop, setShowBackToTop] = useState(false);
   const isMobile = useIsMobile();
+  const projectOpenerRef = useRef<HTMLElement | null>(null);
+
+  const openProject = (project: Project, opener: HTMLElement) => {
+    opener.focus();
+    projectOpenerRef.current = opener;
+    setSelectedProject(project);
+  };
+  const closeProject = useCallback(() => {
+    setSelectedProject(null);
+    requestAnimationFrame(() => projectOpenerRef.current?.focus());
+  }, []);
 
   // Back to top visibility
   useEffect(() => {
@@ -71,17 +82,17 @@ export default function ProjectsPage() {
   // Handle escape key to close modal or fullscreen image
   const handleEscape = useCallback(() => {
     if (fullscreenImage) setFullscreenImage(null);
-    else setSelectedProject(null);
-  }, [fullscreenImage]);
+    else closeProject();
+  }, [fullscreenImage, closeProject]);
   useEscapeKey(handleEscape);
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] selection:bg-stone-300">
       <Helmet>
-        <title>Dự án | Hiên Archi Studio</title>
-        <meta name="description" content="Khám phá các dự án thiết kế kiến trúc và nội thất mộc mạc, gần gũi với tự nhiên của Hiên Archi Studio." />
-        <meta property="og:title" content="Dự án | Hiên Archi Studio" />
-        <meta property="og:description" content="Khám phá các dự án thiết kế kiến trúc và nội thất mộc mạc, gần gũi với tự nhiên của Hiên Archi Studio." />
+        <title>{`${t.projectsPage.title} | Hiên Archi Studio`}</title>
+        <meta name="description" content={t.projectsPage.subtitle} />
+        <meta property="og:title" content={`${t.projectsPage.title} | Hiên Archi Studio`} />
+        <meta property="og:description" content={t.projectsPage.subtitle} />
         <meta property="og:image" content="/og-image.png" />
         <meta property="og:type" content="website" />
       </Helmet>
@@ -188,8 +199,17 @@ export default function ProjectsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.04 }}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-stone-100 flex flex-col"
-                    onClick={() => setSelectedProject(project)}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-stone-100 flex flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${t.projectDetail.viewDetail}: ${project.name}`}
+                    onClick={(event) => openProject(project, event.currentTarget)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openProject(project, event.currentTarget);
+                      }
+                    }}
                   >
                     <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                       {imgProps ? <img {...imgProps} /> : <div className="w-full h-full flex items-center justify-center text-stone-300">{t.projectDetail.noImage}</div>}
@@ -225,8 +245,17 @@ export default function ProjectsPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="group flex items-center gap-5 py-5 cursor-pointer hover:bg-amber-50/50 px-2 rounded-xl transition-colors"
-                    onClick={() => setSelectedProject(project)}
+                    className="group flex items-center gap-5 py-5 cursor-pointer hover:bg-amber-50/50 px-2 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${t.projectDetail.viewDetail}: ${project.name}`}
+                    onClick={(event) => openProject(project, event.currentTarget)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openProject(project, event.currentTarget);
+                      }
+                    }}
                   >
                     <div className="shrink-0 w-24 h-[72px] aspect-[4/3] bg-stone-100 rounded-xl overflow-hidden">
                       {imgProps ? <img {...imgProps} /> : <div className="w-full h-full bg-stone-200" />}
@@ -254,9 +283,10 @@ export default function ProjectsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}
             className="fixed bottom-6 right-6 w-12 h-12 bg-[#2a2a2a] text-white rounded-full shadow-xl flex items-center justify-center z-50 hover:bg-amber-700 transition-colors"
-            title="Lên đầu trang"
+            title={t.nav.backToTop}
+            aria-label={t.nav.backToTop}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7"/></svg>
           </motion.button>
@@ -274,17 +304,35 @@ export default function ProjectsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
-              onClick={() => setSelectedProject(null)}
+              onClick={closeProject}
             />
             
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedProject.name}
+              onKeyDown={(event) => {
+                if (event.key !== 'Tab') return;
+                const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) {
+                  event.preventDefault();
+                  last?.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                  event.preventDefault();
+                  first?.focus();
+                }
+              }}
               className="relative w-full h-[100dvh] max-w-none bg-[#fdfbf7] shadow-2xl overflow-hidden flex flex-col md:flex-row"
             >
               <button 
-                onClick={() => setSelectedProject(null)}
+                autoFocus
+                onClick={closeProject}
+                aria-label={t.contact.close}
                 className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur hover:bg-stone-100 rounded-full text-stone-600 transition-colors shadow-sm"
               >
                 ✕
