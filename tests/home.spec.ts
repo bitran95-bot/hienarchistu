@@ -37,6 +37,18 @@ test('projects load, search and open details', async ({ page }) => {
   await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
 });
 
+test('a project page can be opened, shared and reloaded directly', async ({ page }) => {
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  await page.getByRole('link', { name: 'View project page' }).click();
+  await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
+  await expect(page.getByRole('heading', { name: 'Courtyard House', level: 1 })).toBeVisible();
+  await expect(page.getByText('A quiet courtyard for family life.')).toBeVisible();
+  await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute('href', 'https://hienarchistu.vercel.app/projects/courtyard-house');
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Courtyard House', level: 1 })).toBeVisible();
+});
+
 test('mobile home offers clear portfolio and contact actions', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'The desktop homepage uses its own navigation.');
   await page.goto('/');

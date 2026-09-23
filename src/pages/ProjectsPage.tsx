@@ -1,12 +1,14 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { OG_IMAGE_URL, pageUrl } from '../config/site';
 
 import { useStore } from '../store/useStore';
 import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
+import { projectPath } from '../utils/projectSlug';
 import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
@@ -350,6 +352,9 @@ export default function ProjectsPage() {
                 <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                   {selectedProject.name}
                 </h2>
+                <Link to={projectPath(selectedProject)} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4">
+                  {t.caseStudy.fullPage}
+                </Link>
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">

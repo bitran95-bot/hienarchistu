@@ -31,6 +31,7 @@ export interface Translations {
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
   projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string };
+  caseStudy: { back: string; fullPage: string; missing: string; viewPdf: string; contactPrompt: string };
   servicesPage: {
     title: string;
     subtitle: string;
@@ -175,6 +176,13 @@ const vi: Translations = {
     zoomIn: 'Phóng to',
     gallery: 'Thư viện ảnh',
     detailHeader: 'Chi tiết dự án',
+  },
+  caseStudy: {
+    back: '← Tất cả dự án',
+    fullPage: 'Xem trang dự án ↗',
+    missing: 'Không tìm thấy dự án này.',
+    viewPdf: 'Xem hồ sơ PDF',
+    contactPrompt: 'Trao đổi về dự án của bạn',
   },
   servicesPage: {
     title: 'QUY TRÌNH THIẾT KẾ KIẾN TRÚC & NỘI THẤT',

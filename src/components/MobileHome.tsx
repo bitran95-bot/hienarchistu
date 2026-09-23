@@ -12,6 +12,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
+import { projectPath } from '../utils/projectSlug';
 
 /**
  * MobileHome — Trang chủ 2D tối giản, phong cách editorial
@@ -337,6 +338,9 @@ export const MobileHome = memo(function MobileHome() {
               <h2 className="text-[36px] font-black leading-[1.05] tracking-tight mb-6">
                 {selectedProject.name}
               </h2>
+              <Link to={projectPath(selectedProject)} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4">
+                {t.caseStudy.fullPage}
+              </Link>
 
               {/* Hero image for detail view */}
               {selectedProject.image?.asset && (

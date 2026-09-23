@@ -115,6 +115,13 @@ const en: Translations = {
     gallery: 'Photo Gallery',
     detailHeader: 'Project Details',
   },
+  caseStudy: {
+    back: '← All projects',
+    fullPage: 'View project page ↗',
+    missing: 'This project could not be found.',
+    viewPdf: 'View PDF portfolio',
+    contactPrompt: 'Discuss your project',
+  },
   servicesPage: {
     title: 'Architectural & Interior Design Process',
     subtitle: 'A professional step-by-step roadmap to bring your living space to life.',

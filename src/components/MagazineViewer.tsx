@@ -15,6 +15,8 @@ import { useTranslation } from '../i18n';
 import { groupGalleryImages, getGalleryImageUrl } from '../utils/gallery';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
+import { Link } from 'react-router-dom';
+import { projectPath } from '../utils/projectSlug';
 
 interface PageProps {
   children: ReactNode;
@@ -228,9 +230,16 @@ export function MagazineViewer({ project, onClose, onNext, onPrev, currentIndex,
                →
             </button>
          </div>
-         <button onClick={onClose} aria-label="Close viewer" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl pointer-events-auto bg-white/50">
-            ×
-         </button>
+         <div className="flex items-center gap-3 pointer-events-auto">
+           {project._id && project.name && (
+             <Link to={projectPath({ ...project, _id: project._id, name: project.name })} className="rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-[#2a2a2a] hover:text-amber-800">
+               {t.caseStudy.fullPage}
+             </Link>
+           )}
+           <button onClick={onClose} aria-label="Close viewer" className="w-10 h-10 rounded-full border border-[#2a2a2a]/30 text-[#2a2a2a] flex items-center justify-center hover:bg-[#2a2a2a]/10 transition-colors text-xl bg-white/50">
+              ×
+           </button>
+         </div>
       </div>
 
       {/* PDF Viewer if available */}
