@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { OG_IMAGE_URL, pageUrl } from '../config/site';
 import { Link } from 'react-router-dom';
-import { client } from '../sanityClient';
+import { productsQuery } from '../../lib/contentQueries';
+import { fetchPublicContent } from '../utils/publicContent';
 import { useTranslation } from '../i18n';
 import { getResponsiveImageProps } from '../utils/image';
 
@@ -291,18 +292,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     let cancelled = false;
-    withTimeout((signal) => client.fetch<Product[]>(`*[_type == "product"] | order(order asc) {
-      ..., 
-      "slug": slug,
-      image {
-        ...,
-        "lqip": asset->metadata.lqip
-      },
-      gallery[] {
-        ...,
-        "lqip": asset->metadata.lqip
-      }
-    }`, {}, { signal }))
+    withTimeout(signal => fetchPublicContent<Product[]>('products', productsQuery, signal))
       .then((data) => {
         if (cancelled) return;
         setProducts(data || []);

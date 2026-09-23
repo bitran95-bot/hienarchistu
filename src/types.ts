@@ -26,6 +26,7 @@ export interface MagazinePage {
 export interface Project {
   _id: string;
   name: string;
+  slug?: { current: string };
   generalInfo?: string;
   content?: string;
   image?: SanityImage;

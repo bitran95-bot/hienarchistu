@@ -27,6 +27,14 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Đường dẫn dự án',
+      type: 'slug',
+      group: 'settings',
+      options: { source: 'name', maxLength: 96 },
+      description: 'Tạo một lần từ tên dự án, sau đó giữ nguyên để link đã chia sẻ không thay đổi.',
+    }),
+    defineField({
       name: 'generalInfo',
       title: 'Mô tả ngắn (Hiển thị ngay dưới Tên dự án)',
       type: 'text',

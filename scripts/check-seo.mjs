@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
 
@@ -7,7 +7,7 @@ const root = process.cwd();
 const site = JSON.parse(await readFile(join(root, 'site.config.json'), 'utf8'));
 const dist = join(root, 'dist');
 const imageUrl = new URL('/og-image.png', site.url).toString();
-const indexableUrls = [];
+let indexableCount = 0;
 
 for (const [name, page] of Object.entries(site.pages)) {
   const html = await readFile(join(dist, name === 'home' ? 'index.html' : `${name}.html`), 'utf8');
@@ -25,14 +25,13 @@ for (const [name, page] of Object.entries(site.pages)) {
     assert.equal(document.querySelector('link[rel="canonical"]'), null, `${name} canonical`);
   } else {
     assert.equal(document.querySelector('link[rel="canonical"]')?.href, url, `${name} canonical`);
-    indexableUrls.push(url);
+    indexableCount += 1;
   }
 }
 
-const sitemap = await readFile(join(dist, 'sitemap.xml'), 'utf8');
-for (const url of indexableUrls) assert.ok(sitemap.includes(`<loc>${url}</loc>`), `Sitemap missing ${url}`);
-assert.ok(!sitemap.includes('/download'), 'Private download page is in sitemap');
-assert.equal((sitemap.match(/<url>/g) || []).length, indexableUrls.length, 'Unexpected sitemap URLs');
+const outputFiles = await readdir(dist);
+assert.ok(!outputFiles.includes('sitemap.xml'), 'Sitemap must be generated from live Sanity content');
+assert.ok(!outputFiles.includes('projects'), 'Project pages must be generated from live Sanity content');
 const robots = await readFile(join(dist, 'robots.txt'), 'utf8');
 assert.ok(robots.includes(`Sitemap: ${new URL('/sitemap.xml', site.url)}`), 'Robots sitemap URL');
-console.log(`SEO check passed: ${indexableUrls.length} canonical pages and one noindex download page.`);
+console.log(`SEO check passed: ${indexableCount} static canonical pages and one noindex download page; project pages and sitemap are dynamic.`);

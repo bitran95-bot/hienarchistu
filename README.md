@@ -16,7 +16,7 @@ npm.cmd run dev
 
 Trên macOS/Linux dùng `npm` và `cp .env.example .env.local`. Nếu đã có `.env.local`, giữ nguyên và bổ sung các biến còn thiếu thay vì chép đè.
 
-Vite mặc định chạy tại http://localhost:5173. Frontend chỉ cần biến Sanity public; `.env.example` trỏ vào dataset hiện dùng của studio. Đổi project/dataset nếu cần môi trường riêng. Vite không tự chạy các route `/api/*`.
+Vite mặc định chạy tại http://localhost:5173. Frontend chỉ cần biến Sanity public; `.env.example` trỏ vào dataset hiện dùng của studio. Đổi project/dataset nếu cần môi trường riêng. Vite không tự chạy các route `/api/*`. Khi chạy local, trình duyệt đọc Sanity trực tiếp và origin local cần được cho phép trong Sanity. Trên Vercel, trang gọi `/api/public-content` cùng domain; Function đọc dataset public để Preview không cần thêm từng domain vào Sanity CORS.
 
 Nếu local báo không tải được dữ liệu, kiểm tra mạng và CORS origins trong Sanity project: origin phải khớp cả hostname lẫn cổng (ví dụ `http://localhost:5173` khác `http://127.0.0.1:4174`). Chỉ thêm origin dev/preview thực sự sử dụng; không cần bật allow credentials cho client public này. Không thêm Sanity API token vào frontend để xử lý CORS.
 
@@ -40,7 +40,7 @@ Workflow `.github/workflows/ci.yml` chạy các kiểm tra này khi mở PR ho�
 
 ## Domain và metadata tìm kiếm
 
-`site.config.json` khai báo domain production và các trang được đưa vào sitemap. Build tạo HTML metadata riêng cho `/`, `/projects`, `/services`, `/shop`; trang `/download` có `noindex` và không nằm trong sitemap. `robots.txt` và `sitemap.xml` cũng được tạo từ cùng cấu hình. Khi đổi domain chính thức, cập nhật `site.config.json`, build và kiểm tra lại Preview trước khi đưa lên production. Các trang dự án riêng và render nội dung CMS sẵn vẫn thuộc bước tiếp theo của giai đoạn SEO.
+`site.config.json` khai báo domain production. Build tạo HTML metadata riêng cho `/`, `/projects`, `/services`, `/shop`; trang `/download` có `noindex`. Trên Vercel, `/projects/:slug` và `/sitemap.xml` được tạo khi có request từ các dự án đã publish trong Sanity. Dự án mới và thay đổi nội dung xuất hiện sau khi Sanity trả dữ liệu mới, không cần deploy lại website. `robots.txt` dẫn đến sitemap động. Khi đổi domain chính thức, cập nhật `site.config.json`, build và kiểm tra lại Preview trước khi đưa lên production. Đường dẫn dự án lấy từ trường `slug` (nếu có), hoặc tự tạo từ tên; nên nhập slug duy nhất, ổn định trong Sanity trước khi chia sẻ URL. Nếu hai dự án có cùng slug, một URL không thể phân biệt được chúng.
 
 ## Chạy API local hoặc trên Vercel Preview
 

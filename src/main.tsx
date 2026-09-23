@@ -14,6 +14,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const DownloadPage = lazy(() => import('./pages/DownloadPage'))
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'))
+const ProjectPage = lazy(() => import('./pages/ProjectPage'))
 const ServicesPage = lazy(() => import('./pages/ServicesPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
@@ -63,6 +64,13 @@ function AnimatedRoutes() {
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
                 <ProjectsPage />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path="/projects/:slug" element={
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingFallback />}>
+                <ProjectPage />
               </Suspense>
             </ErrorBoundary>
           } />
