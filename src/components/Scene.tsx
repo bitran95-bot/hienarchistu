@@ -13,6 +13,7 @@ import { InteractiveProject } from './3d/InteractiveProject';
 
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
+import { WindowSunlight } from './3d/WindowSunlight';
 import { calculateProjectLayout } from '../utils/layout';
 import type { GridData, GridLocation } from '../types';
 import { useIsMobile } from '../hooks';
@@ -115,7 +116,7 @@ function SceneContents() {
          position={[25, 15, 15]} 
          intensity={isDarkMode ? 0.1 : 1.5} 
          castShadow={!isMobileScreen}
-         shadow-mapSize={[1024, 1024]} 
+         shadow-mapSize={[1024, 1024]}
          shadow-camera-left={-25}
          shadow-camera-right={25}
          shadow-camera-top={25}
@@ -146,6 +147,7 @@ function SceneContents() {
       <Suspense fallback={null}>
         <Bookshelf />
       </Suspense>
+      {!isDarkMode && <WindowSunlight />}
 
       {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
 
