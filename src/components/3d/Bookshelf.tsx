@@ -7,7 +7,7 @@ import { calculateProjectLayout } from '../../utils/layout';
 export function Bookshelf() {
   const { projects, isDarkMode } = useStore();
   const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
-  const wallPhoto = useTexture('/textures/sunlit-wall.webp');
+  const wallPhoto = useTexture('/textures/sunlit-wall-highres.jpg');
 
   const configuredShelfTexture = useMemo(() => {
     const texture = shelfTexture.clone();
@@ -35,7 +35,7 @@ export function Bookshelf() {
   }, [projects]);
   // Giữ mép trên cố định, nới tường xuống dưới khi Sanity có thêm hàng dự án.
   const wallHeight = Math.max(45, shelfRows * 4 + 32);
-  const wallWidth = wallHeight * (1672 / 941);
+  const wallWidth = wallHeight * (2752 / 1536);
   const wallY = -(wallHeight - 45) / 2;
 
   return (
@@ -44,7 +44,7 @@ export function Bookshelf() {
       <mesh position={[0, wallY, -4.5]}>
         <planeGeometry args={[wallWidth, wallHeight]} />
         {isDarkMode
-          ? <meshBasicMaterial color="#ffffff" />
+          ? <meshStandardMaterial color="#35363a" roughness={1} />
           : <meshBasicMaterial map={configuredWallPhoto} toneMapped={false} />}
       </mesh>
       <mesh position={[0, wallY, -4.48]} receiveShadow>

@@ -4,6 +4,7 @@ import { useProgress } from '@react-three/drei';
 import { Scene } from './Scene';
 import { LoadingScreen } from './LoadingScreen';
 import { RecoveryMessage } from './ui/RecoveryMessage';
+import { useStore } from '../store/useStore';
 
 /**
  * DesktopCanvas — Canvas 3D chỉ render trên desktop.
@@ -14,17 +15,24 @@ import { RecoveryMessage } from './ui/RecoveryMessage';
  */
 export default function DesktopCanvas() {
   const { progress, active } = useProgress();
+  const isDarkMode = useStore(state => state.isDarkMode);
   const [timedOut, setTimedOut] = useState(false);
+  const [sceneReadyOnce, setSceneReadyOnce] = useState(false);
   const ready = progress === 100 && !active;
   useEffect(() => {
-    if (ready) return;
+    if (!ready) return;
+    const frame = requestAnimationFrame(() => setSceneReadyOnce(true));
+    return () => cancelAnimationFrame(frame);
+  }, [ready]);
+  useEffect(() => {
+    if (ready || sceneReadyOnce) return;
     const timer = setTimeout(() => setTimedOut(true), 20_000);
     return () => clearTimeout(timer);
-  }, [ready]);
-  if (timedOut && !ready) return <RecoveryMessage scene fullScreen />;
+  }, [ready, sceneReadyOnce]);
+  if (timedOut && !ready && !sceneReadyOnce) return <RecoveryMessage scene fullScreen />;
   return (
     <>
-      <LoadingScreen started={ready} progress={progress} />
+      <LoadingScreen started={ready || sceneReadyOnce} progress={progress} />
       <Canvas
         shadows
         camera={{ position: [0, 1.5, 18], fov: 40 }}
@@ -32,7 +40,7 @@ export default function DesktopCanvas() {
         gl={{ antialias: true }}
         style={{ touchAction: 'none' }}
       >
-        <color attach="background" args={['#ffffff']} />
+        <color attach="background" args={[isDarkMode ? '#141518' : '#ffffff']} />
         <Suspense fallback={null}>
           <Scene />
         </Suspense>
