@@ -103,9 +103,9 @@ function SceneContents() {
            gl.setPixelRatio(0.75); // Cứu cánh cuối cùng nếu vẫn lag
         }}
       />
-      {/* Môi trường HDRI: Tạo ánh sáng studio và phản xạ thực tế (rất mượt) */}
+      {/* Giữ cùng HDRI khi đổi ngày/đêm để cảnh không bị Suspense ngắt render. */}
       <Suspense fallback={null}>
-         <Environment preset={isDarkMode ? "night" : "city"} environmentIntensity={isDarkMode ? 0.1 : 0.8} />
+         <Environment preset="city" environmentIntensity={isDarkMode ? 0.03 : 0.8} />
       </Suspense>
 
       <ambientLight intensity={isDarkMode ? 0.05 : 0.4} color={isDarkMode ? "#222244" : "#ffffff"} />
