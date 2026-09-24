@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { installFixtures, siteData, sanityQuery } from './support/fixtures';
+import { createTestPdf } from './support/testPdf';
 
 test.beforeEach(async ({ page }) => { await installFixtures(page); });
 
@@ -26,7 +27,7 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await expect(page).toHaveURL(/\/projects$/);
   }
   expect(backgroundTextureRequests.some(url => url.includes('beige_wall'))).toBe(false);
-  if (isMobile) expect(backgroundTextureRequests.some(url => url.includes('sunlit-wall-highres.jpg'))).toBe(false);
+  if (isMobile) expect(backgroundTextureRequests.some(url => url.includes('sunlit-wall-highres.jpg'))).toBe(true);
 });
 
 test('desktop project viewer starts with a rotatable model, then shows project photos', async ({ page, isMobile }) => {
@@ -44,6 +45,62 @@ test('desktop project viewer starts with a rotatable model, then shows project p
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toHaveCount(0);
   await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
+});
+
+test('project photos stay fully visible and PDF pages use the same Next controls', async ({ page, isMobile }) => {
+  const withPdf = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], pdfFileUrl: '/sample.pdf' }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withPdf } }));
+  await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
+  await page.goto(isMobile ? '/' : '/projects');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  const photo = viewer.getByRole('img', { name: isMobile ? 'Courtyard House image 1' : 'Courtyard House 1' }).first();
+  await expect(photo).toBeVisible();
+  await expect(photo).toHaveCSS('object-fit', 'contain');
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  const pdfPage = viewer.getByRole('img', { name: 'PDF page 1' });
+  await expect(pdfPage.locator('canvas')).toBeVisible();
+  const pageBounds = await pdfPage.boundingBox();
+  const canvasBounds = await pdfPage.locator('canvas').boundingBox();
+  expect(canvasBounds?.width).toBeLessThanOrEqual((pageBounds?.width || 0) + 1);
+  expect(canvasBounds?.height).toBeLessThanOrEqual((pageBounds?.height || 0) + 1);
+  await expect(viewer).toContainText(isMobile ? '2 / 3' : '02 / 03');
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();
+});
+
+test('PDF-only projects open as a paged gallery from the project list', async ({ page }) => {
+  const pdfOnly = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], image: undefined, pdfFileUrl: '/sample.pdf' }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: pdfOnly } }));
+  await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();
+});
+
+test('PDF-only projects also open on the mobile homepage', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The mobile homepage has its own project detail layout.');
+  const pdfOnly = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], image: undefined, pdfFileUrl: '/sample.pdf' }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: pdfOnly } }));
+  await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();
 });
 
 test('desktop home hash opens a Vietnamese project name after reload', async ({ page, isMobile }) => {
@@ -111,12 +168,14 @@ test('projects load, search and open details', async ({ page }) => {
   await expect(page.getByText('A quiet courtyard for family life.', { exact: true })).toBeVisible();
 });
 
-test('a project link opens the shared project viewer and survives a reload', async ({ page }) => {
+test('a project link opens the shared project viewer and survives a reload', async ({ page, isMobile }) => {
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/projects');
   await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
   await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
-  await expect(page.getByRole('dialog', { name: 'Courtyard House' })).toBeVisible();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer).toBeVisible();
+  await expect(viewer.getByRole('img', { name: isMobile ? 'Courtyard House image 1' : 'Courtyard House 1' })).toHaveCSS('object-fit', 'contain');
   await page.getByRole('button', { name: 'Copy project link' }).click();
   await expect(page.getByRole('button', { name: 'Link copied' })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('https://hienarchistu.vercel.app/projects/courtyard-house');
@@ -150,7 +209,7 @@ test('mobile home leaves 3D assets unloaded on a cold visit', async ({ page, isM
   test.skip(!isMobile, 'The desktop homepage needs the 3D scene.');
   const sceneRequests: string[] = [];
   page.on('request', request => {
-    if (/\/textures\/|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
+    if (/\/textures\/(?!sunlit-wall-highres\.jpg)|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
       sceneRequests.push(request.url());
     }
   });

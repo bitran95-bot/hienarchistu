@@ -18,7 +18,7 @@ import { ProjectModelPanel } from '../components/ProjectModelPanel';
 import { ProjectShareLink } from '../components/ProjectShareLink';
 import { RecoveryMessage } from '../components/ui/RecoveryMessage';
 import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
-const MobilePdfViewer = lazy(() => import('../components/MobilePdfViewer'));
+const PdfPageMedia = lazy(() => import('../components/PdfPageMedia'));
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
@@ -28,6 +28,7 @@ export default function ProjectsPage() {
   const selectedProject = slug ? projects.find(project => projectSlug(project) === slug) || null : null;
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  const [pdfPageCount, setPdfPageCount] = useState(1);
   const [showMobileModel, setShowMobileModel] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -67,6 +68,8 @@ export default function ProjectsPage() {
 
   // Project images (shared hook)
   const projectImages = useProjectImages(selectedProject);
+  const mediaCount = projectImages.length + (selectedProject?.pdfFileUrl ? pdfPageCount : 0);
+  const showingPdf = Boolean(selectedProject?.pdfFileUrl) && activeImageIndex >= projectImages.length;
   const metaTitle = `${selectedProject?.name || t.projectsPage.title} | Hiên Archi Studio`;
   const metaDescription = selectedProject?.generalInfo?.replace(/\s+/g, ' ').trim().slice(0, 160) || t.projectsPage.subtitle;
   const metaUrl = pageUrl(selectedProject ? projectPath(selectedProject) : '/projects');
@@ -77,6 +80,7 @@ export default function ProjectsPage() {
   useEffect(() => {
     queueMicrotask(() => {
       setActiveImageIndex(0);
+      setPdfPageCount(1);
       setShowMobileModel(false);
     });
   }, [selectedProject]);
@@ -409,55 +413,35 @@ export default function ProjectsPage() {
                     className="min-h-0 w-full flex-1"
                     fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(1000).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-contain" /> : undefined}
                   />
-                ) : selectedProject.pdfFileUrl ? (
-                  <Suspense fallback={<div className="flex h-full items-center justify-center" role="status">{t.scene.loadingData}</div>}>
-                    <MobilePdfViewer url={selectedProject.pdfFileUrl} />
-                  </Suspense>
-                ) : projectImages.length > 0 ? (
+                ) : mediaCount > 0 ? (
                   <>
-                    <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group cursor-pointer" onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}>
-                       <AnimatePresence mode="wait">
-                         <motion.img 
-                           key={activeImageIndex}
-                           initial={{ opacity: 0 }}
-                           animate={{ opacity: 1 }}
-                           exit={{ opacity: 0 }}
-                           transition={{ duration: 0.3 }}
-                           {...getResponsiveImageProps({
-                             source: projectImages[activeImageIndex],
-                             baseWidth: 1600,
-                             sizes: '(max-width: 768px) 100vw, 60vw',
-                             className: "w-full h-full object-contain",
-                             alt: `${selectedProject.name} image ${activeImageIndex + 1}`
-                           })}
-                         />
-                       </AnimatePresence>
-                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                         <span className="opacity-0 group-hover:opacity-100 text-white bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-opacity">{t.projectDetail.zoomIn}</span>
-                       </div>
+                    <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group">
+                      {showingPdf && selectedProject.pdfFileUrl ? (
+                        <Suspense fallback={<div className="flex h-full items-center justify-center" role="status">{t.scene.loadingData}</div>}>
+                          <PdfPageMedia url={selectedProject.pdfFileUrl} pageNumber={activeImageIndex - projectImages.length + 1} onPageCount={setPdfPageCount} className="h-full w-full" />
+                        </Suspense>
+                      ) : projectImages[activeImageIndex] ? (
+                        <button
+                          type="button"
+                          className="h-full w-full cursor-zoom-in"
+                          aria-label={t.projectDetail.zoomIn}
+                          onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
+                        >
+                          <img {...getResponsiveImageProps({
+                            source: projectImages[activeImageIndex],
+                            baseWidth: 1600,
+                            sizes: '(max-width: 768px) 100vw, 60vw',
+                            className: 'h-full w-full object-contain',
+                            alt: `${selectedProject.name} image ${activeImageIndex + 1}`,
+                          })} />
+                        </button>
+                      ) : null}
                     </div>
-                    
-                    {projectImages.length > 1 && (
-                      <div className="mt-4 flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 h-24 md:h-32 shrink-0">
-                         {projectImages.map((img, idx) => {
-                           const thumbProps = getResponsiveImageProps({
-                             source: img,
-                             aspectRatio: 1,
-                             baseWidth: 200,
-                             sizes: '100px',
-                             className: "w-full h-full object-cover",
-                             alt: `Thumbnail ${idx}`
-                           });
-                           return (
-                             <div 
-                               key={idx}
-                               onClick={() => setActiveImageIndex(idx)}
-                               className={`shrink-0 aspect-square h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${activeImageIndex === idx ? 'border-amber-700 opacity-100 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                             >
-                               {thumbProps && <img {...thumbProps} />}
-                             </div>
-                           );
-                         })}
+                    {mediaCount > 1 && (
+                      <div className="mt-4 flex shrink-0 items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 text-sm shadow-sm" aria-label={t.projectDetail.gallery}>
+                        <button type="button" onClick={() => setActiveImageIndex(index => (index - 1 + mediaCount) % mediaCount)} aria-label={t.projectDetail.previousImage} className="h-10 w-10 rounded-full border border-stone-200">←</button>
+                        <span className="font-medium tabular-nums">{activeImageIndex + 1} / {mediaCount}</span>
+                        <button type="button" onClick={() => setActiveImageIndex(index => (index + 1) % mediaCount)} aria-label={t.projectDetail.nextImage} className="h-10 w-10 rounded-full border border-stone-200">→</button>
                       </div>
                     )}
                   </>
