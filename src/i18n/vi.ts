@@ -16,7 +16,6 @@ export interface Translations {
   };
   scene: { loadingData: string };
   about: { title: string; text: string };
-  magazine: { aboutProject: string; details: string; videoTitle: string; galleryAlt: string; galleryHint: string; theEnd: string; subtitle: string; infoFallback: string };
   shop: {
     pageTitle: string; pageDesc: string; heroTitle: string; heroHighlight: string;
     heroSubtitle: string; backHome: string; activeLabel: string;
@@ -30,7 +29,7 @@ export interface Translations {
   };
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
-  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string };
+  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string; modelOf: string; modelUnavailable: string; loadingModel: string; rotateModel: string; viewModel: string; viewPhotos: string; previousImage: string; nextImage: string };
   servicesPage: {
     title: string;
     subtitle: string;
@@ -111,17 +110,6 @@ const vi: Translations = {
     title: 'Tôi là Trần Thái Bảo, một kiến trúc sư yêu bản sắc địa phương. Tôi chọn thiết kế những ngôi nhà dung dị, thích ứng với tự nhiên và tình yêu cuộc sống của gia chủ.',
     text: 'Trong quá trình làm nghề, tôi đi tìm vẻ đẹp trong sự mộc mạc của gỗ, của bê tông, đá cuội và những hang hiên đón nắng che mưa. Hợp tác cùng những người thợ lành nghề tại địa phương, chúng tôi dựng nên những nếp nhà yên lành, nơi con người tìm đến sự kết nối với tự nhiên, với bản thân và gia đình',
   },
-  // Magazine viewer
-  magazine: {
-    aboutProject: 'Về dự án',
-    details: 'Chi tiết',
-    videoTitle: 'Video Thực Tế',
-    galleryAlt: 'Thư viện ảnh',
-    galleryHint: 'Lật sang trang kế tiếp →',
-    theEnd: 'The End.',
-    subtitle: 'Ấn phẩm kiến trúc Hiên studio',
-    infoFallback: 'Thông tin chung dự án đang được cập nhật...',
-  },
   // Shop page
   shop: {
     pageTitle: 'Thư viện Revit — Hiên Archi Studio',
@@ -178,6 +166,14 @@ const vi: Translations = {
     viewInProjects: 'Xem trong danh sách dự án ↗',
     copyLink: 'Sao chép liên kết dự án',
     linkCopied: 'Đã sao chép liên kết',
+    modelOf: 'Mô hình 3D của',
+    modelUnavailable: 'Chưa thể tải mô hình 3D. Vui lòng xem ảnh dự án.',
+    loadingModel: 'Đang tải mô hình 3D...',
+    rotateModel: 'Kéo để xoay · cuộn để phóng to',
+    viewModel: 'Xem mô hình 3D',
+    viewPhotos: 'Xem ảnh',
+    previousImage: 'Hình trước',
+    nextImage: 'Hình tiếp theo',
   },
   servicesPage: {
     title: 'QUY TRÌNH THIẾT KẾ KIẾN TRÚC & NỘI THẤT',

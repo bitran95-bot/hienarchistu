@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,14 +13,12 @@ import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { DesktopProjectViewer } from '../components/DesktopProjectViewer';
+import { ProjectModelPanel } from '../components/ProjectModelPanel';
 import { ProjectShareLink } from '../components/ProjectShareLink';
 import { RecoveryMessage } from '../components/ui/RecoveryMessage';
 import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
-import { Document, Page as PdfPage, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+const MobilePdfViewer = lazy(() => import('../components/MobilePdfViewer'));
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
@@ -30,7 +28,7 @@ export default function ProjectsPage() {
   const selectedProject = slug ? projects.find(project => projectSlug(project) === slug) || null : null;
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
-  const [numPdfPages, setNumPdfPages] = useState<number | null>(null);
+  const [showMobileModel, setShowMobileModel] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -79,7 +77,7 @@ export default function ProjectsPage() {
   useEffect(() => {
     queueMicrotask(() => {
       setActiveImageIndex(0);
-      setNumPdfPages(null);
+      setShowMobileModel(false);
     });
   }, [selectedProject]);
 
@@ -315,7 +313,7 @@ export default function ProjectsPage() {
 
       {/* Project Detail Modal */}
       <AnimatePresence>
-        {selectedProject && (
+        {selectedProject && (isMobile ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <motion.div
               initial={{ opacity: 0 }}
@@ -396,49 +394,25 @@ export default function ProjectsPage() {
 
               {/* Right Side: Slideshow / PDF Viewer */}
               <div className="w-full md:w-3/5 h-1/2 md:h-full relative shrink-0 bg-stone-100 flex flex-col p-4 md:p-6 order-1 md:order-2">
-                {selectedProject.pdfFileUrl ? (
-                   <Document 
-                       file={selectedProject.pdfFileUrl}
-                       onLoadSuccess={({ numPages }) => setNumPdfPages(numPages)}
-                       className="w-full h-full flex flex-col"
-                   >
-                     {!numPdfPages ? (
-                        <div className="w-full h-full flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-700"></div>
-                        </div>
-                     ) : (
-                        <>
-                          <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex items-center justify-center p-2 group cursor-pointer">
-                             <PdfPage 
-                                 pageNumber={activeImageIndex + 1} 
-                                 height={isMobile ? window.innerHeight * 0.4 : window.innerHeight * 0.7}
-                                 renderTextLayer={false} 
-                                 renderAnnotationLayer={false}
-                                 className="max-w-full max-h-full flex items-center justify-center [&_canvas]:!w-auto [&_canvas]:!h-full [&_canvas]:!max-w-full [&_canvas]:!object-contain"
-                             />
-                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center pointer-events-none"></div>
-                          </div>
-                          {numPdfPages > 1 && (
-                            <div className="mt-4 flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 h-24 md:h-32 shrink-0">
-                               {Array.from(new Array(numPdfPages), (_, idx) => (
-                                 <div 
-                                   key={idx}
-                                   onClick={() => setActiveImageIndex(idx)}
-                                   className={`shrink-0 aspect-[1/1.4] h-full rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 bg-white flex items-center justify-center ${activeImageIndex === idx ? 'border-amber-700 shadow-md scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                                 >
-                                    <PdfPage 
-                                        pageNumber={idx + 1} 
-                                        height={100}
-                                        renderTextLayer={false} 
-                                        renderAnnotationLayer={false}
-                                    />
-                                 </div>
-                               ))}
-                            </div>
-                          )}
-                        </>
-                     )}
-                   </Document>
+                {selectedProject.modelFileUrl && (
+                  <button
+                    onClick={() => setShowMobileModel(value => !value)}
+                    className="absolute left-6 top-6 z-10 rounded-full bg-white px-4 py-2 text-xs font-bold text-stone-800 shadow-sm"
+                  >
+                    {showMobileModel ? t.projectDetail.viewPhotos : t.projectDetail.viewModel}
+                  </button>
+                )}
+                {showMobileModel && selectedProject.modelFileUrl ? (
+                  <ProjectModelPanel
+                    url={selectedProject.modelFileUrl}
+                    name={selectedProject.name}
+                    className="min-h-0 w-full flex-1"
+                    fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(1000).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-contain" /> : undefined}
+                  />
+                ) : selectedProject.pdfFileUrl ? (
+                  <Suspense fallback={<div className="flex h-full items-center justify-center" role="status">{t.scene.loadingData}</div>}>
+                    <MobilePdfViewer url={selectedProject.pdfFileUrl} />
+                  </Suspense>
                 ) : projectImages.length > 0 ? (
                   <>
                     <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group cursor-pointer" onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}>
@@ -495,7 +469,9 @@ export default function ProjectsPage() {
               </div>
             </motion.div>
           </div>
-        )}
+        ) : (
+          <DesktopProjectViewer key={selectedProject._id} project={selectedProject} onClose={closeProject} />
+        ))}
       </AnimatePresence>
 
       {/* Fullscreen Image Viewer */}

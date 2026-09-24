@@ -1,17 +1,17 @@
-import type { Project } from '../types';
 import { AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback, memo, lazy, Suspense } from 'react';
 import { useEscapeKey } from '../hooks';
 import { useStore } from '../store/useStore';
-const MagazineViewer = lazy(() => import('./MagazineViewer').then(m => ({ default: m.MagazineViewer })));
+const DesktopProjectViewer = lazy(() => import('./DesktopProjectViewer').then(m => ({ default: m.DesktopProjectViewer })));
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
 import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
 import { Link, useNavigate } from 'react-router-dom';
+import { projectSlug } from '../utils/projectSlug';
 
 export const Overlay = memo(function Overlay() {
-  const { modalOpen, setModalOpen, activeProject, setActiveProject, projects } = useStore();
+  const { modalOpen, setModalOpen, activeProject, projects } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAboutActive, setIsAboutActive] = useState(false);
@@ -51,31 +51,16 @@ export const Overlay = memo(function Overlay() {
 
   useEscapeKey(handleClose);
 
-  const fallbackProjects: Partial<Project>[] = [
-    { name: "Nhà bên Hiên", generalInfo: "Đang cập nhật..." },
-    { name: "Sài Gòn Pavilion", generalInfo: "Đang cập nhật..." }
-  ];
-
-  const actualProjects = (projects && projects.length > 0) ? projects : fallbackProjects;
-  const currentDetail = actualProjects[activeProject] || actualProjects[0];
-  
-  const handlePrev = () => {
-    setActiveProject((activeProject - 1 + actualProjects.length) % actualProjects.length);
-  };
-
-  const handleNext = () => {
-    setActiveProject((activeProject + 1) % actualProjects.length);
-  };
+  const currentDetail = projects[activeProject] || null;
 
   // Deep linking sync
   useEffect(() => {
-    if (modalOpen && actualProjects[activeProject]) {
-      const slug = actualProjects[activeProject].name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '';
-      window.history.replaceState(null, '', `#${slug}`);
+    if (modalOpen && currentDetail) {
+      window.history.replaceState(null, '', `#${projectSlug(currentDetail)}`);
     } else if (!modalOpen && window.location.hash && !['#about', '#contact'].includes(window.location.hash)) {
       window.history.replaceState(null, '', window.location.pathname);
     }
-  }, [modalOpen, activeProject, actualProjects]);
+  }, [modalOpen, currentDetail]);
 
   // removed isMobileScreen state that was causing unused error
   return (
@@ -134,7 +119,7 @@ export const Overlay = memo(function Overlay() {
       {/* Floating Bottom Nav for Mobile */}
       <MobileNav onContactClick={() => setContactOpen(true)} />
 
-      {/* DETAIL MODAL FULLSCREEN - NOW MAGAZINE VIEWER */}
+      {/* Cùng một bố cục desktop cho dự án mở từ không gian 3D và danh sách. */}
       <AnimatePresence>
       {modalOpen && currentDetail && (
         <Suspense fallback={
@@ -142,14 +127,10 @@ export const Overlay = memo(function Overlay() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700"></div>
           </div>
         }>
-          <MagazineViewer 
-            key={currentDetail._id || activeProject}
+          <DesktopProjectViewer
+            key={currentDetail._id}
             project={currentDetail}
-            currentIndex={activeProject}
-            totalIndex={actualProjects.length}
             onClose={() => setModalOpen(false)}
-            onNext={handleNext}
-            onPrev={handlePrev}
           />
         </Suspense>
       )}

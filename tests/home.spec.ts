@@ -4,10 +4,10 @@ import { installFixtures, siteData, sanityQuery } from './support/fixtures';
 test.beforeEach(async ({ page }) => { await installFixtures(page); });
 
 test('home renders the appropriate experience for the device', async ({ page, isMobile }) => {
-  const displacementRequests: string[] = [];
+  const backgroundTextureRequests: string[] = [];
   page.on('request', request => {
-    if (request.url().includes('/textures/beige_wall_001_disp_2k.png')) {
-      displacementRequests.push(request.url());
+    if (/\/textures\/(?:beige_wall|plywood)/.test(request.url())) {
+      backgroundTextureRequests.push(request.url());
     }
   });
   await page.goto('/');
@@ -23,7 +23,41 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
   }
-  expect(displacementRequests).toEqual([]);
+  expect(backgroundTextureRequests).toEqual([]);
+});
+
+test('desktop project viewer starts with a rotatable model, then shows project photos', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Desktop uses the editorial split layout.');
+  const withModel = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], modelFileUrl: '/magazine.glb?v=3', gallery: [siteData.projects[0].image] }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withModel } }));
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toBeVisible();
+  await expect(viewer.locator('canvas')).toBeVisible();
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toHaveCount(0);
+  await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
+});
+
+test('mobile project detail can reveal and rotate its 3D model', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'Desktop uses the editorial split layout.');
+  const withModel = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], modelFileUrl: '/magazine.glb?v=3' }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withModel } }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await viewer.getByRole('button', { name: 'View 3D model' }).click();
+  await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toBeVisible();
+  await expect(viewer.locator('canvas')).toBeVisible();
+  await viewer.getByRole('button', { name: 'View photos' }).click();
+  await expect(viewer.locator('canvas')).toHaveCount(0);
 });
 
 test('projects load, search and open details', async ({ page }) => {

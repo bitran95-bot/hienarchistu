@@ -112,7 +112,7 @@ function App() {
         <>
           {/* Không gian 3D nền (Ban ngày sáng sủa) */}
           <ErrorBoundary fallback={<RecoveryMessage scene fullScreen />}>
-          <div className="fixed inset-0 w-full h-full z-0 bg-[#fdfbf7]">
+          <div className="fixed inset-0 w-full h-full z-0 bg-white">
             <Suspense fallback={<LoadingScreen started={false} />}>
               <DesktopCanvas />
             </Suspense>

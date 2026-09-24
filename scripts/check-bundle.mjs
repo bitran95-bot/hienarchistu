@@ -7,7 +7,7 @@ const serviceWorker = await readFile('dist/sw.js', 'utf8');
 const entry = html.match(/src="\/(assets\/index-[^"]+\.js)"/)?.[1];
 assert.ok(entry, 'Missing JavaScript entry in dist/index.html');
 
-const optionalAsset = /(?:DesktopCanvas|TextLayer|MagazineViewer)-[^/]+\.(?:js|css)$|(?:magazine\.glb|pdf\.worker\.min\.mjs)$/;
+const optionalAsset = /(?:DesktopCanvas|TextLayer|SkeletonUtils|ProjectModelCanvas|MobilePdfViewer|ProjectsPage)-[^/]+\.(?:js|css)$|(?:magazine\.glb|pdf\.worker\.min\.mjs)$/;
 const preloads = [...html.matchAll(/rel="modulepreload"[^>]+href="\/([^"]+)"/g)].map((match) => match[1]);
 const precached = [...serviceWorker.matchAll(/url:"([^"]+)"/g)].map((match) => match[1]);
 assert.ok(!preloads.some((url) => optionalAsset.test(url)), '3D or PDF asset is preloaded on the homepage');
