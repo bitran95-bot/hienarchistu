@@ -20,10 +20,11 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await expect(page.locator('canvas')).toBeVisible();
     await expect(page.getByRole('status')).toHaveCount(0, { timeout: 20_000 });
     await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect.poll(() => backgroundTextureRequests.some(url => url.includes('plywood_diff_2k.jpg'))).toBe(true);
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
   }
-  expect(backgroundTextureRequests).toEqual([]);
+  expect(backgroundTextureRequests.some(url => url.includes('beige_wall'))).toBe(false);
 });
 
 test('desktop project viewer starts with a rotatable model, then shows project photos', async ({ page, isMobile }) => {
@@ -52,6 +53,29 @@ test('desktop home hash opens a Vietnamese project name after reload', async ({ 
   await page.route(sanityQuery, route => route.fulfill({ json: { result: localized } }));
   await page.goto('/#nha-tren-doi');
   await expect(page.getByRole('dialog', { name: 'Nhà Trên Đồi' })).toBeVisible();
+});
+
+test('project viewer over the 3D scene accepts Next and wheel scrolling', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'The mobile home does not render the 3D bookshelf.');
+  const withModel = {
+    ...siteData,
+    projects: [{
+      ...siteData.projects[0],
+      modelFileUrl: '/magazine.glb?v=3',
+      gallery: [siteData.projects[0].image],
+      content: 'A quiet courtyard for family life. '.repeat(150),
+    }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withModel } }));
+  await page.goto('/#courtyard-house');
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer).toBeVisible();
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
+  const information = viewer.locator('section').first();
+  await information.hover();
+  await page.mouse.wheel(0, 500);
+  await expect.poll(() => information.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
 });
 
 test('mobile project detail can reveal and rotate its 3D model', async ({ page, isMobile }) => {
