@@ -51,9 +51,9 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
           first?.focus();
         }
       }}
-      className="fixed inset-0 z-[100] grid h-[100dvh] grid-cols-[43%_57%] bg-white text-[#171717]"
+      className="pointer-events-auto fixed inset-0 z-[100] grid h-[100dvh] grid-cols-[43%_57%] bg-white text-[#171717]"
     >
-      <section className="flex min-h-0 flex-col overflow-y-auto border-r border-stone-100 px-[clamp(2rem,4vw,5rem)] pb-10 pt-10">
+      <section className="flex min-h-0 flex-col overflow-y-auto overscroll-y-contain border-r border-stone-100 px-[clamp(2rem,4vw,5rem)] pb-10 pt-10">
         <p className="mb-14 text-[11px] font-bold uppercase tracking-[0.22em] text-stone-500">HIÊN studio / {t.nav.projects}</p>
         <h2 className="max-w-full break-words font-sans text-[clamp(3rem,5.7vw,7.5rem)] font-black leading-[0.94] tracking-[-0.075em]">
           {project.name}

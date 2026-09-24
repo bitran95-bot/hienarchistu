@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Html, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -15,6 +15,27 @@ function Model({ url }: { url: string }) {
     const longestSide = Math.max(size.x, size.y, size.z);
     return { scene, center, scale: longestSide > 0 ? 3.8 / longestSide : 1 };
   }, [source]);
+
+  useEffect(() => {
+    const outlines: THREE.LineSegments[] = [];
+    scene.traverse(child => {
+      if (!(child as THREE.Mesh).isMesh) return;
+      const mesh = child as THREE.Mesh;
+      const outline = new THREE.LineSegments(
+        new THREE.EdgesGeometry(mesh.geometry, 40),
+        new THREE.LineBasicMaterial({ color: 0x5c4a3d, linewidth: 1, transparent: true, opacity: 0.45 }),
+      );
+      mesh.add(outline);
+      outlines.push(outline);
+    });
+    return () => {
+      outlines.forEach(outline => {
+        outline.removeFromParent();
+        outline.geometry.dispose();
+        (outline.material as THREE.Material).dispose();
+      });
+    };
+  }, [scene]);
 
   return (
     <group scale={scale}>
