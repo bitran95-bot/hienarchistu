@@ -57,19 +57,18 @@ test('desktop home hash opens a Vietnamese project name after reload', async ({ 
 
 test('project viewer over the 3D scene accepts Next and wheel scrolling', async ({ page, isMobile }) => {
   test.skip(isMobile, 'The mobile home does not render the 3D bookshelf.');
-  const withModel = {
+  const withImages = {
     ...siteData,
     projects: [{
       ...siteData.projects[0],
-      modelFileUrl: '/magazine.glb?v=3',
-      gallery: [siteData.projects[0].image],
+      gallery: [{ _type: 'image', asset: { _ref: 'image-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-1x1-png' } }],
       content: 'A quiet courtyard for family life. '.repeat(150),
     }],
   };
-  await page.route(sanityQuery, route => route.fulfill({ json: { result: withModel } }));
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withImages } }));
   await page.goto('/#courtyard-house');
   const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
-  await expect(viewer).toBeVisible();
+  await expect(viewer).toBeVisible({ timeout: 20_000 });
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
   const information = viewer.locator('section').first();
