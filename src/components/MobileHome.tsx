@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useRef } from 'react';
+import { useState, useEffect, useCallback, memo, useRef, lazy, Suspense } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
@@ -15,6 +15,8 @@ import { ProjectModelPanel } from './ProjectModelPanel';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
+const PdfPageMedia = lazy(() => import('./PdfPageMedia'));
+
 /**
  * MobileHome — Trang chủ 2D tối giản, phong cách editorial
  */
@@ -24,6 +26,7 @@ export const MobileHome = memo(function MobileHome() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [pdfPageCount, setPdfPageCount] = useState(1);
   const [showMobileModel, setShowMobileModel] = useState(false);
   const { t, lang } = useTranslation();
   const { hash } = useLocation();
@@ -50,6 +53,7 @@ export const MobileHome = memo(function MobileHome() {
   // Reset image index when project changes
   useEffect(() => {
     setActiveImageIndex(0);
+    setPdfPageCount(1);
     setShowMobileModel(false);
   }, [selectedProject]);
 
@@ -66,6 +70,8 @@ export const MobileHome = memo(function MobileHome() {
 
   // Project images for detail view (shared hook)
   const projectImages = useProjectImages(selectedProject);
+  const mediaCount = projectImages.length + (selectedProject?.pdfFileUrl ? pdfPageCount : 0);
+  const showingPdf = Boolean(selectedProject?.pdfFileUrl) && activeImageIndex >= projectImages.length;
 
   // Youtube embed URL — shared utility
 
@@ -79,7 +85,14 @@ export const MobileHome = memo(function MobileHome() {
     <div className="min-h-screen bg-[#f1efe7] text-[#1a1a1a] overflow-x-hidden selection:bg-[#d8d3c5] font-sans">
 
       {/* ━━━ HERO SECTION ━━━ */}
-      <section className="relative min-h-[100dvh] flex flex-col px-8 pt-12 pb-12">
+      <section
+        className="relative min-h-[100dvh] flex flex-col px-8 pt-12 pb-12"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(241,239,231,0.38), rgba(241,239,231,0.55)), url(/textures/sunlit-wall-highres.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: '36% center',
+        }}
+      >
         
         {/* Header / Meta */}
         <motion.div 
@@ -356,7 +369,7 @@ export const MobileHome = memo(function MobileHome() {
                       url={selectedProject.modelFileUrl}
                       name={selectedProject.name}
                       className="h-[min(72vw,420px)] w-full"
-                      fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(800).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-cover" /> : undefined}
+                      fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(800).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-contain" /> : undefined}
                     />
                   )}
                 </div>
@@ -368,7 +381,7 @@ export const MobileHome = memo(function MobileHome() {
                   <img 
                     src={urlFor(selectedProject.image).width(800).quality(85).auto('format').url()}
                     alt={selectedProject.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     style={selectedProject.image.lqip ? { backgroundImage: `url(${selectedProject.image.lqip})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
                   />
                 </div>
@@ -414,57 +427,79 @@ export const MobileHome = memo(function MobileHome() {
               )}
 
               {/* Gallery images */}
-              {projectImages.length > 1 && (
+              {mediaCount > 1 || selectedProject.pdfFileUrl ? (
                 <div className="mb-12">
                   <h4 className="text-[10px] font-bold text-[#1a1a1a]/50 uppercase tracking-[0.2em] mb-3">{t.projectDetail.gallery}</h4>
                   
-                  {/* Main image viewer */}
-                  <div 
-                    className="relative aspect-[4/5] bg-[#e0dbd0] mb-4 cursor-pointer"
-                    onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
-                  >
-                    <AnimatePresence mode="wait">
-                      <motion.img
-                        key={activeImageIndex}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        src={urlFor(projectImages[activeImageIndex]).width(1000).quality(85).auto('format').url()}
-                        alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </AnimatePresence>
+                  <div className="relative aspect-[4/5] bg-white mb-4">
+                    {showingPdf && selectedProject.pdfFileUrl ? (
+                      <Suspense fallback={<div role="status" className="flex h-full items-center justify-center">{t.scene.loadingData}</div>}>
+                        <PdfPageMedia url={selectedProject.pdfFileUrl} pageNumber={activeImageIndex - projectImages.length + 1} onPageCount={setPdfPageCount} className="h-full w-full" />
+                      </Suspense>
+                    ) : projectImages[activeImageIndex] ? (
+                      <button
+                        type="button"
+                        className="h-full w-full cursor-zoom-in"
+                        aria-label={t.projectDetail.zoomIn}
+                        onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
+                      >
+                        <img
+                          src={urlFor(projectImages[activeImageIndex]).width(1000).quality(85).auto('format').url()}
+                          alt={`${selectedProject.name} image ${activeImageIndex + 1}`}
+                          className="h-full w-full object-contain"
+                        />
+                      </button>
+                    ) : null}
                   </div>
+
+                  {mediaCount > 1 && (
+                    <div className="mb-4 flex items-center justify-between gap-3 text-sm" aria-label={t.projectDetail.gallery}>
+                      <button type="button" onClick={() => setActiveImageIndex(index => (index - 1 + mediaCount) % mediaCount)} aria-label={t.projectDetail.previousImage} className="h-11 w-11 rounded-full border border-[#1a1a1a]/30">←</button>
+                      <span className="font-semibold tabular-nums">{activeImageIndex + 1} / {mediaCount}</span>
+                      <button type="button" onClick={() => setActiveImageIndex(index => (index + 1) % mediaCount)} aria-label={t.projectDetail.nextImage} className="h-11 w-11 rounded-full border border-[#1a1a1a]/30">→</button>
+                    </div>
+                  )}
 
                   {/* Thumbnails */}
                   <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                     {projectImages.map((img, idx) => {
                       const thumbProps = getResponsiveImageProps({
                         source: img,
-                        aspectRatio: 1,
                         baseWidth: 150,
                         sizes: '80px',
-                        className: 'w-full h-full object-cover',
+                        className: 'w-full h-full object-contain',
                         alt: `Thumb ${idx}`
                       });
                       return (
-                        <div 
+                        <button
+                          type="button"
                           key={idx}
                           onClick={() => setActiveImageIndex(idx)}
-                          className={`shrink-0 w-20 h-20 snap-start cursor-pointer transition-all duration-300 ${
+                          aria-label={`${selectedProject.name} image ${idx + 1}`}
+                          className={`shrink-0 w-20 h-20 snap-start cursor-pointer bg-white transition-all duration-300 ${
                             activeImageIndex === idx 
                               ? 'ring-2 ring-[#1a1a1a] ring-offset-2 ring-offset-[#f1efe7] opacity-100' 
                               : 'opacity-40 hover:opacity-80'
                           }`}
                         >
                           {thumbProps && <img {...thumbProps} />}
-                        </div>
+                        </button>
                       );
                     })}
+                    {selectedProject.pdfFileUrl && Array.from({ length: pdfPageCount }, (_, index) => (
+                      <button
+                        type="button"
+                        key={`pdf-${index}`}
+                        onClick={() => setActiveImageIndex(projectImages.length + index)}
+                        aria-label={`PDF ${index + 1}`}
+                        className={`shrink-0 h-20 w-16 snap-start border bg-white text-xs font-bold ${activeImageIndex === projectImages.length + index ? 'border-[#1a1a1a]' : 'border-[#1a1a1a]/20'}`}
+                      >
+                        PDF<br />{index + 1}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           </motion.div>
         )}

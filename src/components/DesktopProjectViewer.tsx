@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ProjectModelPanel } from './ProjectModelPanel';
 import { ProjectShareLink } from './ProjectShareLink';
@@ -8,20 +8,26 @@ import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
+const PdfPageMedia = lazy(() => import('./PdfPageMedia'));
+
 export function DesktopProjectViewer({ project, onClose }: { project: Project; onClose: () => void }) {
   const { t } = useTranslation();
   const images = useProjectImages(project);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [pdfPageCount, setPdfPageCount] = useState(1);
   const hasModel = Boolean(project.modelFileUrl);
-  const slideCount = images.length + (hasModel ? 1 : 0);
+  const imageStart = hasModel ? 1 : 0;
+  const pdfStart = imageStart + images.length;
+  const slideCount = pdfStart + (project.pdfFileUrl ? pdfPageCount : 0);
   const showingModel = hasModel && activeSlide === 0;
-  const currentImage = images[activeSlide - (hasModel ? 1 : 0)];
+  const showingPdf = Boolean(project.pdfFileUrl) && activeSlide >= pdfStart;
+  const currentImage = showingPdf ? undefined : images[activeSlide - imageStart];
   const imageProps = currentImage ? getResponsiveImageProps({
     source: currentImage,
     baseWidth: 1800,
     sizes: '60vw',
     alt: `${project.name} ${activeSlide + 1}`,
-    className: 'h-full w-full object-cover',
+    className: 'h-full w-full object-contain',
   }) : null;
 
   const moveSlide = (direction: -1 | 1) => {
@@ -88,8 +94,12 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
                 url={project.modelFileUrl}
                 name={project.name}
                 className="h-full w-full"
-                fallback={images[0] ? <img {...getResponsiveImageProps({ source: images[0], baseWidth: 1600, alt: project.name, className: 'h-full w-full object-cover' })} /> : undefined}
+                fallback={images[0] ? <img {...getResponsiveImageProps({ source: images[0], baseWidth: 1600, alt: project.name, className: 'h-full w-full object-contain' })} /> : undefined}
               />
+            ) : showingPdf && project.pdfFileUrl ? (
+              <Suspense fallback={<div role="status" className="flex h-full items-center justify-center">{t.scene.loadingData}</div>}>
+                <PdfPageMedia url={project.pdfFileUrl} pageNumber={activeSlide - pdfStart + 1} onPageCount={setPdfPageCount} className="h-full w-full" />
+              </Suspense>
             ) : imageProps ? (
               <img {...imageProps} />
             ) : (
