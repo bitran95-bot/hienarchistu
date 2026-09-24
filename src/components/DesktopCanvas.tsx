@@ -32,6 +32,7 @@ export default function DesktopCanvas() {
         gl={{ antialias: true }}
         style={{ touchAction: 'none' }}
       >
+        <color attach="background" args={['#ffffff']} />
         <Suspense fallback={null}>
           <Scene />
         </Suspense>

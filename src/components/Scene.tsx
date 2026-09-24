@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useThree } from '@react-three/fiber';
-import { ScrollControls, useScroll, useTexture, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
+import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { SRGBColorSpace } from 'three';
 
 import { useStore } from '../store/useStore';
 import { LoadingSpinner } from './3d/LoadingSpinner';
@@ -21,20 +20,6 @@ import { useIsMobile } from '../hooks';
 import { useCameraController } from './3d/hooks/useCameraController';
 import { useHeroAnimations } from './3d/hooks/useHeroAnimations';
 import { useLocation } from 'react-router-dom';
-
-function StudioBackground({ isDarkMode }: { isDarkMode: boolean }) {
-  const photo = useTexture('/textures/sunlit-wall.webp');
-  const background = useMemo(() => {
-    const texture = photo.clone();
-    texture.colorSpace = SRGBColorSpace;
-    texture.needsUpdate = true;
-    return texture;
-  }, [photo]);
-
-  return isDarkMode
-    ? <color attach="background" args={['#ffffff']} />
-    : <primitive attach="background" object={background} />;
-}
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
@@ -125,9 +110,9 @@ function SceneContents() {
 
       <ambientLight intensity={isDarkMode ? 0.05 : 0.4} color={isDarkMode ? "#222244" : "#ffffff"} />
       
-      {/* Ánh sáng mặt trời chiếu vát tạo khối */}
+      {/* Ảnh nền nhận nắng từ phía trên bên trái; mô hình cùng hướng sáng đó. */}
       <directionalLight 
-         position={[25, 15, 15]} 
+         position={[-25, 18, 15]}
          intensity={isDarkMode ? 0.1 : 1.5} 
          castShadow={!isMobileScreen}
          shadow-mapSize={[1024, 1024]}
@@ -161,7 +146,6 @@ function SceneContents() {
       <Suspense fallback={null}>
         <Bookshelf />
       </Suspense>
-      <StudioBackground isDarkMode={isDarkMode} />
 
       {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
 
