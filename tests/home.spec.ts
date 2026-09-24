@@ -56,6 +56,7 @@ test('desktop home hash opens a Vietnamese project name after reload', async ({ 
 });
 
 test('project viewer over the 3D scene accepts Next and wheel scrolling', async ({ page, isMobile }) => {
+  test.setTimeout(60_000); // Software-rendered WebGL can delay input on CI runners.
   test.skip(isMobile, 'The mobile home does not render the 3D bookshelf.');
   const withImages = {
     ...siteData,
@@ -72,9 +73,12 @@ test('project viewer over the 3D scene accepts Next and wheel scrolling', async 
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
   const information = viewer.locator('section').first();
-  await information.hover();
-  await page.mouse.wheel(0, 500);
-  await expect.poll(() => information.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  expect(await information.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+  await expect.poll(async () => {
+    await information.hover();
+    await page.mouse.wheel(0, 500);
+    return information.evaluate(element => element.scrollTop);
+  }, { timeout: 15_000 }).toBeGreaterThan(0);
 });
 
 test('mobile project detail can reveal and rotate its 3D model', async ({ page, isMobile }) => {
