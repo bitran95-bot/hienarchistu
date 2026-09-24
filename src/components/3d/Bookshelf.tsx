@@ -5,7 +5,7 @@ import { useStore } from '../../store/useStore';
 import { calculateProjectLayout } from '../../utils/layout';
 
 export function Bookshelf() {
-  const { projects } = useStore();
+  const { projects, isDarkMode } = useStore();
   const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
 
   const configuredShelfTexture = useMemo(() => {
@@ -34,6 +34,12 @@ export function Bookshelf() {
         <planeGeometry args={[100, 50]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>
+      {!isDarkMode && (
+        <mesh position={[0, 0, -2.99]} receiveShadow>
+          <planeGeometry args={[100, 50]} />
+          <shadowMaterial color="#6b6257" opacity={0.4} depthWrite={false} />
+        </mesh>
+      )}
 
       {/* Đợt kệ */}
       {Array.from({ length: shelfRows }).map((_, r) => (
