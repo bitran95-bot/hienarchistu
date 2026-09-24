@@ -111,6 +111,7 @@ const en: Translations = {
     modelUnavailable: 'The 3D model could not load. Please view the project photos.',
     loadingModel: 'Loading 3D model...',
     rotateModel: 'Drag to rotate · scroll to zoom',
+    rotateModelMobile: 'Drag to rotate · pinch to zoom',
     viewModel: 'View 3D model',
     viewPhotos: 'View photos',
     previousImage: 'Previous image',

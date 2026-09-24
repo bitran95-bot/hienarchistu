@@ -6,6 +6,7 @@ import { useStore } from './store/useStore';
 import { useIsMobile } from './hooks';
 import { RecoveryMessage } from './components/ui/RecoveryMessage';
 import { SITE_URL, OG_IMAGE_URL } from './config/site';
+import { projectSlug } from './utils/projectSlug';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 // Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
@@ -27,10 +28,7 @@ function App() {
     if (!isMobile && isDataLoaded && projects && projects.length > 0) {
       const hash = window.location.hash.slice(1);
       if (hash) {
-        const idx = projects.findIndex(p => 
-          p._id === hash || 
-          p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === hash
-        );
+        const idx = projects.findIndex(p => p._id === hash || projectSlug(p) === hash);
         if (idx !== -1) {
           useStore.getState().setActiveProject(idx);
           useStore.getState().setModalOpen(true);

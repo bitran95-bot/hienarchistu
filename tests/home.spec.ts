@@ -43,6 +43,17 @@ test('desktop project viewer starts with a rotatable model, then shows project p
   await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
 });
 
+test('desktop home hash opens a Vietnamese project name after reload', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'The mobile home does not render the 3D bookshelf.');
+  const localized = {
+    ...siteData,
+    projects: [{ ...siteData.projects[0], name: 'Nhà Trên Đồi' }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: localized } }));
+  await page.goto('/#nha-tren-doi');
+  await expect(page.getByRole('dialog', { name: 'Nhà Trên Đồi' })).toBeVisible();
+});
+
 test('mobile project detail can reveal and rotate its 3D model', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'Desktop uses the editorial split layout.');
   const withModel = {

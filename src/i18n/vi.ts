@@ -29,7 +29,7 @@ export interface Translations {
   };
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
-  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string; modelOf: string; modelUnavailable: string; loadingModel: string; rotateModel: string; viewModel: string; viewPhotos: string; previousImage: string; nextImage: string };
+  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string; modelOf: string; modelUnavailable: string; loadingModel: string; rotateModel: string; rotateModelMobile: string; viewModel: string; viewPhotos: string; previousImage: string; nextImage: string };
   servicesPage: {
     title: string;
     subtitle: string;
@@ -170,6 +170,7 @@ const vi: Translations = {
     modelUnavailable: 'Chưa thể tải mô hình 3D. Vui lòng xem ảnh dự án.',
     loadingModel: 'Đang tải mô hình 3D...',
     rotateModel: 'Kéo để xoay · cuộn để phóng to',
+    rotateModelMobile: 'Chạm kéo để xoay · chụm để phóng to',
     viewModel: 'Xem mô hình 3D',
     viewPhotos: 'Xem ảnh',
     previousImage: 'Hình trước',
