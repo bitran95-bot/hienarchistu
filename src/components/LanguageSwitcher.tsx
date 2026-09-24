@@ -3,7 +3,7 @@ import { useTranslation } from '../i18n';
 /**
  * Nút chuyển đổi ngôn ngữ VI/EN — nhỏ gọn, đẹp, hoạt hình mượt.
  */
-export function LanguageSwitcher({ className = '' }: { className?: string }) {
+export function LanguageSwitcher({ className = '', dark = false }: { className?: string; dark?: boolean }) {
   const { lang, setLang } = useTranslation();
 
   const toggle = () => setLang(lang === 'vi' ? 'en' : 'vi');
@@ -12,7 +12,9 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
     <button
       onClick={toggle}
       className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all duration-300 border ${
-        lang === 'vi'
+        dark
+          ? 'bg-stone-900/80 text-stone-100 border-stone-600 hover:border-amber-500'
+          : lang === 'vi'
           ? 'bg-white/80 text-[#444] border-stone-200 hover:border-amber-700'
           : 'bg-amber-700/10 text-amber-800 border-amber-200 hover:border-amber-700'
       } backdrop-blur-sm ${className}`}

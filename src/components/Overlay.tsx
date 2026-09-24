@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { projectSlug } from '../utils/projectSlug';
 
 export const Overlay = memo(function Overlay() {
-  const { modalOpen, setModalOpen, activeProject, projects } = useStore();
+  const { modalOpen, setModalOpen, activeProject, projects, isDarkMode } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAboutActive, setIsAboutActive] = useState(false);
@@ -66,7 +66,7 @@ export const Overlay = memo(function Overlay() {
   return (
     <>
       {/* Scroll Progress Indicator */}
-      <div className={`fixed top-0 left-0 w-full h-1 bg-stone-200 z-[120] transition-opacity duration-300 ${modalOpen || contactOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`fixed top-0 left-0 w-full h-1 z-[120] transition-opacity duration-300 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} ${modalOpen || contactOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <div id="scroll-progress-bar" className="h-full bg-amber-700" style={{ width: '0%' }} />
       </div>
 
@@ -97,14 +97,14 @@ export const Overlay = memo(function Overlay() {
 
       <header 
         className={`fixed top-0 left-0 w-full px-6 md:px-12 py-5 md:py-6 flex justify-between items-center z-50 pointer-events-auto transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-[#fdfbf7]/85 backdrop-blur-md border-b border-[#1a1a1a]/8 shadow-sm py-3 md:py-4' 
+          isScrolled
+            ? `${isDarkMode ? 'bg-[#171819]/90 border-b border-white/10' : 'bg-[#fdfbf7]/85 border-b border-[#1a1a1a]/8'} backdrop-blur-md shadow-sm py-3 md:py-4`
             : 'bg-transparent'
         }`}
       >
         <div className="w-1/3 hidden md:block">
         </div>
-        <div className="hidden md:flex items-center justify-center space-x-8 lg:space-x-10 text-sm font-medium text-[#444444] w-1/3">
+        <div className={`hidden md:flex items-center justify-center space-x-8 lg:space-x-10 text-sm font-medium w-1/3 ${isDarkMode ? 'text-stone-200' : 'text-[#444444]'}`}>
           <button onClick={() => { navigate('/#about'); window.dispatchEvent(new CustomEvent('scroll-to-about')); }} className={`hover:text-amber-700 transition-colors ${isAboutActive ? 'text-amber-700' : ''}`}>{t.nav.story}</button>
           <Link to="/services" className="hover:text-amber-700 transition-colors">{t.nav.services}</Link>
           <Link to="/projects" className="hover:text-amber-700 transition-colors">{t.nav.projects}</Link>
@@ -112,7 +112,7 @@ export const Overlay = memo(function Overlay() {
           <button onClick={() => setContactOpen(true)} className="hover:text-amber-700 transition-colors">{t.nav.contact}</button>
         </div>
         <div className="w-full md:w-1/3 flex justify-end text-sm text-[#888888]">
-          <LanguageSwitcher />
+          <LanguageSwitcher dark={isDarkMode} />
         </div>
       </header>
 

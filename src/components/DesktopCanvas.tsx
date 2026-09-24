@@ -4,6 +4,7 @@ import { useProgress } from '@react-three/drei';
 import { Scene } from './Scene';
 import { LoadingScreen } from './LoadingScreen';
 import { RecoveryMessage } from './ui/RecoveryMessage';
+import { useStore } from '../store/useStore';
 
 /**
  * DesktopCanvas — Canvas 3D chỉ render trên desktop.
@@ -14,6 +15,7 @@ import { RecoveryMessage } from './ui/RecoveryMessage';
  */
 export default function DesktopCanvas() {
   const { progress, active } = useProgress();
+  const isDarkMode = useStore(state => state.isDarkMode);
   const [timedOut, setTimedOut] = useState(false);
   const ready = progress === 100 && !active;
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function DesktopCanvas() {
         gl={{ antialias: true }}
         style={{ touchAction: 'none' }}
       >
-        <color attach="background" args={['#ffffff']} />
+        <color attach="background" args={[isDarkMode ? '#141518' : '#ffffff']} />
         <Suspense fallback={null}>
           <Scene />
         </Suspense>
