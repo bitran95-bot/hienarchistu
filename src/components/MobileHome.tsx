@@ -11,6 +11,7 @@ import { RecoveryMessage } from './ui/RecoveryMessage';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { FullscreenImageOverlay } from './ui/FullscreenImageOverlay';
 import { ProjectShareLink } from './ProjectShareLink';
+import { ProjectModelPanel } from './ProjectModelPanel';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
 
@@ -23,6 +24,7 @@ export const MobileHome = memo(function MobileHome() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showMobileModel, setShowMobileModel] = useState(false);
   const { t, lang } = useTranslation();
   const { hash } = useLocation();
   const projectOpenerRef = useRef<HTMLElement | null>(null);
@@ -48,6 +50,7 @@ export const MobileHome = memo(function MobileHome() {
   // Reset image index when project changes
   useEffect(() => {
     setActiveImageIndex(0);
+    setShowMobileModel(false);
   }, [selectedProject]);
 
   useEffect(() => {
@@ -339,6 +342,25 @@ export const MobileHome = memo(function MobileHome() {
                 {selectedProject.name}
               </h2>
               <ProjectShareLink project={selectedProject} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4" />
+
+              {selectedProject.modelFileUrl && (
+                <div className="mb-8">
+                  <button
+                    onClick={() => setShowMobileModel(value => !value)}
+                    className="mb-4 rounded-full border border-[#1a1a1a] px-5 py-3 text-xs font-bold uppercase tracking-wide"
+                  >
+                    {showMobileModel ? t.projectDetail.viewPhotos : t.projectDetail.viewModel}
+                  </button>
+                  {showMobileModel && (
+                    <ProjectModelPanel
+                      url={selectedProject.modelFileUrl}
+                      name={selectedProject.name}
+                      className="h-[min(72vw,420px)] w-full"
+                      fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(800).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-cover" /> : undefined}
+                    />
+                  )}
+                </div>
+              )}
 
               {/* Hero image for detail view */}
               {selectedProject.image?.asset && (

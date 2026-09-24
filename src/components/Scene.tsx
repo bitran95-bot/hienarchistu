@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useThree } from '@react-three/fiber';
 import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 import { useStore } from '../store/useStore';
 import { LoadingSpinner } from './3d/LoadingSpinner';
@@ -217,7 +217,6 @@ function SceneContents() {
               intensity={isDarkMode ? 1.2 : 0.2} 
               opacity={1}
            />
-           <Vignette eskil={false} offset={0.1} darkness={isDarkMode ? 0.6 : 0.25} />
         </EffectComposer>
       )}
     </>

@@ -21,11 +21,14 @@ export default defineConfig({
           '**/LampModel/**',
           '**/assets/DesktopCanvas-*.js',
           '**/assets/TextLayer-*',
-          '**/assets/MagazineViewer-*.js',
+          '**/assets/SkeletonUtils-*.js',
+          '**/assets/ProjectModelCanvas-*.js',
+          '**/assets/MobilePdfViewer-*',
+          '**/assets/ProjectsPage-*.js',
         ],
         runtimeCaching: [
           {
-            urlPattern: /\/(?:assets\/(?:DesktopCanvas|TextLayer|MagazineViewer)-[^/]+\.(?:js|css)|magazine\.glb|pdf\.worker\.min\.mjs)$/,
+            urlPattern: /\/(?:assets\/(?:DesktopCanvas|TextLayer|SkeletonUtils|ProjectModelCanvas|MobilePdfViewer|ProjectsPage)-[^/]+\.(?:js|css)|magazine\.glb|pdf\.worker\.min\.mjs)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'optional-assets-cache',
