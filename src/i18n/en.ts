@@ -45,6 +45,7 @@ const en: Translations = {
     success: 'Message sent successfully! We will respond as soon as possible.',
     error: 'Something went wrong. Please try again or contact us by phone.',
     rateLimited: 'Too many attempts. Please wait a few minutes or contact us by phone.',
+    emailInstead: 'Open your email app with this message',
   },
   scene: {
     loadingData: 'Loading data...',
@@ -107,6 +108,8 @@ const en: Translations = {
     viewInProjects: 'View in project list ↗',
     copyLink: 'Copy project link',
     linkCopied: 'Link copied',
+    copyMediaLink: 'Copy photo/PDF link',
+    mediaLinkCopied: 'Photo/PDF link copied',
     modelOf: '3D model of',
     modelUnavailable: 'The 3D model could not load. Please view the project photos.',
     loadingModel: 'Loading 3D model...',

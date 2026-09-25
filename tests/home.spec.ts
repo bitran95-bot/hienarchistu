@@ -44,7 +44,7 @@ test('desktop project viewer starts with a rotatable model, then shows project p
   await expect(viewer.locator('canvas')).toBeVisible();
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toHaveCount(0);
-  await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
+  await expect(viewer.getByRole('img', { name: 'Courtyard House 1' })).toBeVisible();
 });
 
 test('project photos stay fully visible and PDF pages use the same Next controls', async ({ page, isMobile }) => {
@@ -55,7 +55,7 @@ test('project photos stay fully visible and PDF pages use the same Next controls
   await page.route(sanityQuery, route => route.fulfill({ json: { result: withPdf } }));
   await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
   await page.goto(isMobile ? '/' : '/projects');
-  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  await page.getByRole(isMobile ? 'link' : 'button', { name: 'View details: Courtyard House' }).click();
   const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
   const photo = viewer.getByRole('img', { name: isMobile ? 'Courtyard House image 1' : 'Courtyard House 1' }).first();
   await expect(photo).toBeVisible();
@@ -96,11 +96,60 @@ test('PDF-only projects also open on the mobile homepage', async ({ page, isMobi
   await page.route(sanityQuery, route => route.fulfill({ json: { result: pdfOnly } }));
   await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
   await page.goto('/');
-  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  await page.getByRole('link', { name: 'View details: Courtyard House' }).click();
   const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
   await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();
+});
+
+test('mobile project, photo and PDF URLs follow browser history', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The mobile homepage opens the shared project route.');
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  const withMedia = {
+    ...siteData,
+    projects: [{
+      ...siteData.projects[0],
+      gallery: [{ _type: 'image', asset: { _ref: 'image-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-1x1-png' } }],
+      pdfFileUrl: '/sample.pdf',
+    }],
+  };
+  await page.route(sanityQuery, route => route.fulfill({ json: { result: withMedia } }));
+  await page.route('**/sample.pdf', route => route.fulfill({ contentType: 'application/pdf', body: createTestPdf() }));
+
+  await page.goto('/');
+  await page.getByRole('link', { name: 'View details: Courtyard House' }).click();
+  await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
+  const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
+  await expect(viewer.getByRole('img', { name: 'Courtyard House image 1' })).toBeVisible();
+
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(page).toHaveURL(/\/projects\/courtyard-house\?media=image-2$/);
+  await expect(viewer.getByRole('img', { name: 'Courtyard House image 2' })).toBeVisible();
+  await viewer.getByRole('button', { name: 'Copy photo/PDF link' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('https://hienarchistu.vercel.app/projects/courtyard-house?media=image-2');
+
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(page).toHaveURL(/\?media=pdf-1$/);
+  await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
+  await viewer.getByRole('button', { name: 'Next image' }).click();
+  await expect(page).toHaveURL(/\?media=pdf-2$/);
+  await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\?media=pdf-1$/);
+  await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\?media=image-2$/);
+  await expect(viewer.getByRole('img', { name: 'Courtyard House image 2' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+
+  await page.goto('/projects/courtyard-house?media=pdf-2');
+  await page.reload();
+  await expect(page.getByRole('dialog', { name: 'Courtyard House' }).getByRole('img', { name: 'PDF page 2' })).toBeVisible();
 });
 
 test('desktop home hash opens a Vietnamese project name after reload', async ({ page, isMobile }) => {
@@ -112,6 +161,7 @@ test('desktop home hash opens a Vietnamese project name after reload', async ({ 
   await page.route(sanityQuery, route => route.fulfill({ json: { result: localized } }));
   await page.goto('/#nha-tren-doi');
   await expect(page.getByRole('dialog', { name: 'Nhà Trên Đồi' })).toBeVisible();
+  await expect(page).toHaveURL(/\/projects\/nha-tren-doi$/);
 });
 
 test('project viewer over the 3D scene accepts Next and wheel scrolling', async ({ page, isMobile }) => {
@@ -129,8 +179,10 @@ test('project viewer over the 3D scene accepts Next and wheel scrolling', async 
   await page.goto('/#courtyard-house');
   const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
   await expect(viewer).toBeVisible({ timeout: 20_000 });
+  await expect(page).toHaveURL(/\/projects\/courtyard-house$/);
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(viewer.getByRole('img', { name: 'Courtyard House 2' })).toBeVisible();
+  await expect(page).toHaveURL(/\/projects\/courtyard-house\?media=image-2$/);
   const information = viewer.locator('section').first();
   expect(await information.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
   await expect.poll(async () => {
@@ -148,7 +200,7 @@ test('mobile project detail can reveal and rotate its 3D model', async ({ page, 
   };
   await page.route(sanityQuery, route => route.fulfill({ json: { result: withModel } }));
   await page.goto('/');
-  await page.getByRole('button', { name: 'View details: Courtyard House' }).click();
+  await page.getByRole('link', { name: 'View details: Courtyard House' }).click();
   const viewer = page.getByRole('dialog', { name: 'Courtyard House' });
   await viewer.getByRole('button', { name: 'View 3D model' }).click();
   await expect(viewer.getByRole('group', { name: '3D model of Courtyard House' })).toBeVisible();
@@ -329,6 +381,7 @@ test('contact preserves failures and clears only a confirmed send', async ({ pag
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Something went wrong');
   await expect(page.getByLabel('Message', { exact: true })).toHaveValue('Preview test only.');
+  await expect(page.getByRole('link', { name: 'Open your email app with this message' })).toHaveAttribute('href', /mailto:thaibao95arc@gmail\.com\?subject=.*Preview%20Test.*&body=.*Preview%20test%20only/);
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Message sent successfully');
   await expect(page.getByLabel('Message', { exact: true })).toHaveValue('');

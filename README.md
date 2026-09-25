@@ -74,7 +74,7 @@ Giữ scope Development, Preview và Production tách biệt. Muốn kiểm th�
 - Thiếu cấu hình email: HTTP 503 với `success: false`, ở mọi môi trường; không còn giả lập gửi thành công bằng log.
 - Redis đã cấu hình nhưng lỗi/timeout: HTTP 503; giới hạn gửi: HTTP 429 kèm `Retry-After`.
 - Resend bị lỗi hoặc không trả email ID hợp lệ: không trả thành công. Chỉ HTTP 200 + `success: true` sau xác nhận tiếp nhận của Resend mới làm UI xóa nội dung form.
-- Form giữ lại nội dung khi gửi thất bại và cho phép thử lại. Không ghi nội dung liên hệ/secret vào log lỗi.
+- Form giữ lại nội dung khi gửi thất bại, cho phép thử lại và cung cấp liên kết mở ứng dụng email với nội dung đã điền. Liên kết dự phòng chỉ tạo thư nháp; khách vẫn phải nhấn gửi trong ứng dụng email. Không ghi nội dung liên hệ/secret vào log lỗi.
 - Resend tiếp nhận không đồng nghĩa email chắc chắn vào inbox; nghiệm thu thật cần kiểm tra giao nhận.
 
 ### Hành vi tải dữ liệu và 3D

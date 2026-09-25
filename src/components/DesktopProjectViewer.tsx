@@ -7,32 +7,44 @@ import { useProjectImages } from '../hooks';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
+import { projectMediaKeys } from '../utils/projectMedia';
 
 const PdfPageMedia = lazy(() => import('./PdfPageMedia'));
 
-export function DesktopProjectViewer({ project, onClose }: { project: Project; onClose: () => void }) {
+interface DesktopProjectViewerProps {
+  project: Project;
+  activeMedia?: string | null;
+  mediaKeys?: string[];
+  onMediaChange?: (direction: -1 | 1) => void;
+  onPdfPageCount?: (count: number) => void;
+  onClose: () => void;
+}
+
+export function DesktopProjectViewer({ project, activeMedia, mediaKeys, onMediaChange, onPdfPageCount, onClose }: DesktopProjectViewerProps) {
   const { t } = useTranslation();
   const images = useProjectImages(project);
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [pdfPageCount, setPdfPageCount] = useState(1);
-  const hasModel = Boolean(project.modelFileUrl);
-  const imageStart = hasModel ? 1 : 0;
-  const pdfStart = imageStart + images.length;
-  const slideCount = pdfStart + (project.pdfFileUrl ? pdfPageCount : 0);
-  const showingModel = hasModel && activeSlide === 0;
-  const showingPdf = Boolean(project.pdfFileUrl) && activeSlide >= pdfStart;
-  const currentImage = showingPdf ? undefined : images[activeSlide - imageStart];
+  const [localSlide, setLocalSlide] = useState(0);
+  const [localPdfPageCount, setLocalPdfPageCount] = useState(1);
+  const keys = mediaKeys || projectMediaKeys(project, images.length, localPdfPageCount);
+  const currentMedia = mediaKeys ? activeMedia : keys[localSlide] || null;
+  const slideCount = keys.length;
+  const activeSlide = keys.indexOf(currentMedia || '');
+  const showingModel = currentMedia === 'model';
+  const showingPdf = currentMedia?.startsWith('pdf-') || false;
+  const imageIndex = currentMedia?.startsWith('image-') ? Number(currentMedia.slice(6)) - 1 : -1;
+  const pdfPageNumber = showingPdf ? Number(currentMedia?.slice(4)) : 1;
+  const moveSlide = (direction: -1 | 1) => {
+    if (onMediaChange) onMediaChange(direction);
+    else if (slideCount > 1) setLocalSlide(index => (index + direction + slideCount) % slideCount);
+  };
+  const currentImage = imageIndex >= 0 ? images[imageIndex] : undefined;
   const imageProps = currentImage ? getResponsiveImageProps({
     source: currentImage,
     baseWidth: 1800,
     sizes: '60vw',
-    alt: `${project.name} ${activeSlide + 1}`,
+    alt: `${project.name} ${imageIndex + 1}`,
     className: 'h-full w-full object-contain',
   }) : null;
-
-  const moveSlide = (direction: -1 | 1) => {
-    if (slideCount > 1) setActiveSlide(index => (index + direction + slideCount) % slideCount);
-  };
 
   return (
     <motion.div
@@ -79,7 +91,7 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
             </div>
           )}
           <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-stone-200 pt-5 text-xs font-bold uppercase tracking-[0.12em]">
-            <ProjectShareLink project={project} />
+            <ProjectShareLink project={project} mediaKey={mediaKeys ? currentMedia : null} />
             {project.pdfFileUrl && <a href={project.pdfFileUrl} target="_blank" rel="noopener noreferrer" className="hover:text-amber-700">PDF ↗</a>}
           </div>
         </div>
@@ -88,7 +100,7 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
       <section className="relative min-h-0 bg-white" aria-label={t.projectDetail.gallery}>
         <button autoFocus onClick={onClose} aria-label={t.contact.close} className="absolute right-6 top-6 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-xl hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-700">×</button>
         <AnimatePresence mode="wait">
-          <motion.div key={`${project._id}-${activeSlide}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} className="absolute inset-0">
+          <motion.div key={`${project._id}-${currentMedia}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} className="absolute inset-0">
             {showingModel && project.modelFileUrl ? (
               <ProjectModelPanel
                 url={project.modelFileUrl}
@@ -98,7 +110,7 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
               />
             ) : showingPdf && project.pdfFileUrl ? (
               <Suspense fallback={<div role="status" className="flex h-full items-center justify-center">{t.scene.loadingData}</div>}>
-                <PdfPageMedia url={project.pdfFileUrl} pageNumber={activeSlide - pdfStart + 1} onPageCount={setPdfPageCount} className="h-full w-full" />
+                <PdfPageMedia url={project.pdfFileUrl} pageNumber={pdfPageNumber} onPageCount={onPdfPageCount || setLocalPdfPageCount} className="h-full w-full" />
               </Suspense>
             ) : imageProps ? (
               <img {...imageProps} />
@@ -109,7 +121,7 @@ export function DesktopProjectViewer({ project, onClose }: { project: Project; o
         </AnimatePresence>
         {slideCount > 1 && (
           <div className="absolute bottom-0 right-0 z-10 flex items-center bg-[#171717] text-white">
-            <span className="px-5 text-xs font-medium tracking-widest">{String(activeSlide + 1).padStart(2, '0')} / {String(slideCount).padStart(2, '0')}</span>
+            <span className="px-5 text-xs font-medium tracking-widest">{String(Math.max(1, activeSlide + 1)).padStart(2, '0')} / {String(slideCount).padStart(2, '0')}</span>
             <button onClick={() => moveSlide(-1)} aria-label={t.projectDetail.previousImage} className="flex h-16 w-16 items-center justify-center border-l border-white/20 text-xl hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white">←</button>
             <button onClick={() => moveSlide(1)} aria-label={t.projectDetail.nextImage} className="flex h-16 w-16 items-center justify-center border-l border-white/20 text-xl hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white">→</button>
           </div>

@@ -12,7 +12,7 @@ export interface Translations {
     title: string; name: string; namePlaceholder: string;
     email: string; emailPlaceholder: string;
     message: string; messagePlaceholder: string;
-    send: string; sending: string; success: string; error: string; rateLimited: string;
+    send: string; sending: string; success: string; error: string; rateLimited: string; emailInstead: string;
   };
   scene: { loadingData: string };
   about: { title: string; text: string };
@@ -29,7 +29,7 @@ export interface Translations {
   };
   seo: { siteTitle: string; siteDesc: string };
   projectsPage: { title: string; subtitle: string; searchPlaceholder: string; noProjects: string; noMatch: string; clearSearch: string };
-  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string; modelOf: string; modelUnavailable: string; loadingModel: string; rotateModel: string; rotateModelMobile: string; viewModel: string; viewPhotos: string; previousImage: string; nextImage: string };
+  projectDetail: { generalInfo: string; story: string; video: string; noImage: string; viewDetail: string; zoomIn: string; gallery: string; detailHeader: string; viewInProjects: string; copyLink: string; linkCopied: string; copyMediaLink: string; mediaLinkCopied: string; modelOf: string; modelUnavailable: string; loadingModel: string; rotateModel: string; rotateModelMobile: string; viewModel: string; viewPhotos: string; previousImage: string; nextImage: string };
   servicesPage: {
     title: string;
     subtitle: string;
@@ -100,6 +100,7 @@ const vi: Translations = {
     success: 'Tin nhắn đã được gửi thành công! Chúng tôi sẽ phản hồi sớm nhất.',
     error: 'Có lỗi xảy ra. Vui lòng thử lại hoặc liên hệ qua điện thoại.',
     rateLimited: 'Bạn đã gửi quá nhiều lần. Vui lòng chờ vài phút hoặc liên hệ qua điện thoại.',
+    emailInstead: 'Mở ứng dụng email với nội dung đã điền',
   },
   // 3D Scene
   scene: {
@@ -166,6 +167,8 @@ const vi: Translations = {
     viewInProjects: 'Xem trong danh sách dự án ↗',
     copyLink: 'Sao chép liên kết dự án',
     linkCopied: 'Đã sao chép liên kết',
+    copyMediaLink: 'Sao chép liên kết ảnh/PDF',
+    mediaLinkCopied: 'Đã sao chép liên kết ảnh/PDF',
     modelOf: 'Mô hình 3D của',
     modelUnavailable: 'Chưa thể tải mô hình 3D. Vui lòng xem ảnh dự án.',
     loadingModel: 'Đang tải mô hình 3D...',
