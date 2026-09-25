@@ -1,4 +1,5 @@
 import { Suspense, useEffect, lazy } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -6,7 +7,7 @@ import { useStore } from './store/useStore';
 import { useIsMobile } from './hooks';
 import { RecoveryMessage } from './components/ui/RecoveryMessage';
 import { SITE_URL, OG_IMAGE_URL } from './config/site';
-import { projectSlug } from './utils/projectSlug';
+import { projectPath, projectSlug } from './utils/projectSlug';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
 // Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
@@ -18,24 +19,22 @@ const MobileHome = lazy(() => import('./components/MobileHome').then(module => (
 function App() {
   const { fetchData, isDataLoaded, settings, projects, error } = useStore();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Deep linking for projects (chỉ desktop vì mobile không có 3D bookshelf)
+  // Redirect legacy homepage hashes to the permanent project URL.
   useEffect(() => {
-    if (!isMobile && isDataLoaded && projects && projects.length > 0) {
+    if (isDataLoaded && projects.length > 0) {
       const hash = window.location.hash.slice(1);
       if (hash) {
-        const idx = projects.findIndex(p => p._id === hash || projectSlug(p) === hash);
-        if (idx !== -1) {
-          useStore.getState().setActiveProject(idx);
-          useStore.getState().setModalOpen(true);
-        }
+        const project = projects.find(p => p._id === hash || projectSlug(p) === hash);
+        if (project) navigate(projectPath(project), { replace: true, state: { returnTo: '/' } });
       }
     }
-  }, [isDataLoaded, projects, isMobile]);
+  }, [isDataLoaded, projects, navigate]);
 
   const siteTitle = settings?.title || "Hiên Archi Studio";
   const siteDesc = settings?.heroDescription || "Studio thiết kế kiến trúc và nội thất, nơi kiến tạo không gian sống mộc mạc và chân thành.";

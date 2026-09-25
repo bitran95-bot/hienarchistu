@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { OG_IMAGE_URL, pageUrl } from '../config/site';
 
 import { useStore } from '../store/useStore';
@@ -9,6 +9,7 @@ import { urlFor } from '../sanityClient';
 import { getResponsiveImageProps } from '../utils/image';
 import { getYoutubeEmbedUrl } from '../utils/youtube';
 import { projectPath, projectSlug } from '../utils/projectSlug';
+import { projectMediaKeys, projectMediaPath } from '../utils/projectMedia';
 import { useEscapeKey, useProjectImages, useIsMobile } from '../hooks';
 import { useTranslation } from '../i18n';
 import type { Project } from '../types';
@@ -24,12 +25,11 @@ export default function ProjectsPage() {
   const { t } = useTranslation();
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { projects, isDataLoaded, fetchData, error } = useStore();
   const selectedProject = slug ? projects.find(project => projectSlug(project) === slug) || null : null;
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
-  const [pdfPageCount, setPdfPageCount] = useState(1);
-  const [showMobileModel, setShowMobileModel] = useState(false);
+  const [pdfPageInfo, setPdfPageInfo] = useState<{ projectId: string; count: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -42,9 +42,10 @@ export default function ProjectsPage() {
     navigate(projectPath(project));
   };
   const closeProject = useCallback(() => {
-    navigate('/projects', { replace: true });
+    const source = location.state as { returnTo?: string } | null;
+    navigate(source?.returnTo === '/' ? '/' : '/projects', { replace: true });
     requestAnimationFrame(() => projectOpenerRef.current?.focus());
-  }, [navigate]);
+  }, [location.state, navigate]);
 
   // Back to top visibility
   useEffect(() => {
@@ -68,8 +69,33 @@ export default function ProjectsPage() {
 
   // Project images (shared hook)
   const projectImages = useProjectImages(selectedProject);
-  const mediaCount = projectImages.length + (selectedProject?.pdfFileUrl ? pdfPageCount : 0);
-  const showingPdf = Boolean(selectedProject?.pdfFileUrl) && activeImageIndex >= projectImages.length;
+  const pdfCountLoaded = pdfPageInfo?.projectId === selectedProject?._id;
+  const pdfPageCount = pdfCountLoaded ? pdfPageInfo?.count || 1 : 1;
+  const mediaKeys = selectedProject ? projectMediaKeys(selectedProject, projectImages.length, pdfPageCount) : [];
+  const galleryKeys = mediaKeys.filter(key => key !== 'model');
+  const navigationKeys = isMobile ? galleryKeys : mediaKeys;
+  const requestedMedia = new URLSearchParams(location.search).get('media');
+  const pendingPdfPage = requestedMedia?.match(/^pdf-([1-9]\d*)$/);
+  const isPendingPdfPage = Boolean(selectedProject?.pdfFileUrl && !pdfCountLoaded && pendingPdfPage);
+  const defaultMedia = (isMobile ? galleryKeys[0] : mediaKeys[0]) || mediaKeys[0] || null;
+  const activeMedia = requestedMedia && (mediaKeys.includes(requestedMedia) || isPendingPdfPage)
+    ? requestedMedia : defaultMedia;
+  const activeImageIndex = activeMedia?.startsWith('image-') ? Number(activeMedia.slice(6)) - 1 : -1;
+  const showingPdf = activeMedia?.startsWith('pdf-') || false;
+  const showMobileModel = activeMedia === 'model';
+  const mediaCount = navigationKeys.length;
+  const navigateMedia = (mediaKey: string) => {
+    if (!selectedProject || mediaKey === activeMedia && requestedMedia === mediaKey) return;
+    navigate(projectMediaPath(selectedProject, mediaKey), { state: location.state });
+  };
+  const moveMedia = (direction: -1 | 1) => {
+    if (!navigationKeys.length) return;
+    const index = navigationKeys.indexOf(activeMedia || '');
+    navigateMedia(navigationKeys[(index + direction + navigationKeys.length) % navigationKeys.length]);
+  };
+  const updatePdfPageCount = (count: number) => {
+    if (selectedProject) setPdfPageInfo({ projectId: selectedProject._id, count });
+  };
   const metaTitle = `${selectedProject?.name || t.projectsPage.title} | Hiên Archi Studio`;
   const metaDescription = selectedProject?.generalInfo?.replace(/\s+/g, ' ').trim().slice(0, 160) || t.projectsPage.subtitle;
   const metaUrl = pageUrl(selectedProject ? projectPath(selectedProject) : '/projects');
@@ -78,12 +104,9 @@ export default function ProjectsPage() {
     : OG_IMAGE_URL;
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setActiveImageIndex(0);
-      setPdfPageCount(1);
-      setShowMobileModel(false);
-    });
-  }, [selectedProject]);
+    if (!selectedProject || !requestedMedia || requestedMedia === activeMedia) return;
+    navigate(projectPath(selectedProject), { replace: true, state: location.state });
+  }, [selectedProject, requestedMedia, activeMedia, navigate, location.state]);
 
   // Helper cho Youtube URL (shared utility)
 
@@ -347,7 +370,7 @@ export default function ProjectsPage() {
                   first?.focus();
                 }
               }}
-              className="relative w-full h-[100dvh] max-w-none bg-[#fdfbf7] shadow-2xl overflow-hidden flex flex-col md:flex-row"
+              className="relative flex h-[100dvh] w-full flex-col overflow-y-auto overscroll-contain bg-[#fdfbf7] shadow-2xl"
             >
               <button 
                 autoFocus
@@ -359,11 +382,11 @@ export default function ProjectsPage() {
               </button>
 
               {/* Left Side: Content */}
-              <div className="w-full md:w-2/5 h-1/2 md:h-full overflow-y-auto p-6 md:p-10 custom-scrollbar border-r border-stone-200 order-2 md:order-1">
+              <div className="order-2 w-full p-6 pb-16">
                 <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                   {selectedProject.name}
                 </h2>
-                <ProjectShareLink key={projectPath(selectedProject)} project={selectedProject} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4" />
+                <ProjectShareLink key={projectPath(selectedProject)} project={selectedProject} mediaKey={activeMedia} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4" />
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">
@@ -397,10 +420,10 @@ export default function ProjectsPage() {
               </div>
 
               {/* Right Side: Slideshow / PDF Viewer */}
-              <div className="w-full md:w-3/5 h-1/2 md:h-full relative shrink-0 bg-stone-100 flex flex-col p-4 md:p-6 order-1 md:order-2">
+              <div className="relative order-1 w-full shrink-0 bg-stone-100 px-4 pb-4 pt-16">
                 {selectedProject.modelFileUrl && (
                   <button
-                    onClick={() => setShowMobileModel(value => !value)}
+                    onClick={() => navigateMedia(showMobileModel ? galleryKeys[0] || 'model' : 'model')}
                     className="absolute left-6 top-6 z-10 rounded-full bg-white px-4 py-2 text-xs font-bold text-stone-800 shadow-sm"
                   >
                     {showMobileModel ? t.projectDetail.viewPhotos : t.projectDetail.viewModel}
@@ -410,15 +433,15 @@ export default function ProjectsPage() {
                   <ProjectModelPanel
                     url={selectedProject.modelFileUrl}
                     name={selectedProject.name}
-                    className="min-h-0 w-full flex-1"
+                    className="h-[min(74dvh,720px)] w-full"
                     fallback={selectedProject.image?.asset ? <img src={urlFor(selectedProject.image).width(1000).auto('format').url()} alt={selectedProject.name} className="h-full w-full object-contain" /> : undefined}
                   />
                 ) : mediaCount > 0 ? (
                   <>
-                    <div className="w-full flex-1 relative bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden group">
+                    <div className="relative h-[min(74dvh,720px)] w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
                       {showingPdf && selectedProject.pdfFileUrl ? (
                         <Suspense fallback={<div className="flex h-full items-center justify-center" role="status">{t.scene.loadingData}</div>}>
-                          <PdfPageMedia url={selectedProject.pdfFileUrl} pageNumber={activeImageIndex - projectImages.length + 1} onPageCount={setPdfPageCount} className="h-full w-full" />
+                          <PdfPageMedia url={selectedProject.pdfFileUrl} pageNumber={Number(activeMedia?.slice(4))} onPageCount={updatePdfPageCount} className="h-full w-full" />
                         </Suspense>
                       ) : projectImages[activeImageIndex] ? (
                         <button
@@ -439,9 +462,25 @@ export default function ProjectsPage() {
                     </div>
                     {mediaCount > 1 && (
                       <div className="mt-4 flex shrink-0 items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 text-sm shadow-sm" aria-label={t.projectDetail.gallery}>
-                        <button type="button" onClick={() => setActiveImageIndex(index => (index - 1 + mediaCount) % mediaCount)} aria-label={t.projectDetail.previousImage} className="h-10 w-10 rounded-full border border-stone-200">←</button>
-                        <span className="font-medium tabular-nums">{activeImageIndex + 1} / {mediaCount}</span>
-                        <button type="button" onClick={() => setActiveImageIndex(index => (index + 1) % mediaCount)} aria-label={t.projectDetail.nextImage} className="h-10 w-10 rounded-full border border-stone-200">→</button>
+                        <button type="button" onClick={() => moveMedia(-1)} aria-label={t.projectDetail.previousImage} className="h-12 w-12 rounded-full border border-stone-200">←</button>
+                        <span className="font-medium tabular-nums">{Math.max(1, navigationKeys.indexOf(activeMedia || '') + 1)} / {mediaCount}</span>
+                        <button type="button" onClick={() => moveMedia(1)} aria-label={t.projectDetail.nextImage} className="h-12 w-12 rounded-full border border-stone-200">→</button>
+                      </div>
+                    )}
+                    {mediaCount > 1 && (
+                      <div className="mt-3 flex gap-2 overflow-x-auto pb-2" aria-label={t.projectDetail.gallery}>
+                        {navigationKeys.map((key, index) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => navigateMedia(key)}
+                            aria-label={key.startsWith('pdf-') ? `PDF page ${key.slice(4)}` : `${selectedProject.name} image ${index + 1}`}
+                            aria-current={activeMedia === key ? 'true' : undefined}
+                            className={`shrink-0 rounded-full border px-4 py-2 text-xs font-medium ${activeMedia === key ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white text-stone-700'}`}
+                          >
+                            {key.startsWith('pdf-') ? `PDF ${key.slice(4)}` : String(index + 1).padStart(2, '0')}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </>
@@ -454,7 +493,7 @@ export default function ProjectsPage() {
             </motion.div>
           </div>
         ) : (
-          <DesktopProjectViewer key={selectedProject._id} project={selectedProject} onClose={closeProject} />
+          <DesktopProjectViewer key={selectedProject._id} project={selectedProject} activeMedia={activeMedia} mediaKeys={mediaKeys} onMediaChange={moveMedia} onPdfPageCount={updatePdfPageCount} onClose={closeProject} />
         ))}
       </AnimatePresence>
 

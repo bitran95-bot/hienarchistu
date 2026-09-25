@@ -4,6 +4,8 @@ import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
 import { useIsMobile } from '../../hooks';
+import { useNavigate } from 'react-router-dom';
+import { projectPath } from '../../utils/projectSlug';
 
 interface InteractiveProjectProps {
   children: ReactNode;
@@ -12,7 +14,8 @@ interface InteractiveProjectProps {
 }
 
 export function InteractiveProject({ children, position, index }: InteractiveProjectProps) {
-  const { setActiveProject, setModalOpen } = useStore();
+  const projects = useStore(state => state.projects);
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -74,8 +77,8 @@ export function InteractiveProject({ children, position, index }: InteractivePro
               dragState.current.hasDragged = false;
               return;
            }
-           setActiveProject(index);
-           setModalOpen(true);
+           const project = projects[index];
+           if (project) navigate(projectPath(project), { state: { returnTo: '/' } });
         }}
         onPointerDown={(e: ThreeEvent<PointerEvent>) => {
            // Trên mobile, không chặn sự kiện để người dùng lướt web bình thường

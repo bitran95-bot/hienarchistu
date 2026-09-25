@@ -63,6 +63,7 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
   // Form state (only used in 'split' variant)
   const [formState, setFormState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [rateLimited, setRateLimited] = useState(false);
+  const [emailDraft, setEmailDraft] = useState<{ name: string; email: string; message: string } | null>(null);
 
   const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,6 +73,11 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    setEmailDraft({
+      name: String(formData.get('name') || ''),
+      email: String(formData.get('email') || ''),
+      message: String(formData.get('message') || ''),
+    });
 
     try {
       const { resp, data } = await withTimeout(async (signal) => {
@@ -104,6 +110,9 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
   const phone = settings?.phone || '033 877 7017';
   const phoneTel = phone.replace(/ /g, '');
   const email = settings?.email || 'thaibao95arc@gmail.com';
+  const emailDraftUrl = emailDraft
+    ? `mailto:${email}?subject=${encodeURIComponent(`[Hiên Studio] Liên hệ từ ${emailDraft.name}`)}&body=${encodeURIComponent(`${emailDraft.message}\n\nNgười gửi: ${emailDraft.name}\nEmail: ${emailDraft.email}`)}`
+    : `mailto:${email}`;
   const instagram = settings?.instagram || 'https://instagram.com/hien.archi';
   const igHandle = (() => {
     try { return new URL(instagram).pathname.replace(/\//g, ''); }
@@ -224,7 +233,8 @@ export function ContactModal({ variant = 'centered', onClose }: ContactModalProp
               )}
               {formState === 'error' && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-                  ❌ {rateLimited ? t.contactForm.rateLimited : t.contactForm.error}
+                  <p>❌ {rateLimited ? t.contactForm.rateLimited : t.contactForm.error}</p>
+                  <a href={emailDraftUrl} className="mt-2 inline-block font-semibold underline underline-offset-2">{t.contactForm.emailInstead} ↗</a>
                 </div>
               )}
 
