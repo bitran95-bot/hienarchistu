@@ -10,6 +10,7 @@ import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
 import { DecorativeLamp } from './3d/DecorativeLamp';
 import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
+import { ProjectSpotlight } from './3d/ProjectSpotlight';
 
 import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
@@ -178,6 +179,13 @@ function SceneContents() {
                onToggle={toggleDarkMode} 
             />
          </Suspense>
+
+         {isDarkMode && gridLayout.map(project => (
+           <ProjectSpotlight
+             key={`spotlight-${project._id}`}
+             position={[project.computedX, -project.computedRow * 4, 0]}
+           />
+         ))}
          
          {gridLayout.length === 0 ? (
                 <InteractiveProject index={0} position={[0, 0, 0]}>
