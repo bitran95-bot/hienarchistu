@@ -24,9 +24,9 @@ export function ProjectSpotlight({ position }: { position: [number, number, numb
           <cylinderGeometry args={[0.09, 0.16, 0.28, 12]} />
           <meshStandardMaterial color="#3b3631" metalness={0.65} roughness={0.35} />
         </mesh>
-        <mesh position={[0, -0.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[0.12, 12]} />
-          <meshStandardMaterial color="#ffe1aa" emissive="#ffe1aa" emissiveIntensity={1.5} side={THREE.DoubleSide} />
+        <mesh position={[0, -0.17, 0]}>
+          <sphereGeometry args={[0.07, 12, 8]} />
+          <meshBasicMaterial color="#ffe1aa" toneMapped={false} />
         </mesh>
       </group>
     </group>
