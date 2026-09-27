@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useThree } from '@react-three/fiber';
-import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, Html, PerformanceMonitor } from '@react-three/drei';
+import { ScrollControls, useScroll, Environment, ContactShadows, Sparkles, PerformanceMonitor } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
 import { useStore } from '../store/useStore';
-import { LoadingSpinner } from './3d/LoadingSpinner';
+import { LoadingSpinner, ModelUnavailable } from './3d/LoadingSpinner';
+import { ErrorBoundary } from './ErrorBoundary';
 import { SplineModel } from './3d/SplineModel';
 import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
 import { DecorativeLamp } from './3d/DecorativeLamp';
@@ -12,7 +13,6 @@ import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
 import { ProjectSpotlight } from './3d/ProjectSpotlight';
 
-import { AboutSection } from './3d/AboutSection';
 import { Bookshelf } from './3d/Bookshelf';
 import { calculateProjectLayout } from '../utils/layout';
 import type { GridData, GridLocation } from '../types';
@@ -25,7 +25,7 @@ import { useLocation } from 'react-router-dom';
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
   const { gl } = useThree();
-  const { modalOpen, activeProject, projects, settings, isDarkMode, toggleDarkMode } = useStore();
+  const { modalOpen, activeProject, projects, isDataLoaded, isDarkMode, toggleDarkMode } = useStore();
   const scroll = useScroll();
   const { hash } = useLocation();
   const [perfQuality, setPerfQuality] = useState<'high' | 'low'>('high');
@@ -148,25 +148,6 @@ function SceneContents() {
         <Bookshelf />
       </Suspense>
 
-      {/* --- NỘI DUNG VĂN BẢN VẼ TRÊN TƯỜNG (Z = -2.5 để không bị lẹm vào tường Z=-2.6) --- */}
-
-      {/* Màn 1: Hero (HTML Overlay theo mẫu) */}
-      <Html fullscreen style={{ pointerEvents: 'none', zIndex: 10 }}>
-        <div className="w-full h-full relative" style={{ pointerEvents: 'none' }}>
-          {/* Chữ HIÊN studio đã được chuyển sang Overlay.tsx để cố định và hiệu ứng trượt */}
-          
-          {/* Đoạn miêu tả bên phải */}
-          <div id="hero-desc" className="absolute w-full px-6 md:w-auto md:px-0 left-1/2 md:left-auto md:right-[20%] top-[45%] md:top-[50%] -translate-y-1/2 -translate-x-1/2 md:translate-x-0" style={{ maxWidth: '450px' }}>
-            <p className="text-sm md:text-base text-[#333] font-serif italic leading-relaxed md:text-right text-center md:text-left" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
-              {settings?.heroDescription || "Hiên archi là một xưởng thiết kế kiến trúc nhỏ. Chúng tôi làm việc với con người và khí hậu bản địa để tạo nên những không gian sống mộc mạc, bình yên"}
-            </p>
-          </div>
-
-          {/* Màn 2: About (HTML với hiệu ứng gõ phím) */}
-          <AboutSection />
-        </div>
-      </Html>
-
       {/* --- CÁC MÔ HÌNH DỰ ÁN (PROJECTS) --- */}
       <group position={[0, -3.9, -1]}>
          
@@ -187,7 +168,7 @@ function SceneContents() {
            />
          ))}
          
-         {gridLayout.length === 0 ? (
+         {!isDataLoaded ? null : gridLayout.length === 0 ? (
                 <InteractiveProject index={0} position={[0, 0, 0]}>
                    <Suspense fallback={<LoadingSpinner />}>
                       <FallbackPhotoFrame project={{}} index={0} isDarkMode={isDarkMode} />
@@ -203,13 +184,15 @@ function SceneContents() {
                     index={activeIdx} 
                     position={[project.computedX, -project.computedRow * 4, 0]} 
                  >
-                    <Suspense fallback={<LoadingSpinner />}>
-                      {project.modelFileUrl ? (
-                        <SplineModel url={project.modelFileUrl} scale={0.8 * (project.modelScale || 1)} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
-                      ) : (
-                        <FallbackPhotoFrame project={project} index={activeIdx} isDarkMode={isDarkMode} />
-                      )}
-                    </Suspense>
+                    <ErrorBoundary fallback={<ModelUnavailable project={project} />}>
+                      <Suspense fallback={<LoadingSpinner project={project} />}>
+                        {project.modelFileUrl ? (
+                          <SplineModel url={project.modelFileUrl} scale={0.8 * (project.modelScale || 1)} position={[0, 0, 0.25]} rotation={[0, 0, 0]} />
+                        ) : (
+                          <FallbackPhotoFrame project={project} index={activeIdx} isDarkMode={isDarkMode} />
+                        )}
+                      </Suspense>
+                    </ErrorBoundary>
                  </InteractiveProject>
                );
             })

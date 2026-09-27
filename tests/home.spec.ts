@@ -132,6 +132,7 @@ test('mobile project, photo and PDF URLs follow browser history', async ({ page,
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(page).toHaveURL(/\?media=pdf-1$/);
   await expect(viewer.getByRole('img', { name: 'PDF page 1' })).toBeVisible();
+  await expect(viewer.getByRole('button', { name: 'PDF page 2', exact: true })).toBeVisible();
   await viewer.getByRole('button', { name: 'Next image' }).click();
   await expect(page).toHaveURL(/\?media=pdf-2$/);
   await expect(viewer.getByRole('img', { name: 'PDF page 2' })).toBeVisible();

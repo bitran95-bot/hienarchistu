@@ -1,25 +1,26 @@
 import { Suspense, useEffect, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { LoadingScreen } from './components/LoadingScreen';
+import { Overlay } from './components/Overlay';
+import { MobileHome } from './components/MobileHome';
+import { InlineLoadingIndicator } from './components/ui/InlineLoadingIndicator';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useStore } from './store/useStore';
 import { useIsMobile } from './hooks';
 import { RecoveryMessage } from './components/ui/RecoveryMessage';
 import { SITE_URL, OG_IMAGE_URL } from './config/site';
 import { projectPath, projectSlug } from './utils/projectSlug';
+import { useTranslation } from './i18n';
 
 // Lazy load các component nặng để tăng tốc độ tải trang ban đầu (Code Splitting)
-// Desktop: 3D Canvas + Overlay (chỉ load khi ở desktop)
+// Keep the page content independent of the optional desktop 3D runtime.
 const DesktopCanvas = lazy(() => import('./components/DesktopCanvas'));
-const Overlay = lazy(() => import('./components/Overlay').then(module => ({ default: module.Overlay })));
-// Mobile: Giao diện 2D nhẹ nhàng, tối ưu cho cảm ứng (chỉ load khi ở mobile)
-const MobileHome = lazy(() => import('./components/MobileHome').then(module => ({ default: module.MobileHome })));
 
 function App() {
   const { fetchData, isDataLoaded, settings, projects, error } = useStore();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchData();
@@ -97,30 +98,28 @@ function App() {
 
       {isMobile ? (
         /* ━━━ MOBILE: Giao diện 2D thuần, không load Three.js ━━━ */
-        <Suspense fallback={<LoadingScreen started={false} />}>
-          <MobileHome />
-        </Suspense>
-      ) : error ? (
-        <RecoveryMessage fullScreen onRetry={() => void fetchData()} />
-      ) : !isDataLoaded ? (
-        <LoadingScreen started={false} />
+        <MobileHome />
       ) : (
         /* ━━━ DESKTOP: Trải nghiệm 3D kệ sách immersive ━━━ */
         <>
           {/* Không gian 3D nền (Ban ngày sáng sủa) */}
-          <ErrorBoundary fallback={<RecoveryMessage scene fullScreen />}>
           <div className="fixed inset-0 w-full h-full z-0 bg-white">
-            <Suspense fallback={<LoadingScreen started={false} />}>
-              <DesktopCanvas />
-            </Suspense>
+            <ErrorBoundary fallback={<div className="fixed bottom-6 right-6 z-20 max-w-sm"><RecoveryMessage scene /></div>}>
+              <Suspense fallback={isDataLoaded && !error ? <InlineLoadingIndicator className="fixed bottom-6 right-6" /> : null}>
+                <DesktopCanvas />
+              </Suspense>
+            </ErrorBoundary>
           </div>
-          </ErrorBoundary>
+
+          {error ? (
+            <div className="fixed bottom-6 right-6 z-20 max-w-sm"><RecoveryMessage onRetry={() => void fetchData()} /></div>
+          ) : !isDataLoaded ? (
+            <InlineLoadingIndicator label={t.scene.loadingData} className="fixed bottom-6 right-6 z-20" />
+          ) : null}
 
           {/* Lớp nội dung (Header + Modals — z-40 để nằm trên R3F scroll container) */}
           <div className="relative z-40 w-full pointer-events-none isolate">
-            <Suspense fallback={null}>
-                <Overlay />
-            </Suspense>
+            <Overlay />
           </div>
         </>
       )}

@@ -4,12 +4,13 @@ import { useEscapeKey } from '../hooks';
 import { useStore } from '../store/useStore';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ContactModal } from './ui/ContactModal';
+import { AboutSection } from './3d/AboutSection';
 import { MobileNav } from './ui/MobileNav';
 import { useTranslation } from '../i18n';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const Overlay = memo(function Overlay() {
-  const { isDarkMode } = useStore();
+  const { isDarkMode, settings } = useStore();
   const [contactOpen, setContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAboutActive, setIsAboutActive] = useState(false);
@@ -51,6 +52,16 @@ export const Overlay = memo(function Overlay() {
   // removed isMobileScreen state that was causing unused error
   return (
     <>
+      {/* Text stays visible while data, the canvas and individual models load. */}
+      <div className="pointer-events-none fixed inset-0">
+        <div id="hero-desc" className="absolute right-[20%] top-1/2 -translate-y-1/2" style={{ maxWidth: '450px' }}>
+          <p className="text-base text-[#333] font-serif italic leading-relaxed text-right" style={{ textShadow: '0 0 10px rgba(255,255,255,0.8)' }}>
+            {settings?.heroDescription || t.mobile.introFallback}
+          </p>
+        </div>
+        <AboutSection />
+      </div>
+
       {/* Scroll Progress Indicator */}
       <div className={`fixed top-0 left-0 w-full h-1 z-[120] transition-opacity duration-300 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} ${contactOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <div id="scroll-progress-bar" className="h-full bg-amber-700" style={{ width: '0%' }} />

@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Html, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { InlineLoadingIndicator } from './ui/InlineLoadingIndicator';
 
 function Model({ url }: { url: string }) {
   const { scene: source } = useGLTF(url) as { scene: THREE.Group };
@@ -59,7 +60,7 @@ export default function ProjectModelCanvas({ url, loadingLabel }: { url: string;
       <hemisphereLight args={['#ffffff', '#d9d4ca', 1.2]} />
       <directionalLight position={[5, 8, 6]} intensity={2} />
       <directionalLight position={[-4, 4, -5]} intensity={0.9} />
-      <Suspense fallback={<Html center><span className="whitespace-nowrap text-sm text-stone-500">{loadingLabel}</span></Html>}>
+      <Suspense fallback={<Html center style={{ pointerEvents: 'none' }}><InlineLoadingIndicator label={loadingLabel} /></Html>}>
         <Model url={url} />
       </Suspense>
       <OrbitControls enablePan={false} enableDamping minDistance={2.5} maxDistance={12} rotateSpeed={0.7} />

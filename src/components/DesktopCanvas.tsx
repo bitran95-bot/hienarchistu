@@ -1,10 +1,10 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useProgress } from '@react-three/drei';
+import { Html } from '@react-three/drei';
 import { Scene } from './Scene';
-import { LoadingScreen } from './LoadingScreen';
-import { RecoveryMessage } from './ui/RecoveryMessage';
+import { InlineLoadingIndicator } from './ui/InlineLoadingIndicator';
 import { useStore } from '../store/useStore';
+import { useTranslation } from '../i18n';
 
 /**
  * DesktopCanvas — Canvas 3D chỉ render trên desktop.
@@ -14,26 +14,10 @@ import { useStore } from '../store/useStore';
  * - Desktop: load đầy đủ trải nghiệm 3D kệ sách
  */
 export default function DesktopCanvas() {
-  const { progress, active } = useProgress();
   const isDarkMode = useStore(state => state.isDarkMode);
-  const [timedOut, setTimedOut] = useState(false);
-  const [sceneReadyOnce, setSceneReadyOnce] = useState(false);
-  const ready = progress === 100 && !active;
-  useEffect(() => {
-    if (!ready) return;
-    const frame = requestAnimationFrame(() => setSceneReadyOnce(true));
-    return () => cancelAnimationFrame(frame);
-  }, [ready]);
-  useEffect(() => {
-    if (ready || sceneReadyOnce) return;
-    const timer = setTimeout(() => setTimedOut(true), 20_000);
-    return () => clearTimeout(timer);
-  }, [ready, sceneReadyOnce]);
-  if (timedOut && !ready && !sceneReadyOnce) return <RecoveryMessage scene fullScreen />;
+  const { t } = useTranslation();
   return (
-    <>
-      <LoadingScreen started={ready || sceneReadyOnce} progress={progress} />
-      <Canvas
+    <Canvas
         shadows
         camera={{ position: [0, 1.5, 18], fov: 40 }}
         dpr={[1, 1.5]}
@@ -41,10 +25,9 @@ export default function DesktopCanvas() {
         style={{ touchAction: 'none' }}
       >
         <color attach="background" args={[isDarkMode ? '#141518' : '#ffffff']} />
-        <Suspense fallback={null}>
+        <Suspense fallback={<Html center style={{ pointerEvents: 'none' }}><InlineLoadingIndicator label={t.projectDetail.loadingModel} /></Html>}>
           <Scene />
         </Suspense>
-      </Canvas>
-    </>
+    </Canvas>
   );
 }
