@@ -56,6 +56,9 @@ export function useHeroAnimations() {
     const aboutSection = aboutSectionRef.current;
     const isAboutVisible = s > 0.05 && s < 0.30;
     if (aboutSection) {
+       // This text renders outside Canvas, so follow its damped scroll explicitly.
+       const scrollY = state.size.height * (scroll.pages - 1) * s;
+       aboutSection.style.transform = `translate3d(0, calc(-50% - ${scrollY}px), 0)`;
        if (s > 0.25) {
           const fade = 1 - THREE.MathUtils.clamp((s - 0.25) / 0.05, 0, 1);
           aboutSection.style.opacity = `${fade}`;
