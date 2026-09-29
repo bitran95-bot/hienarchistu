@@ -44,12 +44,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ success: false, error: 'invalid_input' });
   }
   const fields = body as Record<string, unknown>;
+  if (fields.website) return res.status(400).json({ success: false, error: 'invalid_input' });
   if (typeof fields.name !== 'string' || typeof fields.email !== 'string' || typeof fields.message !== 'string') {
     return res.status(400).json({ success: false, error: 'invalid_input' });
   }
   const name = fields.name.trim();
   const email = fields.email.trim();
   const message = fields.message.trim();
+  const project = typeof fields.project === 'string' ? fields.project.trim() : '';
+  const page = typeof fields.page === 'string' ? fields.page.trim() : '';
+  if (project.length > 200 || page.length > 300 || /[\r\n]/.test(project + page) || (page && !/^\/(?:projects(?:\/[a-z0-9-]+)?|services|shop)?$/.test(page))) {
+    return res.status(400).json({ success: false, error: 'invalid_input' });
+  }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!name || name.length > 100 || /[\r\n]/.test(name) || email.length > 254 ||
       !emailRegex.test(email) || !message || message.length > 5_000) {
@@ -110,11 +116,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 <td style="padding: 8px 12px; border-bottom: 1px solid #eee;"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td>
               </tr>
             </table>
+            ${project ? `<p><strong>Dự án tham khảo:</strong> ${escapeHtml(project)}</p>` : ''}
+            ${page ? `<p><strong>Trang gửi:</strong> ${escapeHtml(page)}</p>` : ''}
             <div style="background: #fdfbf7; padding: 16px 20px; border-left: 4px solid #b45309; margin: 20px 0; white-space: pre-wrap;">
               ${escapeHtml(message)}
             </div>
             <p style="color: #999; font-size: 12px; margin-top: 24px;">
-              Gửi từ form liên hệ — hienarchi.studio
+              Gửi từ form liên hệ — hienarchistu.vercel.app
             </p>
           </div>
         `,

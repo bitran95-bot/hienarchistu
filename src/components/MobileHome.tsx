@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { getResponsiveImageProps } from '../utils/image';
 import { useEscapeKey } from '../hooks';
+import { ImageReveal, RevealHeading } from './ui/EditorialMotion';
 import { ContactModal } from './ui/ContactModal';
 import { RecoveryMessage } from './ui/RecoveryMessage';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -46,9 +47,8 @@ export const MobileHome = memo(function MobileHome() {
 
       {/* ━━━ HERO SECTION ━━━ */}
       <section
-        className="relative min-h-[100dvh] flex flex-col px-8 pt-12 pb-12"
+        className="mobile-sun-wall relative min-h-[100dvh] flex flex-col px-8 pt-12 pb-12"
         style={{
-          backgroundImage: 'linear-gradient(rgba(241,239,231,0.38), rgba(241,239,231,0.55)), url(/textures/sunlit-wall-highres.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: '36% center',
         }}
@@ -83,13 +83,7 @@ export const MobileHome = memo(function MobileHome() {
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="mb-10"
         >
-          <h1 className="text-[48px] sm:text-[56px] font-black leading-[1.05] tracking-tight">
-            Hiên<br/>
-            <span className="inline-flex items-center">
-              studio
-              <span className="inline-block w-16 sm:w-24 h-[1.5px] bg-[#1a1a1a] ml-4 align-middle" />
-            </span>
-          </h1>
+          <RevealHeading as="h1" className="max-w-[250px] text-[48px] sm:text-[56px] font-black leading-[1.05] tracking-tight">Hiên studio</RevealHeading>
         </motion.div>
 
         {/* Quote & Author */}
@@ -189,7 +183,7 @@ export const MobileHome = memo(function MobileHome() {
                 aspectRatio: 4 / 5,
                 baseWidth: 300,
                 sizes: '(max-width: 768px) 33vw, 200px',
-                className: 'w-full h-full object-cover transition-transform duration-700 hover:scale-105',
+                className: 'w-full h-full object-contain',
                 alt: project.name,
                 loading: idx < 6 ? 'eager' : 'lazy'
               });
@@ -208,7 +202,7 @@ export const MobileHome = memo(function MobileHome() {
                     aria-label={`${t.projectDetail.viewDetail}: ${project.name}`}
                     className="group flex flex-col rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-700"
                   >
-                  <div className="relative aspect-[4/5] bg-[#e0dbd0] mb-2 overflow-hidden">
+                  <ImageReveal className="relative aspect-[4/5] bg-[#e0dbd0] mb-2 overflow-hidden">
                     {imgProps ? (
                       <img {...imgProps} />
                     ) : (
@@ -216,7 +210,7 @@ export const MobileHome = memo(function MobileHome() {
                         {t.mobile.noImage}
                       </div>
                     )}
-                  </div>
+                  </ImageReveal>
                   <div className="flex flex-col">
                     <h3 className="text-[11px] sm:text-[13px] font-bold leading-tight tracking-tight line-clamp-2">
                       {project.name}

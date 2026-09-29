@@ -34,7 +34,7 @@ export function getResponsiveImageProps({
     const builder = urlFor(source).auto('format').quality(80);
 
     // Common screen widths to generate srcSet for
-    const widths = [320, 640, 768, 1024, 1280, 1536];
+    const widths = baseWidth >= 1600 ? [320, 640, 768, 1024, 1280, 1536, 1920, 2560] : [320, 640, 768, 1024, 1280, 1536];
 
     const srcSet = widths
       .map((w) => {

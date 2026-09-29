@@ -1,14 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
-import { StrictMode, lazy, Suspense } from 'react'
+import { StrictMode, lazy, Suspense, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import { I18nProvider } from './i18n'
 import './index.css'
-import 'virtual:pwa-register'
+import { registerSW } from 'virtual:pwa-register'
+import { useStore } from './store/useStore'
 import App from './App.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { startAnalytics } from './utils/analytics'
 
 // Lazy load trang phụ để không ảnh hưởng trang chính 3D
 const ShopPage = lazy(() => import('./pages/ShopPage'))
@@ -31,6 +33,8 @@ const pageVariants = {
 }
 
 function AnimatedRoutes() {
+  const fetchData = useStore(state => state.fetchData)
+  useEffect(() => { void fetchData() }, [fetchData])
   const location = useLocation()
   const routeKey = /^\/projects(?:\/[^/]+)?$/.test(location.pathname) ? '/projects' : location.pathname
   return (
@@ -88,6 +92,10 @@ function AnimatedRoutes() {
 // Keep generated metadata for crawlers and no-JS visitors, then hand ownership
 // to React Helmet for client-side navigation without duplicate canonical/OG tags.
 document.head.querySelectorAll('[data-static-seo]').forEach(element => element.remove());
+
+// Register after load; optional 3D/PDF assets are fetched only when needed.
+if (import.meta.env.PROD) window.addEventListener('load', () => registerSW({ immediate: true }), { once: true });
+startAnalytics();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

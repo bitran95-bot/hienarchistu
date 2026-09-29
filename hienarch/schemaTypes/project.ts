@@ -32,6 +32,7 @@ export default defineType({
       type: 'slug',
       group: 'settings',
       options: { source: 'name', maxLength: 96 },
+      validation: (Rule) => Rule.required(),
       description: 'Tạo một lần từ tên dự án, sau đó giữ nguyên để link đã chia sẻ không thay đổi.',
     }),
     defineField({

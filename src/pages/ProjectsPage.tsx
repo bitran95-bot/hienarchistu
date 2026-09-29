@@ -17,6 +17,8 @@ import { SubpageNavigation } from '../components/SubpageNavigation';
 import { DesktopProjectViewer } from '../components/DesktopProjectViewer';
 import { ProjectModelPanel } from '../components/ProjectModelPanel';
 import { ProjectShareLink } from '../components/ProjectShareLink';
+import { RevealHeading, ImageReveal, MediaTransition } from '../components/ui/EditorialMotion';
+import { ProjectContact } from '../components/ProjectContact';
 import { RecoveryMessage } from '../components/ui/RecoveryMessage';
 import { FullscreenImageOverlay, ProjectCardSkeleton } from '../components/ui';
 const PdfPageMedia = lazy(() => import('../components/PdfPageMedia'));
@@ -28,7 +30,9 @@ export default function ProjectsPage() {
   const location = useLocation();
   const { projects, isDataLoaded, fetchData, error } = useStore();
   const selectedProject = slug ? projects.find(project => projectSlug(project) === slug) || null : null;
-  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [expandedMedia, setExpandedMedia] = useState<{ locationKey: string; image: string } | null>(null);
+  const fullscreenImage = expandedMedia?.locationKey === location.key ? expandedMedia.image : null;
+  const [mediaDirection, setMediaDirection] = useState(1);
   const [pdfPageInfo, setPdfPageInfo] = useState<{ projectId: string; count: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -90,6 +94,7 @@ export default function ProjectsPage() {
   };
   const moveMedia = (direction: -1 | 1) => {
     if (!navigationKeys.length) return;
+    setMediaDirection(direction);
     const index = navigationKeys.indexOf(activeMedia || '');
     navigateMedia(navigationKeys[(index + direction + navigationKeys.length) % navigationKeys.length]);
   };
@@ -118,7 +123,7 @@ export default function ProjectsPage() {
 
   // Handle escape key to close modal or fullscreen image
   const handleEscape = useCallback(() => {
-    if (fullscreenImage) setFullscreenImage(null);
+    if (fullscreenImage) setExpandedMedia(null);
     else if (slug) closeProject();
   }, [fullscreenImage, slug, closeProject]);
   useEscapeKey(handleEscape);
@@ -145,9 +150,9 @@ export default function ProjectsPage() {
       {/* Hero Section */}
       <section className="pt-20 pb-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-serif italic text-[#2a2a2a] mb-4">
+          <RevealHeading as="h1" className="text-4xl md:text-5xl font-serif italic text-[#2a2a2a] mb-4">
             {t.projectsPage.title}
-          </h1>
+          </RevealHeading>
           <p className="text-lg text-stone-500 max-w-2xl mx-auto mb-8">
             {t.projectsPage.subtitle}
           </p>
@@ -231,7 +236,7 @@ export default function ProjectsPage() {
                 const imgProps = getResponsiveImageProps({
                   source: project.image, aspectRatio: 4/3, baseWidth: 800,
                   sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-                  className: 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-700',
+                  className: 'w-full h-full object-contain',
                   alt: project.name, loading: 'lazy'
                 });
                 return (
@@ -254,13 +259,13 @@ export default function ProjectsPage() {
                       }
                     }}
                   >
-                    <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
+                    <ImageReveal className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                       {imgProps ? <img {...imgProps} /> : <div className="w-full h-full flex items-center justify-center text-stone-300">{t.projectDetail.noImage}</div>}
-                    </div>
+                    </ImageReveal>
                     <div className="p-6 flex-1 flex flex-col">
                       <h3 className="font-heading font-bold text-[#2a2a2a] text-xl mb-3 group-hover:text-amber-800 transition-colors">{project.name}</h3>
                       {project.generalInfo && <p className="text-sm text-stone-500 mb-4 line-clamp-3">{project.generalInfo}</p>}
-                      <div className="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center text-sm font-medium text-amber-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center text-sm font-medium text-amber-800 opacity-100 transition-opacity">
                         <span>{t.projectDetail.viewDetail}</span><span>→</span>
                       </div>
                     </div>
@@ -308,7 +313,7 @@ export default function ProjectsPage() {
                       {project.generalInfo && <p className="text-sm text-stone-500 line-clamp-2 mt-1">{project.generalInfo}</p>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-amber-700 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">{t.projectDetail.viewDetail} →</span>
+                      <span className="text-amber-700 text-sm font-medium opacity-100 transition-opacity">{t.projectDetail.viewDetail} →</span>
                     </div>
                   </motion.div>
                 );
@@ -383,10 +388,12 @@ export default function ProjectsPage() {
 
               {/* Left Side: Content */}
               <div className="order-2 w-full p-6 pb-16">
-                <h2 className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
+                <RevealHeading className="text-4xl md:text-5xl font-heading font-bold text-[#2a2a2a] mb-8 border-b border-stone-200 pb-6">
                   {selectedProject.name}
-                </h2>
+                </RevealHeading>
                 <ProjectShareLink key={projectPath(selectedProject)} project={selectedProject} mediaKey={activeMedia} className="mb-8 inline-block text-sm font-semibold text-amber-800 underline underline-offset-4" />
+
+                <ProjectContact key={selectedProject._id} name={selectedProject.name} />
 
                 {selectedProject.generalInfo && (
                   <div className="mb-10">
@@ -438,7 +445,7 @@ export default function ProjectsPage() {
                   />
                 ) : mediaCount > 0 ? (
                   <>
-                    <div className="relative h-[min(74dvh,720px)] w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+                    <MediaTransition key={`${selectedProject._id}-${showingPdf ? 'pdf' : activeMedia}`} direction={mediaDirection} className="relative h-[min(74dvh,720px)] w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
                       {showingPdf && selectedProject.pdfFileUrl ? (
                         <Suspense fallback={<div className="flex h-full items-center justify-center" role="status">{t.scene.loadingData}</div>}>
                           <PdfPageMedia url={selectedProject.pdfFileUrl} pageNumber={Number(activeMedia?.slice(4))} onPageCount={updatePdfPageCount} className="h-full w-full" />
@@ -448,7 +455,7 @@ export default function ProjectsPage() {
                           type="button"
                           className="h-full w-full cursor-zoom-in"
                           aria-label={t.projectDetail.zoomIn}
-                          onClick={() => setFullscreenImage(urlFor(projectImages[activeImageIndex]).width(2000).quality(90).auto('format').url())}
+                          onClick={() => setExpandedMedia({ locationKey: location.key, image: urlFor(projectImages[activeImageIndex]).width(2400).quality(90).auto('format').url() })}
                         >
                           <img {...getResponsiveImageProps({
                             source: projectImages[activeImageIndex],
@@ -459,7 +466,7 @@ export default function ProjectsPage() {
                           })} />
                         </button>
                       ) : null}
-                    </div>
+                    </MediaTransition>
                     {mediaCount > 1 && (
                       <div className="mt-4 flex shrink-0 items-center justify-between gap-3 rounded-xl bg-white px-3 py-2 text-sm shadow-sm" aria-label={t.projectDetail.gallery}>
                         <button type="button" onClick={() => moveMedia(-1)} aria-label={t.projectDetail.previousImage} className="h-12 w-12 rounded-full border border-stone-200">←</button>
@@ -493,14 +500,14 @@ export default function ProjectsPage() {
             </motion.div>
           </div>
         ) : (
-          <DesktopProjectViewer key={selectedProject._id} project={selectedProject} activeMedia={activeMedia} mediaKeys={mediaKeys} onMediaChange={moveMedia} onPdfPageCount={updatePdfPageCount} onClose={closeProject} />
+          <DesktopProjectViewer key={selectedProject._id} project={selectedProject} activeMedia={activeMedia} mediaKeys={mediaKeys} direction={mediaDirection} onMediaChange={moveMedia} onPdfPageCount={updatePdfPageCount} onClose={closeProject} />
         ))}
       </AnimatePresence>
 
       {/* Fullscreen Image Viewer */}
       <FullscreenImageOverlay 
         selectedImage={fullscreenImage} 
-        onClose={() => setFullscreenImage(null)} 
+        onClose={() => setExpandedMedia(null)}
       />
     </div>
   );

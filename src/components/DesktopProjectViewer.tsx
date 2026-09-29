@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { RevealHeading, MediaTransition } from './ui/EditorialMotion';
+import { ProjectContact } from './ProjectContact';
 import { ProjectModelPanel } from './ProjectModelPanel';
 import { ProjectShareLink } from './ProjectShareLink';
 import { getResponsiveImageProps } from '../utils/image';
@@ -14,13 +16,14 @@ const PdfPageMedia = lazy(() => import('./PdfPageMedia'));
 interface DesktopProjectViewerProps {
   project: Project;
   activeMedia?: string | null;
+  direction?: number;
   mediaKeys?: string[];
   onMediaChange?: (direction: -1 | 1) => void;
   onPdfPageCount?: (count: number) => void;
   onClose: () => void;
 }
 
-export function DesktopProjectViewer({ project, activeMedia, mediaKeys, onMediaChange, onPdfPageCount, onClose }: DesktopProjectViewerProps) {
+export function DesktopProjectViewer({ project, activeMedia, mediaKeys, direction = 1, onMediaChange, onPdfPageCount, onClose }: DesktopProjectViewerProps) {
   const { t } = useTranslation();
   const images = useProjectImages(project);
   const [localSlide, setLocalSlide] = useState(0);
@@ -73,9 +76,10 @@ export function DesktopProjectViewer({ project, activeMedia, mediaKeys, onMediaC
     >
       <section className="flex min-h-0 flex-col overflow-y-auto overscroll-y-contain border-r border-stone-100 px-[clamp(2rem,4vw,5rem)] pb-10 pt-10">
         <p className="mb-14 text-[11px] font-bold uppercase tracking-[0.22em] text-stone-500">HIÊN studio / {t.nav.projects}</p>
-        <h2 className="max-w-full break-words font-sans text-[clamp(3rem,5.7vw,7.5rem)] font-black leading-[0.94] tracking-[-0.075em]">
+        <RevealHeading className="max-w-full break-words font-sans text-[clamp(3rem,5.7vw,7.5rem)] font-black leading-[0.94] tracking-[-0.075em]">
           {project.name}
-        </h2>
+        </RevealHeading>
+        <ProjectContact name={project.name} />
         <div className="mt-auto pt-12">
           {project.generalInfo && <p className="max-w-lg whitespace-pre-line text-sm font-medium leading-7 text-stone-700">{project.generalInfo}</p>}
           {project.content && (
@@ -99,8 +103,7 @@ export function DesktopProjectViewer({ project, activeMedia, mediaKeys, onMediaC
 
       <section className="relative min-h-0 bg-white" aria-label={t.projectDetail.gallery}>
         <button autoFocus onClick={onClose} aria-label={t.contact.close} className="absolute right-6 top-6 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-xl hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-700">×</button>
-        <AnimatePresence mode="wait">
-          <motion.div key={`${project._id}-${currentMedia}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} className="absolute inset-0">
+          <MediaTransition key={`${project._id}-${showingPdf ? 'pdf' : currentMedia}`} direction={direction} className="absolute inset-0 pb-16">
             {showingModel && project.modelFileUrl ? (
               <ProjectModelPanel
                 url={project.modelFileUrl}
@@ -117,8 +120,7 @@ export function DesktopProjectViewer({ project, activeMedia, mediaKeys, onMediaC
             ) : (
               <div className="flex h-full items-center justify-center text-stone-400">{t.projectDetail.noImage}</div>
             )}
-          </motion.div>
-        </AnimatePresence>
+          </MediaTransition>
         {slideCount > 1 && (
           <div className="absolute bottom-0 right-0 z-10 flex items-center bg-[#171717] text-white">
             <span className="px-5 text-xs font-medium tracking-widest">{String(Math.max(1, activeSlide + 1)).padStart(2, '0')} / {String(slideCount).padStart(2, '0')}</span>

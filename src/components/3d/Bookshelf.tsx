@@ -6,7 +6,7 @@ import { calculateProjectLayout } from '../../utils/layout';
 
 export function Bookshelf() {
   const { projects, isDarkMode } = useStore();
-  const shelfTexture = useTexture('/textures/plywood_diff_2k.jpg');
+  const shelfTexture = useTexture('/textures/plywood-2k.webp');
   const wallPhoto = useTexture('/textures/sunlit-wall-highres.jpg');
 
   const configuredShelfTexture = useMemo(() => {

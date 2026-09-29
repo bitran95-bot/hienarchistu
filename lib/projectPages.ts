@@ -1,3 +1,5 @@
+import { legacyProjectSlugs } from './legacyProjectSlugs.js';
+
 export interface ProjectForPage {
   _id: string;
   name: string;
@@ -19,11 +21,11 @@ export function slugifyProjectName(name: string): string {
     .replace(/^-+|-+$/g, '') || 'project';
 }
 
-export function projectSlug(project: Pick<ProjectForPage, 'name' | 'slug'>): string {
-  return slugifyProjectName(project.slug?.current?.trim() || project.name);
+export function projectSlug(project: Pick<ProjectForPage, 'name' | 'slug'> & { _id?: string }): string {
+  return slugifyProjectName(project.slug?.current?.trim() || legacyProjectSlugs[project._id || ''] || project.name);
 }
 
-export function projectPath(project: Pick<ProjectForPage, 'name' | 'slug'>): string {
+export function projectPath(project: Pick<ProjectForPage, 'name' | 'slug'> & { _id?: string }): string {
   return `/projects/${encodeURIComponent(projectSlug(project))}`;
 }
 

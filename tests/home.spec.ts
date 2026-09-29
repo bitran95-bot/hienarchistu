@@ -21,13 +21,13 @@ test('home renders the appropriate experience for the device', async ({ page, is
     await expect(page.locator('canvas')).toBeVisible();
     await expect(page.getByRole('status')).toHaveCount(0, { timeout: 20_000 });
     await expect(page.getByRole('alert')).toHaveCount(0);
-    await expect.poll(() => backgroundTextureRequests.some(url => url.includes('plywood_diff_2k.jpg'))).toBe(true);
+    await expect.poll(() => backgroundTextureRequests.some(url => url.includes('plywood-2k.webp'))).toBe(true);
     await expect.poll(() => backgroundTextureRequests.some(url => url.includes('sunlit-wall-highres.jpg'))).toBe(true);
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
   }
   expect(backgroundTextureRequests.some(url => url.includes('beige_wall'))).toBe(false);
-  if (isMobile) expect(backgroundTextureRequests.some(url => url.includes('sunlit-wall-highres.jpg'))).toBe(true);
+  if (isMobile) expect(backgroundTextureRequests.some(url => /sunlit-wall-(960|1440)\.webp/.test(url))).toBe(true);
 });
 
 test('desktop project viewer starts with a rotatable model, then shows project photos', async ({ page, isMobile }) => {
@@ -262,7 +262,7 @@ test('mobile home leaves 3D assets unloaded on a cold visit', async ({ page, isM
   test.skip(!isMobile, 'The desktop homepage needs the 3D scene.');
   const sceneRequests: string[] = [];
   page.on('request', request => {
-    if (/\/textures\/(?!sunlit-wall-highres\.jpg)|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
+    if (/\/textures\/(?!sunlit-wall-(?:960|1440)\.webp)|\.glb(?:\?|$)|DesktopCanvas-[^/]+\.js/.test(request.url())) {
       sceneRequests.push(request.url());
     }
   });

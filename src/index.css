@@ -98,3 +98,17 @@ body.dark-mode #about-section p {
 .text-\[\#888888\] {
   color: #555555; /* Darker grey for better contrast on light backgrounds (WCAG AA) */
 }
+
+/* Editorial motion keeps natural wrapping and the complete accessible title. */
+.editorial-heading { position: relative; }
+.reveal-word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-block: .14em; margin-block: -.14em; }
+.reveal-word > span { display: inline-block; animation: editorial-line .6s cubic-bezier(.22,1,.36,1) both; animation-delay: var(--line-delay, 0ms); }
+@keyframes editorial-line { from { opacity: 0; transform: translateY(105%); } to { opacity: 1; transform: translateY(0); } }
+.motion-link > span { transition: transform .18s ease-out; }
+.motion-link:hover > span, .motion-link:focus-visible > span { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word > span { animation: none; }
+  .motion-link > span { transition: none; transform: none !important; }
+}
+
+.mobile-sun-wall { background-image: linear-gradient(rgba(241,239,231,.38),rgba(241,239,231,.55)), image-set(url('/textures/sunlit-wall-960.webp') 1x, url('/textures/sunlit-wall-1440.webp') 2x); }

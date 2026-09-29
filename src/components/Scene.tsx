@@ -11,7 +11,8 @@ import { FallbackPhotoFrame } from './3d/FallbackPhotoFrame';
 import { DecorativeLamp } from './3d/DecorativeLamp';
 import { CursorLight } from './3d/CursorLight';
 import { InteractiveProject } from './3d/InteractiveProject';
-import { ProjectSpotlight } from './3d/ProjectSpotlight';
+import { ProjectVisibility } from './3d/ProjectVisibility';
+import { useReducedMotion } from 'framer-motion';
 
 import { Bookshelf } from './3d/Bookshelf';
 import { calculateProjectLayout } from '../utils/layout';
@@ -24,6 +25,7 @@ import { useLocation } from 'react-router-dom';
 
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
+  const reducedMotion = useReducedMotion();
   const { gl } = useThree();
   const { modalOpen, activeProject, projects, isDataLoaded, isDarkMode, toggleDarkMode } = useStore();
   const scroll = useScroll();
@@ -96,7 +98,7 @@ function SceneContents() {
         }}
         onIncline={() => {
            setPerfQuality('high');
-           gl.setPixelRatio(window.devicePixelRatio || 1.5);
+           gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         }}
         flipflops={3}
         onFallback={() => {
@@ -131,7 +133,7 @@ function SceneContents() {
       <CursorLight isDarkMode={isDarkMode} />
 
       {/* Hiệu ứng hạt bụi bay lơ lửng / đom đóm (Chỉ bật khi quality high) */}
-      {!isMobileScreen && perfQuality === 'high' && (
+      {!isMobileScreen && !reducedMotion && perfQuality === 'high' && (
          <Sparkles 
             count={isDarkMode ? 60 : 20} 
             scale={[40, 25, 10]} 
@@ -161,12 +163,6 @@ function SceneContents() {
             />
          </Suspense>
 
-         {isDarkMode && gridLayout.map(project => (
-           <ProjectSpotlight
-             key={`spotlight-${project._id}`}
-             position={[project.computedX, -project.computedRow * 4, 0]}
-           />
-         ))}
          
          {!isDataLoaded ? null : gridLayout.length === 0 ? (
                 <InteractiveProject index={0} position={[0, 0, 0]}>
@@ -179,8 +175,8 @@ function SceneContents() {
                const originalIndex = projects.findIndex((p) => p._id === project._id);
                const activeIdx = originalIndex !== -1 ? originalIndex : index;
                return (
+                 <ProjectVisibility key={project._id || index} position={[project.computedX, -project.computedRow * 4, 0]} night={isDarkMode}>
                  <InteractiveProject 
-                    key={project._id || index} 
                     index={activeIdx} 
                     position={[project.computedX, -project.computedRow * 4, 0]} 
                  >
@@ -194,6 +190,7 @@ function SceneContents() {
                       </Suspense>
                     </ErrorBoundary>
                  </InteractiveProject>
+                 </ProjectVisibility>
                );
             })
          )}

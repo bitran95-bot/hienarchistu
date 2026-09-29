@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import { useRef } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
 import type { GridData } from '../../../types';
 
@@ -10,6 +11,7 @@ export function useCameraController(
   activeProject: number
 ) {
   const scroll = useScroll();
+  const reducedMotion = useReducedMotion();
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
   const camTargetPosRef = useRef(new THREE.Vector3());
   const lookTargetRef = useRef(new THREE.Vector3());
@@ -22,8 +24,8 @@ export function useCameraController(
     const panT = THREE.MathUtils.smoothstep(s, 0.45, 1.0);  // Trượt ngang kéo dài
 
     // 2. Parallax góc nhìn lắc nhẹ theo chuột
-    const parallaxX = state.pointer.x * 1.2;
-    const parallaxY = state.pointer.y * 1.2;
+    const parallaxX = (reducedMotion ? 0 : state.pointer.x * 1.2);
+    const parallaxY = (reducedMotion ? 0 : state.pointer.y * 1.2);
 
     // 3. Tính toán vị trí theo Grid Layout
     let gridX = 0;

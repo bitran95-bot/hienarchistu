@@ -1,10 +1,14 @@
 import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import { useRef } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
 
 export function useHeroAnimations() {
   const scroll = useScroll();
+  const reducedMotion = useReducedMotion();
+  const previous = useRef({ offset: -1, width: 0, height: 0, reduced: reducedMotion });
+  const previousAbout = useRef<boolean | null>(null);
   
   const logoRef = useRef<HTMLElement | null>(null);
   const heroDescRef = useRef<HTMLElement | null>(null);
@@ -15,6 +19,9 @@ export function useHeroAnimations() {
 
   useFrame((state) => {
     const s = scroll.offset;
+    const last = previous.current;
+    if (Math.abs(last.offset - s) < .00001 && last.width === state.size.width && last.height === state.size.height && last.reduced === reducedMotion) return;
+    previous.current = { offset: s, width: state.size.width, height: state.size.height, reduced: reducedMotion };
 
     // Progress Bar
     if (!progressBarRef.current) progressBarRef.current = document.getElementById('scroll-progress-bar');
@@ -67,7 +74,10 @@ export function useHeroAnimations() {
        }
     }
     // Dispatch event for header nav highlight (Bug #2 fix)
-    window.dispatchEvent(new CustomEvent('about-section-visible', { detail: { visible: isAboutVisible } }));
+    if (previousAbout.current !== isAboutVisible) {
+      previousAbout.current = isAboutVisible;
+      window.dispatchEvent(new CustomEvent('about-section-visible', { detail: { visible: isAboutVisible } }));
+    }
 
     const progress1 = THREE.MathUtils.clamp((s - 0.05) / 0.1, 0, 1);
     const progress2 = THREE.MathUtils.clamp((s - 0.1) / 0.1, 0, 1); 
@@ -75,14 +85,14 @@ export function useHeroAnimations() {
     if (!aboutText1Ref.current) aboutText1Ref.current = document.getElementById('about-text-1');
     const text1 = aboutText1Ref.current;
     if (text1) {
-       const clipRight = (1 - progress1) * 100;
+       const clipRight = reducedMotion ? 0 : (1 - progress1) * 100;
        text1.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
     }
     
     if (!aboutText2Ref.current) aboutText2Ref.current = document.getElementById('about-text-2');
     const text2 = aboutText2Ref.current;
     if (text2) {
-       const clipRight = (1 - progress2) * 100;
+       const clipRight = reducedMotion ? 0 : (1 - progress2) * 100;
        text2.style.clipPath = `inset(0 ${clipRight}% 0 0)`;
     }
   });

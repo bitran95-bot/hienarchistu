@@ -65,6 +65,18 @@ describe('contact API', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('includes escaped project context without allowing unbounded or injected metadata', async () => {
+    expect((await invoke({ ...validBody, project: 'House <A>', page: '/projects/house-a' })).status).toHaveBeenCalledWith(200);
+    const payload = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(payload.html).toContain('House &lt;A&gt;');
+    expect(payload.html).toContain('/projects/house-a');
+    vi.mocked(fetch).mockClear();
+    expect((await invoke({ ...validBody, project: 'x'.repeat(201) })).status).toHaveBeenCalledWith(400);
+    expect((await invoke({ ...validBody, page: 'https://other.example' })).status).toHaveBeenCalledWith(400);
+    expect((await invoke({ ...validBody, website: 'spam.example' })).status).toHaveBeenCalledWith(400);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('sends escaped content and only confirms a provider-accepted email', async () => {
     const res = await invoke({ ...validBody, name: '  Test <Studio>  ' });
     expect(res.status).toHaveBeenCalledWith(200);
