@@ -40,7 +40,12 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await withTimeout(signal => fetchPublicContent<{ projects: Project[]; settings: SiteSettings | null }>('site', siteContentQuery, signal));
       
       set({ 
-        projects: data.projects || [], 
+        projects: (data.projects || []).map(project => ({
+          ...project,
+          // Older CMS text contains escaped newlines from an imported JSON string.
+          generalInfo: project.generalInfo?.replace(/\\r\\n|\\n/g, '\n'),
+          content: project.content?.replace(/\\r\\n|\\n/g, '\n'),
+        })),
         settings: data.settings || null,
         isDataLoaded: true,
         error: null,
