@@ -50,6 +50,7 @@ function Model({ url }: { url: string }) {
 export default function ProjectModelCanvas({ url, loadingLabel }: { url: string; loadingLabel: string }) {
   return (
     <Canvas
+      frameloop="demand"
       camera={{ position: [4.5, 2.8, 5.8], fov: 40, near: 0.1, far: 100 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true }}

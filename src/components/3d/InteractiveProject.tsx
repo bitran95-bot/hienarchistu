@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
+import { useReducedMotion } from 'framer-motion';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../../store/useStore';
@@ -17,6 +18,7 @@ export function InteractiveProject({ children, position, index }: InteractivePro
   const projects = useStore(state => state.projects);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const reducedMotion = useReducedMotion();
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
@@ -45,18 +47,18 @@ export function InteractiveProject({ children, position, index }: InteractivePro
 
     if (!group.current) return;
     // Tăng kích thước hiển thị lên 1.5 lần
-    const targetScale = hovered ? 1.95 : 1.8;
+    const targetScale = hovered && !reducedMotion ? 1.95 : 1.8;
     group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, targetScale, 0.1));
     
     // Nổi lên nhẹ khi hover, và nổi cao hơn khi đang kéo xoay để không bị lẹm vào kệ
-    const targetY = dragState.current.isDragging ? 0.8 : (hovered ? 0.2 : 0);
+    const targetY = dragState.current.isDragging ? 0.8 : (hovered && !reducedMotion ? 0.2 : 0);
     group.current.position.y = THREE.MathUtils.lerp(group.current.position.y, targetY, 0.1);
 
     if (dragState.current.isDragging) {
       // Khi đang drag, quay sát với tay (tăng lerp từ 0.2 lên 0.8 để xóa độ trễ)
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, dragRotY, 0.8);
       group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, dragRotX, 0.8);
-    } else if (hovered) {
+    } else if (hovered && !reducedMotion) {
       // Khi hover (không drag), tự động lắc lư nhẹ
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, Math.sin(state.clock.elapsedTime * 1.5) * 0.05, 0.1);
       group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 0, 0.1);

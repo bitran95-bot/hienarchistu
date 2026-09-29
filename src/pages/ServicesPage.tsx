@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { OG_IMAGE_URL, pageUrl } from '../config/site';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../i18n';
 import { SubpageNavigation } from '../components/SubpageNavigation';
+import { RevealHeading } from '../components/ui/EditorialMotion';
 import { ContactModal } from '../components/ui/ContactModal';
 
 export default function ServicesPage() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const reducedMotion = useReducedMotion();
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [contactOpen, setContactOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -21,19 +23,6 @@ export default function ServicesPage() {
 
   const steps = t.servicesPage.steps;
   const currentStep = steps[activeStepIndex];
-
-  // Keyboard navigation for steps
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') {
-        setActiveStepIndex((prev) => (prev < steps.length - 1 ? prev + 1 : 0));
-      } else if (e.key === 'ArrowLeft') {
-        setActiveStepIndex((prev) => (prev > 0 ? prev - 1 : steps.length - 1));
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [steps.length]);
 
   // Minimalist outline SVG icons for each step
   const getStepIcon = (id: string) => {
@@ -79,30 +68,30 @@ export default function ServicesPage() {
     }
   };
 
-  // Framer motion variants for staggered animations
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.05,
-      },
-    },
-    exit: {
-      opacity: 0,
-      transition: { duration: 0.2 },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
-    },
-  };
+  const renderDetails = (step: typeof currentStep) => (
+    <motion.div key={step.id} initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 8 }}
+      animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : .3 }} className="py-6">
+      <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
+        <div><p className="mb-2 text-xs uppercase tracking-widest text-stone-500">{t.servicesPage.step} {step.id} / 06</p>
+          <h2 className="text-2xl font-serif font-bold md:text-4xl">{step.title}</h2></div>
+        <p className="text-sm text-stone-600">{t.servicesPage.duration}: <strong>{step.duration}</strong></p>
+      </div>
+      <svg viewBox="0 0 480 110" aria-hidden="true" className="mb-8 h-24 w-full max-w-lg text-stone-400" fill="none" stroke="currentColor" strokeWidth="1.2">
+        <motion.path key={step.id} d="M8 90H472 M50 89V35L160 8 270 35V89 M70 89V42L160 20 250 42V89 M100 89V55H145V89 M180 89V55H225V89 M290 89V42H425V89 M305 55H410V77H305Z"
+          initial={{ pathLength: reducedMotion ? 1 : 0 }} animate={{ pathLength: 1 }} transition={{ duration: reducedMotion ? 0 : .5 }} />
+      </svg>
+      <div className="grid gap-6 md:grid-cols-2 md:gap-12">
+        {step.details.map(detail => <div key={detail.label}>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-widest text-stone-500">{detail.label}</h3>
+          <p className="text-base leading-relaxed text-stone-700">{detail.text}</p>
+        </div>)}
+      </div>
+      <div className="mt-8 border-t border-stone-200 pt-6">
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-widest text-stone-500">{t.servicesPage.deliverable}</h3>
+        <p className="font-medium leading-relaxed">{step.deliverable}</p>
+      </div>
+    </motion.div>
+  );
 
   return (
     <div className="min-h-screen bg-[#fcfbf9] selection:bg-stone-300 text-[#1a1a1a] font-sans">
@@ -134,171 +123,64 @@ export default function ServicesPage() {
           <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.25em] text-stone-400 block mb-3">
             {t.servicesPage.step} 01 — 06
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold tracking-tight text-[#1a1a1a] mb-4 leading-tight">
+          <RevealHeading as="h1" className="text-3xl sm:text-4xl md:text-5xl font-sans font-bold tracking-tight text-[#1a1a1a] mb-4 leading-tight">
             {t.servicesPage.title}
-          </h1>
+          </RevealHeading>
           <p className="text-base sm:text-lg text-stone-600 max-w-2xl font-normal leading-relaxed">
             {t.servicesPage.subtitle}
           </p>
         </motion.div>
       </header>
 
-      {/* Monograph Horizontal Column Layout (Áp dụng đúng layout như ảnh mẫu: Top line -> Number -> Icon -> Serif Title -> Summary Text) */}
-      <section className="px-6 md:px-12 max-w-7xl mx-auto mb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8">
-          {steps.map((step, idx) => {
-            const isSelected = activeStepIndex === idx;
-            return (
-              <button
-                key={step.id}
-                onClick={() => setActiveStepIndex(idx)}
-                className="group text-left relative flex flex-col justify-start focus:outline-none transition-all duration-300"
-              >
-                {/* Top divider line */}
-                <div
-                  className={`w-full transition-all duration-300 mb-6 ${
-                    isSelected
-                      ? 'h-[2px] bg-[#1a1a1a]'
-                      : 'h-[1px] bg-stone-200/80 group-hover:bg-stone-400 group-hover:h-[2px]'
-                  }`}
-                />
-
-                {/* Step Number */}
-                <span
-                  className={`font-serif text-xl sm:text-2xl mb-4 transition-colors ${
-                    isSelected ? 'text-[#1a1a1a] font-bold' : 'text-stone-300 font-normal group-hover:text-stone-500'
-                  }`}
-                >
-                  {step.id}
-                </span>
-
-                {/* Minimalist Icon */}
-                <div
-                  className={`mb-4 transition-colors ${
-                    isSelected ? 'text-[#1a1a1a]' : 'text-stone-500 group-hover:text-[#1a1a1a]'
-                  }`}
-                >
-                  {getStepIcon(step.id)}
-                </div>
-
-                {/* Step Title (Serif/Clean monograph style) */}
-                <h3
-                  className={`text-base sm:text-lg font-serif font-bold tracking-tight mb-2 transition-colors ${
-                    isSelected ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/80 group-hover:text-[#1a1a1a]'
-                  }`}
-                >
-                  {step.title.split('(')[0].trim()}
-                </h3>
-
-                {/* Summary Text (Neat sans-serif font) */}
-                <p className="text-xs sm:text-sm text-stone-600 font-sans font-normal leading-relaxed line-clamp-3">
-                  {step.summary}
-                </p>
-              </button>
-            );
-          })}
+      <section className="mx-auto max-w-7xl px-6 pb-12 md:px-12">
+        <div className="mb-10 max-w-3xl text-base leading-relaxed text-stone-600">
+          <p>{lang === 'vi' ? 'Từ định hướng kiến trúc, tổ chức không gian đến thiết kế nội thất và hồ sơ kỹ thuật. Phạm vi công việc, sản phẩm bàn giao và tiến độ sẽ được thống nhất theo nhu cầu của từng dự án.' : 'From architectural direction and spatial planning to interiors and technical documentation. Scope, deliverables and schedule are agreed around the needs of each project.'}</p>
         </div>
-      </section>
-
-      {/* Detailed Content Panel with Staggered Entrance Animations (Hiệu ứng xuất hiện từng chi tiết) */}
-      <section className="px-6 md:px-12 max-w-7xl mx-auto mb-28">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep.id}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="py-8 border-t border-stone-200/80"
-          >
-            {/* Top Info: Step Number & Title & Duration */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 pb-10 border-b border-stone-200/60 mb-12"
-            >
-              <div>
-                <span className="text-xs font-mono uppercase tracking-[0.2em] text-stone-400 block mb-2">
-                  Giai đoạn {currentStep.id} / 0{steps.length}
-                </span>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-[#1a1a1a]">
-                  {currentStep.title}
-                </h2>
-              </div>
-              <div className="flex items-baseline gap-2 md:text-right">
-                <span className="text-xs font-mono uppercase tracking-wider text-stone-400">
-                  {t.servicesPage.duration}:
-                </span>
-                <span className="text-base sm:text-lg font-sans font-bold text-[#1a1a1a]">
-                  {currentStep.duration}
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Staggered Content Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start mb-16">
-              {currentStep.details.map((detail, dIdx) => (
-                <motion.div key={dIdx} variants={itemVariants} className="space-y-2">
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-400">
-                    {detail.label} —
-                  </h4>
-                  <p className="text-stone-700 font-sans font-normal text-base sm:text-lg leading-relaxed">
-                    {detail.text}
-                  </p>
-                </motion.div>
-              ))}
+        <div className="lg:hidden">
+          {steps.map((step, idx) => <div key={step.id} className="border-t border-stone-300">
+            <button id={`step-trigger-${step.id}`} type="button" aria-expanded={activeStepIndex === idx}
+              aria-controls={`step-panel-${step.id}`} onClick={() => {
+                setActiveStepIndex(idx);
+                requestAnimationFrame(() => document.getElementById(`step-trigger-${step.id}`)?.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' }));
+              }}
+              className="flex w-full scroll-mt-24 items-center gap-4 py-5 text-left focus-visible:outline-2 focus-visible:outline-amber-700">
+              <span className="text-sm text-stone-500">{step.id}</span>
+              <span className="flex-1 font-serif text-lg">{step.title}</span><span aria-hidden="true">{activeStepIndex === idx ? '−' : '+'}</span>
+            </button>
+            <div id={`step-panel-${step.id}`} role="region" aria-labelledby={`step-trigger-${step.id}`} hidden={activeStepIndex !== idx}>
+              {activeStepIndex === idx && renderDetails(step)}
             </div>
-
-            {/* Staggered Deliverable Section (Sản phẩm bàn giao - tối giản không viền hộp) */}
-            <motion.div
-              variants={itemVariants}
-              className="pt-8 border-t border-stone-200/60 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4"
-            >
-              <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-stone-400 shrink-0">
-                {t.servicesPage.deliverable} —
-              </span>
-              <p className="text-base sm:text-xl font-sans font-bold text-[#1a1a1a] sm:text-right max-w-3xl leading-relaxed">
-                {currentStep.deliverable}
-              </p>
-            </motion.div>
-
-            {/* Step Navigation Footer inside Panel */}
-            <motion.div
-              variants={itemVariants}
-              className="mt-16 pt-8 border-t border-stone-200/60 flex items-center justify-between text-xs sm:text-sm font-sans font-medium text-stone-400"
-            >
-              <button
-                onClick={() =>
-                  setActiveStepIndex((prev) => (prev > 0 ? prev - 1 : steps.length - 1))
-                }
-                className="hover:text-[#1a1a1a] transition-colors flex items-center gap-2 py-2 group"
-              >
-                <span className="transition-transform group-hover:-translate-x-1">←</span>
-                <span>Giai đoạn trước</span>
-              </button>
-              <span className="text-stone-300 font-mono text-xs hidden sm:inline">
-                Dùng phím mũi tên ⬅ ➡ để di chuyển
-              </span>
-              <button
-                onClick={() =>
-                  setActiveStepIndex((prev) => (prev < steps.length - 1 ? prev + 1 : 0))
-                }
-                className="hover:text-[#1a1a1a] transition-colors flex items-center gap-2 py-2 group"
-              >
-                <span>Giai đoạn tiếp theo</span>
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </button>
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
+          </div>)}
+        </div>
+        <div className="hidden lg:block">
+          <div className="grid grid-cols-6 gap-8" aria-label={t.servicesPage.title}>
+            {steps.map((step, idx) => <button type="button" key={step.id} aria-pressed={activeStepIndex === idx}
+              aria-controls="desktop-step-detail" onClick={() => setActiveStepIndex(idx)}
+              onKeyDown={event => {
+                if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+                event.preventDefault();
+                const next = (idx + (event.key === 'ArrowRight' ? 1 : -1) + steps.length) % steps.length;
+                setActiveStepIndex(next);
+                (event.currentTarget.parentElement?.children[next] as HTMLElement)?.focus();
+              }} className="group relative flex flex-col items-start border-t border-stone-200 py-5 text-left focus-visible:outline-2 focus-visible:outline-amber-700">
+              <motion.span aria-hidden="true" className="absolute -top-px left-0 h-px w-full origin-left bg-stone-900" initial={false} animate={{ scaleX: activeStepIndex === idx ? 1 : 0 }} transition={{ duration: reducedMotion ? 0 : .35 }} />
+              <span className="mb-4 font-serif text-xl">{step.id}</span>
+              <span className="mb-4">{getStepIcon(step.id)}</span>
+              <span className="mb-3 font-serif text-lg font-semibold">{step.title.split('(')[0]}</span>
+              <span className="text-sm leading-relaxed text-stone-600">{step.summary}</span>
+            </button>)}
+          </div>
+          <div id="desktop-step-detail" className="mt-10 border-t border-stone-200" aria-live="polite">{renderDetails(currentStep)}</div>
+        </div>
       </section>
 
       {/* Minimalist Philosophy Statement (Font chữ ngay ngắn, tối giản) */}
       <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-stone-200/60 text-center">
         <h3 className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-stone-400 mb-6">
-          Triết Lý Đồng Hành
+          {lang === 'vi' ? 'Triết lý đồng hành' : 'Our approach'}
         </h3>
         <p className="text-xl sm:text-2xl font-sans font-normal text-[#1a1a1a] leading-relaxed max-w-3xl mx-auto">
-          &ldquo;Quy trình thiết kế không chỉ là những bản vẽ kỹ thuật, mà là hành trình thấu hiểu và kiến tạo không gian sống bền vững, thích ứng với tự nhiên và tôn trọng bản sắc của gia chủ.&rdquo;
+          {lang === 'vi' ? 'Quy trình thiết kế là hành trình thấu hiểu và kiến tạo không gian sống bền vững, thích ứng với tự nhiên và tôn trọng bản sắc của gia chủ.' : 'Design begins with understanding people: creating lasting spaces that respond to nature and reflect the identity of those who live in them.'}
         </p>
       </section>
 

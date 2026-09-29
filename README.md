@@ -81,9 +81,9 @@ Giữ scope Development, Preview và Production tách biệt. Muốn kiểm th�
 
 Sanity có giới hạn chờ 12 giây; request trùng đang chạy được gộp bằng trạng thái loading. Khi lỗi, trang chủ và trang dự án hiện nút thử lại. Kết quả trễ của request timeout không ghi đè kết quả mới.
 
-Không gian 3D desktop dùng nền tường và kệ trắng trơn, không tải texture trang trí cho chúng. Khi mở một dự án trên desktop (từ không gian 3D hoặc danh sách), giao diện hai cột hiển thị nội dung ở trái và mô hình/ảnh ở phải. Mô hình GLB có thể kéo để xoay và cuộn để phóng to; nút trước/sau chuyển giữa mô hình và ảnh. Trên mobile, giao diện dự án hiện tại có thêm nút mở mô hình 3D bằng thao tác chạm. Mô hình chỉ tải khi người xem mở nó; các dự án chưa có `modelFile` trong Sanity vẫn hiển thị ảnh và sẽ tự có mô hình khi file được bổ sung, không cần deploy lại.
+Không gian 3D desktop dùng ảnh tường nắng và texture gỗ; mobile dùng ảnh nền cùng nguồn với kích thước phù hợp. Khi mở một dự án trên desktop (từ không gian 3D hoặc danh sách), giao diện hai cột hiển thị nội dung ở trái và mô hình/ảnh ở phải. Mô hình GLB có thể kéo để xoay và cuộn để phóng to; nút trước/sau chuyển giữa mô hình và ảnh. Trên mobile, giao diện dự án hiện tại có thêm nút mở mô hình 3D bằng thao tác chạm. Mô hình chỉ tải khi người xem mở nó; các dự án chưa có `modelFile` trong Sanity vẫn hiển thị ảnh và sẽ tự có mô hình khi file được bổ sung, không cần deploy lại.
 
-Trang chủ không có màn hình loading toàn trang: phần giới thiệu và điều hướng hiển thị ngay, độc lập với dữ liệu CMS và canvas. Mỗi mô hình đang tải có biểu tượng xoay tại vị trí của nó; mô hình tải xong xuất hiện riêng. Sau 20 giây chờ, mô hình vẫn tiếp tục tải và có liên kết sang danh sách dự án 2D. Lỗi từng mô hình không làm mất cả cảnh; lỗi CMS/WebGL hiện thông báo nhỏ và giữ menu/liên hệ hoạt động. Mobile vẫn không tải runtime 3D trên trang chủ. Giai đoạn 2 đã tách 3D/PDF khỏi entry và PWA precache; texture 3D vẫn cần tối ưu và đo trên thiết bị thật.
+Trang chủ không có màn hình loading toàn trang: phần giới thiệu và điều hướng hiển thị ngay, độc lập với dữ liệu CMS và canvas. Mỗi mô hình đang tải có biểu tượng xoay tại vị trí của nó; mô hình tải xong xuất hiện riêng. Sau 20 giây chờ, mô hình vẫn tiếp tục tải và có liên kết sang danh sách dự án 2D. Lỗi từng mô hình không làm mất cả cảnh; lỗi CMS/WebGL hiện thông báo nhỏ và giữ menu/liên hệ hoạt động. Mobile vẫn không tải runtime 3D trên trang chủ. Giai đoạn 2 đã tách 3D/PDF khỏi entry và PWA precache; texture gỗ/nền mobile đã có bản tối ưu; vẫn cần đo trên thiết bị thật.
 
 ## Stripe và phạm vi giai đoạn 1
 
@@ -105,3 +105,5 @@ Tham khảo: [Stripe API versioning](https://docs.stripe.com/api/versioning), [R
 4. Khi được phép gửi test, gửi tới hộp thư test đã chọn và xác minh cả trạng thái gửi lẫn email nhận.
 5. Kiểm thử Stripe test mode cho API version đã đổi; các lỗ hổng thương mại còn lại phải được xử lý trước khi mở bán.
 6. Chỉ promote/deploy production sau khi bản Preview được nghiệm thu.
+
+Chi tiết bản cải thiện ngày 29/09/2026: [PORTFOLIO_POLISH.md](PORTFOLIO_POLISH.md).

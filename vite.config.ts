@@ -12,7 +12,9 @@ export default defineConfig({
     },
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Apply updates on the next visit instead of reloading an unfinished form.
+      registerType: 'prompt',
+      injectRegister: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,svg}'],
         globIgnores: [
@@ -23,12 +25,13 @@ export default defineConfig({
           '**/assets/TextLayer-*',
           '**/assets/SkeletonUtils-*.js',
           '**/assets/ProjectModelCanvas-*.js',
-          '**/assets/MobilePdfViewer-*',
+          '**/assets/PdfPageMedia-*',
           '**/assets/ProjectsPage-*.js',
         ],
+        navigateFallbackDenylist: [/^\/api\//, /^\/projects\//],
         runtimeCaching: [
           {
-            urlPattern: /\/(?:assets\/(?:DesktopCanvas|TextLayer|SkeletonUtils|ProjectModelCanvas|MobilePdfViewer|ProjectsPage)-[^/]+\.(?:js|css)|magazine\.glb|pdf\.worker\.min\.mjs)$/,
+            urlPattern: /\/(?:assets\/(?:DesktopCanvas|TextLayer|SkeletonUtils|ProjectModelCanvas|PdfPageMedia|ProjectsPage)-[^/]+\.(?:js|css)|magazine\.glb|pdf\.worker\.min\.mjs)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'optional-assets-cache',
@@ -51,7 +54,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/[a-zA-Z0-9.-]+\.sanity\.io\/v\d+\/data\/query\/.*/i,
+            urlPattern: /^https:\/\/[a-zA-Z0-9.-]+\.sanity\.io\/v[\d-]+\/data\/query\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'sanity-api-cache',
