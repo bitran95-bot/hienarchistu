@@ -15,7 +15,7 @@ export function AboutSection() {
           {text1}
         </p>
         <span id="about-divider" aria-hidden="true" className="mx-auto mb-4 md:mb-6 block h-px w-20 origin-center scale-x-0 bg-amber-800/70" />
-        <p id="about-text-2" className="about-copy mx-auto max-w-3xl text-base md:text-xl font-handwriting-guides text-[#555555] leading-loose drop-shadow-sm md:drop-shadow-none" style={{ opacity: 0 }}>
+        <p id="about-text-2" className="about-copy mx-auto max-w-3xl text-base md:text-lg font-body font-normal text-[#555555] leading-relaxed drop-shadow-sm md:drop-shadow-none" style={{ opacity: 0 }}>
           {text2}
         </p>
       </div>
