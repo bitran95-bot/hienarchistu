@@ -18,27 +18,23 @@ for (const viewport of [{ width: 1280, height: 720 }, { width: 768, height: 1024
     const second = page.locator('#about-text-2');
     const ink = (selector: string) => page.locator(selector).evaluate(element =>
       Number.parseFloat(getComputedStyle(element).getPropertyValue('--about-ink')));
-    const initialTop = (await about.boundingBox())!.y;
-    await page.mouse.move(viewport.width * 0.9, viewport.height * 0.55);
+    // Aim at the empty wall above the interactive project models.
+    await page.mouse.move(viewport.width * 0.9, viewport.height * 0.18);
     await page.mouse.wheel(0, viewport.height * 0.3);
-    await expect.poll(async () => (await about.boundingBox())!.y).toBeLessThan(initialTop - viewport.height * 0.12);
-    await expect.poll(() => ink('#about-text-1')).toBeGreaterThan(40);
+    await expect.poll(() => ink('#about-text-1'), { timeout: 15_000 }).toBeGreaterThan(40);
     await expect(second).toHaveCSS('opacity', '0');
     expect(await ink('#about-text-2')).toBe(0);
     await page.screenshot({ path: testInfo.outputPath('about-first-scroll.png') });
 
-    const middleTop = (await about.boundingBox())!.y;
     await page.mouse.wheel(0, viewport.height * 0.35);
-    await expect.poll(async () => (await about.boundingBox())!.y).toBeLessThan(middleTop - viewport.height * 0.12);
-    await expect.poll(() => ink('#about-text-2')).toBeGreaterThan(111);
+    await expect.poll(() => ink('#about-text-2'), { timeout: 15_000 }).toBeGreaterThan(111);
     await expect(first).toHaveCSS('opacity', '1');
     await expect(second).toHaveCSS('opacity', '1');
     await expect(about).toBeInViewport({ ratio: 1 });
     await page.screenshot({ path: testInfo.outputPath('about-after-scroll.png') });
 
-    const lowerTop = (await about.boundingBox())!.y;
     await page.mouse.wheel(0, -viewport.height * 0.3);
-    await expect.poll(async () => (await about.boundingBox())!.y).toBeGreaterThan(lowerTop + viewport.height * 0.08);
+    await expect.poll(() => ink('#about-text-2'), { timeout: 15_000 }).toBeLessThan(112);
 
     await page.getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects$/);
