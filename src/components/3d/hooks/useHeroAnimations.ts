@@ -24,7 +24,7 @@ export function useHeroAnimations() {
     const target = THREE.MathUtils.clamp(
       scroll.el.scrollTop / Math.max(1, scroll.el.scrollHeight - scroll.el.clientHeight), 0, 1,
     );
-    const s = reducedMotion ? target : THREE.MathUtils.damp(easedOffset.current, target, 7, Math.min(delta, 0.05));
+    const s = reducedMotion ? target : THREE.MathUtils.damp(easedOffset.current, target, 7, delta);
     easedOffset.current = s;
     const last = previous.current;
     if (Math.abs(last.offset - s) < .00001 && last.width === state.size.width && last.height === state.size.height && last.reduced === reducedMotion && aboutText1Ref.current && aboutText2Ref.current) return;
