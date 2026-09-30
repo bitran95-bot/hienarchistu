@@ -23,6 +23,8 @@ import { useCameraController } from './3d/hooks/useCameraController';
 import { useHeroAnimations } from './3d/hooks/useHeroAnimations';
 import { useLocation } from 'react-router-dom';
 
+const ABOUT_SCROLL_TARGET = 0.66;
+
 // --- Toàn bộ nội dung 3D được điều khiển bởi Scroll ---
 function SceneContents() {
   const reducedMotion = useReducedMotion();
@@ -55,7 +57,7 @@ function SceneContents() {
       scroll.el.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const handleScrollAbout = () => {
-      scroll.el.scrollTo({ top: window.innerHeight * 0.4, behavior: 'smooth' });
+      scroll.el.scrollTo({ top: window.innerHeight * ABOUT_SCROLL_TARGET, behavior: 'smooth' });
     };
     const handleScrollProjects = () => {
       scroll.el.scrollTo({ top: window.innerHeight * 1.5, behavior: 'smooth' });
@@ -75,7 +77,7 @@ function SceneContents() {
   useEffect(() => {
     if (hash !== '#about') return;
     const frame = requestAnimationFrame(() => {
-      scroll.el.scrollTo({ top: window.innerHeight * 0.4, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      scroll.el.scrollTo({ top: window.innerHeight * ABOUT_SCROLL_TARGET, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
     return () => cancelAnimationFrame(frame);
   }, [hash, scroll]);

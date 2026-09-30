@@ -94,6 +94,13 @@ body.dark-mode #about-section p {
   color: #ffffff !important;
 }
 
+/* A soft vertical ink edge reveals complete lines without cutting their ends. */
+.about-copy {
+  --about-ink: 0%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--about-ink) - 12%), transparent var(--about-ink));
+  mask-image: linear-gradient(to bottom, #000 calc(var(--about-ink) - 12%), transparent var(--about-ink));
+}
+
 /* Contrast improvements */
 .text-\[\#888888\] {
   color: #555555; /* Darker grey for better contrast on light backgrounds (WCAG AA) */
